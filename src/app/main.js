@@ -53,6 +53,8 @@ function startChamber(nextChamber = chamber) {
   save.currentChamberId = chamber.id
   persist()
   screen = 'game'
+  audio.updateListener(player)
+  audio.chamber(chamber, plantedSeeds)
   log(`${chamber.title}. ${chamber.objective}`)
 }
 
@@ -76,11 +78,13 @@ function continueGame() {
 
 function movement(dx, dy) {
   player = movePlayer(player, dx, dy)
+  audio.updateListener(player)
   log(`Moved to ${player.x}, ${player.y}. Facing ${player.facing} degrees.`)
 }
 
 function rotate(degrees) {
   player = rotatePlayer(player, degrees)
+  audio.updateListener(player)
   log(`Rotated to ${player.facing} degrees.`)
 }
 
@@ -127,7 +131,7 @@ function graft() {
 
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
-  if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard()
+  if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard(chamber, plantedSeeds.at(-1))
   if (!lastResult.solved) {
     log(`Resonance ${Math.round(lastResult.score * 100)} percent. ${lastResult.missing[0] ?? 'Keep listening.'}`)
     return
@@ -137,7 +141,7 @@ function evaluate() {
   log(`${chamber.title} solved. The garden blooms.`, 'success')
   persist()
   if (chamber.ending) {
-    audio.ending()
+    audio.ending(chambers, inventory)
     screen = 'ending'
   }
 }

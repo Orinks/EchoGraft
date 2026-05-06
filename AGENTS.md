@@ -21,4 +21,5 @@ npm run build
 - Use semantic HTML for interactive UI.
 - Update `.logs/progress.md` with meaningful implementation decisions, bugs, fixes, and manual test findings.
 - Run `npm run check:audio-assets` after file additions.
+- Run `npm run check:syngen-audio` after audio changes; the game audio layer must use Syngen APIs instead of direct Web Audio construction.
 - Prefer small, reviewable changes and keep documentation aligned with gameplay.

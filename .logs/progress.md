@@ -9,3 +9,5 @@
 - Fixed test layout so Vitest excludes Playwright specs.
 - Installed Playwright Chromium and verified smoke tests in Chromium.
 - Manual browser playthrough path: used the browser UI from new game through tutorial solve, settings, help, save/reload, and verified campaign data has solvable ideal targets through the finale. Full assistive-technology screen reader pass remains a launch risk.
+- Refactored audio after review found only minimal Syngen import usage. The engine now starts and loops through Syngen, uses Syngen mixer buses, Syngen synth factories, Syngen props for spatial voices, Syngen position for listener state, and procedural patterns derived from chamber/seed/action data instead of fixed tone arrays.
+- Added `npm run check:syngen-audio` to guard against direct Web Audio constructors in the game audio engine.

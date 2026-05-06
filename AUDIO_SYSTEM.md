@@ -1,14 +1,14 @@
 # EchoGraft Audio System
 
-All sound is synthesized at runtime with Syngen/Web Audio primitives. The project must not contain or load MP3, WAV, OGG, FLAC, or other sample assets.
+All sound is synthesized at runtime through Syngen APIs, which internally route to Web Audio. EchoGraft code should not create its own `AudioContext`, oscillators, panners, or destination graph directly. The project must not contain or load MP3, WAV, OGG, FLAC, or other sample assets.
 
 ## Mapping
-- Chamber heart: steady oscillator pair tuned to the chamber target ratio, brightness, pulse, and phase.
-- Seed voice: oscillator chosen by DNA waveform and oscillator type, filtered by brightness, modulated by FM/AM values, pulsed by DNA rhythm.
-- Scan pulse: short chirp whose pitch, pan, and decay communicate nearby objects and current objective.
-- UI: short synthesized blips with different envelopes for confirm, cancel, error, and success.
-- Hazard mold: detuned noise/oscillator tone that reports forbidden intervals and grows louder when planted seeds conflict.
-- Bloom and ending: layered procedural arpeggios generated from solved chamber DNA.
+- Chamber heart: Syngen additive/AM synth voices derived from chamber target ratio, brightness, pulse, and phase.
+- Seed voice: Syngen synth chosen by DNA oscillator type, filtered by brightness, modulated by FM/AM/noise values, pulsed by DNA rhythm, and positioned with Syngen props.
+- Scan pulse: Syngen spatial prop whose pitch, binaural position, and decay communicate nearby objects and current objective.
+- UI: semantic Syngen synth cues derived from action names, not imported clips.
+- Hazard mold: Syngen FM/noise-tinted synth tone derived from chamber hazard intervals.
+- Bloom and ending: layered procedural Syngen voices generated from solved chamber targets and seed inventory DNA.
 
 ## Designer Notes
-The audio engine keeps synthesis mappings in `src/engine/audio.js`. Future designers should tune numeric DNA ranges and chamber constraints instead of adding external audio files.
+The audio engine keeps synthesis mappings in `src/engine/audio.js`. Future designers should tune numeric DNA ranges and chamber constraints instead of adding external audio files or direct Web Audio nodes.
