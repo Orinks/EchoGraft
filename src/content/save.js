@@ -10,6 +10,7 @@ export function createDefaultSave() {
     settings: {
       master: 0.8,
       ambience: 0.55,
+      music: 0.6,
       ui: 0.7,
       seeds: 0.75,
       hazards: 0.65,

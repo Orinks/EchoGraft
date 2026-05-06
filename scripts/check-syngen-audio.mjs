@@ -20,6 +20,12 @@ const required = [
   'syngen.props.create',
   'syngen.position.setVector',
   'syngen.loop.start',
+  'syngen.loop.on',
+  'setMusicScene',
+  'tickMusic',
+  'createMenuMusicPhrase',
+  'createChamberMusicPhrase',
+  'createEndingMusicPhrase',
 ]
 
 const violations = forbidden.filter((needle) => source.includes(needle))

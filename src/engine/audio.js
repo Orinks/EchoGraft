@@ -4,6 +4,7 @@ import { syngen } from './syngen.js'
 const categoryDefaults = {
   master: 0.8,
   ambience: 0.55,
+  music: 0.6,
   ui: 0.7,
   seeds: 0.75,
   hazards: 0.65,
@@ -13,6 +14,7 @@ const categoryDefaults = {
 const categoryBus = {
   ambience: 'ambience',
   hazard: 'hazards',
+  music: 'music',
   scan: 'scans',
   seed: 'seeds',
   ui: 'ui',
@@ -164,6 +166,18 @@ export class AudioEngine {
     this.syngen = syngen
     this.buses = {}
     this.spatialVoice = createSpatialVoicePrototype()
+    this.music = {
+      chamber: null,
+      enabled: true,
+      generation: 0,
+      inventory: [],
+      mode: 'menu',
+      nextBeat: 0,
+      plantedSeeds: [],
+      resonance: null,
+      step: 0,
+    }
+    this.musicFrameHandler = null
   }
 
   async start() {
@@ -171,8 +185,15 @@ export class AudioEngine {
     if (!syngen.loop.isRunning()) syngen.loop.start()
     this.createBuses()
     this.applySettings()
+    this.startMusicLoop()
     this.enabled = true
     return true
+  }
+
+  startMusicLoop() {
+    if (this.musicFrameHandler) return
+    this.musicFrameHandler = () => this.tickMusic()
+    syngen.loop.on('frame', this.musicFrameHandler)
   }
 
   createBuses() {
@@ -199,6 +220,17 @@ export class AudioEngine {
   bus(category) {
     this.createBuses()
     return this.buses[categoryBus[category] ?? category] ?? this.buses.ui
+  }
+
+  setMusicScene(mode, options = {}) {
+    this.music = {
+      ...this.music,
+      ...options,
+      generation: this.music.generation + 1,
+      mode,
+      nextBeat: 0,
+      step: 0,
+    }
   }
 
   updateListener(player) {
@@ -229,6 +261,175 @@ export class AudioEngine {
       z: 0,
     })
     setTimeout(() => syngen.props.destroy(prop), (duration + 0.1) * 1000)
+  }
+
+  tickMusic() {
+    if (!this.enabled || !this.music.enabled) return
+    const now = syngen.audio.time()
+    if (this.music.nextBeat && now < this.music.nextBeat) return
+
+    const phrase = this.createMusicPhrase()
+    const beatDuration = 60 / phrase.tempo
+    const step = this.music.step
+    const ratio = phrase.ratios[step % phrase.ratios.length]
+    const pulse = phrase.pulses[step % phrase.pulses.length]
+    const brightness = phrase.brightness[step % phrase.brightness.length]
+    const harmonic = phrase.harmonics.map((coefficient, index) => ({
+      coefficient,
+      gain: index === 0 ? 1 : 0.2 + brightness * 0.25,
+      type: phrase.waveforms[(step + index) % phrase.waveforms.length],
+    }))
+
+    this.voice({
+      category: 'music',
+      duration: beatDuration * phrase.sustain,
+      gain: phrase.gain,
+      position: phrase.position,
+      tone: {
+        brightness,
+        detune: phaseToDetune(phrase.phase + step * phrase.phaseMotion),
+        frequency: ratioToFrequency(ratio, phrase.rootMidi + (step % phrase.octaveSpan) * 3),
+        harmonic,
+        mode: phrase.mode,
+        pulseRate: pulse,
+        type: phrase.waveforms[step % phrase.waveforms.length],
+      },
+    })
+
+    if (phrase.counterline && step % phrase.counterline.every === 0) {
+      this.voice({
+        category: 'music',
+        duration: beatDuration * phrase.counterline.sustain,
+        gain: phrase.counterline.gain,
+        position: phrase.counterline.position,
+        tone: {
+          brightness: phrase.counterline.brightness,
+          frequency: ratioToFrequency(phrase.counterline.ratio, phrase.rootMidi - 12),
+          harmonic: [{ coefficient: 1, gain: 1, type: phrase.counterline.type }],
+          mode: 'additive',
+          pulseRate: phrase.counterline.pulseRate,
+          type: phrase.counterline.type,
+        },
+      })
+    }
+
+    this.music.step += 1
+    this.music.nextBeat = now + beatDuration * phrase.spacing
+  }
+
+  createMusicPhrase() {
+    if (this.music.mode === 'game') return this.createChamberMusicPhrase()
+    if (this.music.mode === 'ending') return this.createEndingMusicPhrase()
+    return this.createMenuMusicPhrase()
+  }
+
+  createMenuMusicPhrase() {
+    const rng = createRng('menu-music-verdancy-ark')
+    const ratios = Array.from({ length: 5 }, (_, index) => semanticRatio(`menu-${index}`))
+    return {
+      brightness: ratios.map((_, index) => 0.35 + rng() * 0.3 + index * 0.02),
+      counterline: {
+        brightness: 0.28,
+        every: 4,
+        gain: dbGain(-25),
+        position: { x: -2, y: 1 },
+        pulseRate: 0.5 + rng(),
+        ratio: ratios[0] / 2,
+        sustain: 2.8,
+        type: 'sine',
+      },
+      gain: dbGain(-24),
+      harmonics: [1, ratios[1], 2],
+      mode: 'additive',
+      octaveSpan: 2,
+      phase: 0,
+      phaseMotion: 8,
+      position: { x: 0, y: 2 },
+      pulses: [0.75, 1, 1.25, 1.5],
+      ratios,
+      rootMidi: 45,
+      spacing: 1,
+      sustain: 1.8,
+      tempo: 54,
+      waveforms: ['sine', 'triangle'],
+    }
+  }
+
+  createChamberMusicPhrase() {
+    const chamber = this.music.chamber ?? { id: 'default', target: { brightness: 0.5, phase: 0, pitchRatio: 1, pulseRate: 1, x: 0, y: 0 } }
+    const target = chamber.target
+    const planted = this.music.plantedSeeds ?? []
+    const score = this.music.resonance?.score ?? 0
+    const seedRatios = planted.length ? planted.map((seed) => seed.pitchRatio) : [target.pitchRatio]
+    const seedPulses = planted.length ? planted.map((seed) => seed.pulseRate) : [target.pulseRate]
+    const rng = createRng(`music-${chamber.id}`)
+    const tension = 1 - score
+    const hazard = chamber.hazards?.length ? 0.2 : 0
+
+    return {
+      brightness: [
+        clamp(target.brightness * 0.8 + score * 0.2),
+        clamp(target.brightness + hazard),
+        clamp((planted[0]?.brightness ?? target.brightness) * 0.9),
+      ],
+      counterline: {
+        brightness: clamp(target.brightness * 0.6),
+        every: chamber.requiresGraft ? 3 : 4,
+        gain: dbGain(-27 + score * 4),
+        position: { x: -target.x || -1, y: target.y || 1 },
+        pulseRate: Math.max(0.5, target.pulseRate / 2),
+        ratio: Math.max(0.5, target.pitchRatio / 2),
+        sustain: 2,
+        type: chamber.hazards?.length ? 'sawtooth' : 'sine',
+      },
+      gain: dbGain(-27 + score * 7),
+      harmonics: [1, target.pitchRatio, chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
+      mode: chamber.hazards?.length ? 'fm' : planted.length ? 'additive' : 'am',
+      octaveSpan: chamber.ending ? 5 : 3,
+      phase: target.phase,
+      phaseMotion: chamber.id === 'phase' ? 24 : 6 + tension * 12,
+      position: target,
+      pulses: [target.pulseRate, ...seedPulses].map((pulse) => Math.max(0.4, pulse)),
+      ratios: [target.pitchRatio, ...seedRatios, target.pitchRatio * (chamber.harmonic ? 1.5 : 1.25)],
+      rootMidi: 38 + Math.round(target.brightness * 12),
+      spacing: clamp(1.2 - score * 0.45, 0.55, 1.3),
+      sustain: chamber.hazards?.length ? 0.8 : 1.45 + score,
+      tempo: 44 + target.pulseRate * 14 + score * 10,
+      waveforms: planted.length ? planted.map((seed) => seed.waveform) : ['sine', 'triangle'],
+    }
+  }
+
+  createEndingMusicPhrase() {
+    const inventory = this.music.inventory ?? []
+    const ratios = inventory.length ? inventory.map((seed) => seed.pitchRatio) : [1, 1.25, 1.5, 2]
+    const brightness = inventory.length ? inventory.map((seed) => seed.brightness) : [0.45, 0.6, 0.75]
+    return {
+      brightness,
+      counterline: {
+        brightness: 0.8,
+        every: 2,
+        gain: dbGain(-20),
+        position: { x: 0, y: -3 },
+        pulseRate: 1.5,
+        ratio: ratios[0],
+        sustain: 2.5,
+        type: 'triangle',
+      },
+      gain: dbGain(-21),
+      harmonics: [1, 1.5, 2, 3],
+      mode: 'additive',
+      octaveSpan: 5,
+      phase: 90,
+      phaseMotion: 18,
+      position: { x: 0, y: 0 },
+      pulses: [1, 1.5, 2, 2.5],
+      ratios: [...ratios, 2, 1.5],
+      rootMidi: 43,
+      spacing: 0.7,
+      sustain: 2.4,
+      tempo: 72,
+      waveforms: ['sine', 'triangle', 'sawtooth'],
+    }
   }
 
   ui(kind = 'confirm') {
@@ -327,6 +528,7 @@ export class AudioEngine {
   }
 
   chamber(chamber, plantedSeeds = []) {
+    this.setMusicScene('game', { chamber, plantedSeeds })
     const ecology = plantedSeeds.length ? plantedSeeds : [{ ...chamber.target, waveform: 'sine', oscillatorType: 'am', fmAmount: 0.1, amAmount: 0.2, noiseAmount: 0.05 }]
     ecology.forEach((seed, index) => {
       const ratio = seed.pitchRatio ?? chamber.target.pitchRatio
@@ -357,6 +559,7 @@ export class AudioEngine {
   }
 
   ending(chambers = [], inventory = []) {
+    this.setMusicScene('ending', { inventory })
     const solvedTargets = chambers.map((item) => item.target)
     const voices = [...solvedTargets, ...inventory].filter(Boolean)
     voices.forEach((voice, index) => {

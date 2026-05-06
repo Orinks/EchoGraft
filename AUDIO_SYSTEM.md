@@ -9,6 +9,7 @@ All sound is synthesized at runtime through Syngen APIs, which internally route 
 - UI: semantic Syngen synth cues derived from action names, not imported clips.
 - Hazard mold: Syngen FM/noise-tinted synth tone derived from chamber hazard intervals.
 - Bloom and ending: layered procedural Syngen voices generated from solved chamber targets and seed inventory DNA.
+- Dynamic music: a Syngen loop-driven music director keeps music active in menus, chamber play, pause/help/settings, and the ending. Menu music is generated from semantic menu seeds. Chamber music is generated from chamber targets, planted seed DNA, hazards, and current resonance score. Ending music is generated from campaign chamber targets and final inventory DNA.
 
 ## Designer Notes
 The audio engine keeps synthesis mappings in `src/engine/audio.js`. Future designers should tune numeric DNA ranges and chamber constraints instead of adding external audio files or direct Web Audio nodes.

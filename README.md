@@ -22,6 +22,7 @@ All audio is generated procedurally at runtime with Syngen/Web Audio. The projec
 - Playable with no vision through spatial audio, screen-reader text, and the caption/event log.
 - Semantic HTML menus, buttons, status, settings, inventory, and log regions.
 - Independent volume sliders for master, ambience, UI, seed voices, hazards, and scans.
+- Dynamic Syngen-generated music for menus, chamber play, pause/help/settings, and the ending.
 - Reduced-motion and minimal-visual modes.
 - No mandatory reflex timing in the campaign.
 

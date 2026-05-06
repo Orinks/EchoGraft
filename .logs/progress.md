@@ -11,3 +11,4 @@
 - Manual browser playthrough path: used the browser UI from new game through tutorial solve, settings, help, save/reload, and verified campaign data has solvable ideal targets through the finale. Full assistive-technology screen reader pass remains a launch risk.
 - Refactored audio after review found only minimal Syngen import usage. The engine now starts and loops through Syngen, uses Syngen mixer buses, Syngen synth factories, Syngen props for spatial voices, Syngen position for listener state, and procedural patterns derived from chamber/seed/action data instead of fixed tone arrays.
 - Added `npm run check:syngen-audio` to guard against direct Web Audio constructors in the game audio engine.
+- Added a continuous Syngen music director driven by `syngen.loop`. It generates menu music, chamber music, pause/help/settings music, and ending music from semantic seeds, chamber targets, planted seed DNA, hazards, resonance score, and inventory state.

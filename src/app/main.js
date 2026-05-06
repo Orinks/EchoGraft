@@ -131,6 +131,7 @@ function graft() {
 
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
+  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
   if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard(chamber, plantedSeeds.at(-1))
   if (!lastResult.solved) {
     log(`Resonance ${Math.round(lastResult.score * 100)} percent. ${lastResult.missing[0] ?? 'Keep listening.'}`)
@@ -235,6 +236,7 @@ function shell(content) {
 }
 
 function menu() {
+  audio.setMusicScene('menu')
   shell(`
     <main class="screen menu" aria-labelledby="title">
       <h1 id="title">EchoGraft</h1>
@@ -293,7 +295,8 @@ function game() {
 }
 
 function settings() {
-  const sliders = ['master', 'ambience', 'ui', 'seeds', 'hazards', 'scans']
+  audio.setMusicScene('menu')
+  const sliders = ['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans']
     .map((key) => `<label>${key}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
     .join('')
   shell(`
@@ -310,6 +313,7 @@ function settings() {
 }
 
 function help() {
+  audio.setMusicScene(screen === 'game' ? 'game' : 'menu', { chamber, plantedSeeds, resonance: lastResult })
   shell(`
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
@@ -321,6 +325,7 @@ function help() {
 }
 
 function credits() {
+  audio.setMusicScene('menu')
   shell(`
     <main class="screen" aria-labelledby="credits-title">
       <h1 id="credits-title">Credits</h1>
@@ -331,6 +336,7 @@ function credits() {
 }
 
 function pause() {
+  audio.setMusicScene('menu')
   shell(`
     <main class="screen" aria-labelledby="pause-title">
       <h1 id="pause-title">Paused</h1>
@@ -343,6 +349,7 @@ function pause() {
 }
 
 function ending() {
+  audio.setMusicScene('ending', { inventory })
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
