@@ -182,6 +182,7 @@ export class AudioEngine {
 
   async start() {
     syngen.audio.start()
+    await syngen.audio.context().resume()
     if (!syngen.loop.isRunning()) syngen.loop.start()
     this.createBuses()
     this.applySettings()
@@ -244,10 +245,28 @@ export class AudioEngine {
     gain = dbGain(-12),
     position,
     seed,
+    spatial = Boolean(position),
     tone,
   }) {
     if (!this.enabled) return
     const bus = this.bus(category)
+    if (!spatial) {
+      const synth = createSynthForTone(tone, seed)
+        .filtered({
+          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)),
+          Q: 0.8 + clamp(seed?.fmAmount ?? 0) * 6,
+          type: tone.filterType ?? 'lowpass',
+        })
+      connectVoice(synth, bus)
+      scheduleEnvelope(synth, {
+        attack: seed?.envelope?.attack ?? tone.attack,
+        duration,
+        gain,
+        release: seed?.envelope?.release ?? tone.release,
+      })
+      return
+    }
+
     const x = position?.x ?? 0
     const y = position?.y ?? 0
     const prop = syngen.props.create(this.spatialVoice, {
@@ -285,6 +304,7 @@ export class AudioEngine {
       duration: beatDuration * phrase.sustain,
       gain: phrase.gain,
       position: phrase.position,
+      spatial: false,
       tone: {
         brightness,
         detune: phaseToDetune(phrase.phase + step * phrase.phaseMotion),
@@ -302,6 +322,7 @@ export class AudioEngine {
         duration: beatDuration * phrase.counterline.sustain,
         gain: phrase.counterline.gain,
         position: phrase.counterline.position,
+        spatial: false,
         tone: {
           brightness: phrase.counterline.brightness,
           frequency: ratioToFrequency(phrase.counterline.ratio, phrase.rootMidi - 12),
@@ -331,14 +352,14 @@ export class AudioEngine {
       counterline: {
         brightness: 0.28,
         every: 4,
-        gain: dbGain(-25),
+        gain: dbGain(-19),
         position: { x: -2, y: 1 },
         pulseRate: 0.5 + rng(),
         ratio: ratios[0] / 2,
         sustain: 2.8,
         type: 'sine',
       },
-      gain: dbGain(-24),
+      gain: dbGain(-18),
       harmonics: [1, ratios[1], 2],
       mode: 'additive',
       octaveSpan: 2,
@@ -375,14 +396,14 @@ export class AudioEngine {
       counterline: {
         brightness: clamp(target.brightness * 0.6),
         every: chamber.requiresGraft ? 3 : 4,
-        gain: dbGain(-27 + score * 4),
+        gain: dbGain(-22 + score * 4),
         position: { x: -target.x || -1, y: target.y || 1 },
         pulseRate: Math.max(0.5, target.pulseRate / 2),
         ratio: Math.max(0.5, target.pitchRatio / 2),
         sustain: 2,
         type: chamber.hazards?.length ? 'sawtooth' : 'sine',
       },
-      gain: dbGain(-27 + score * 7),
+      gain: dbGain(-20 + score * 6),
       harmonics: [1, target.pitchRatio, chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
       mode: chamber.hazards?.length ? 'fm' : planted.length ? 'additive' : 'am',
       octaveSpan: chamber.ending ? 5 : 3,
@@ -408,14 +429,14 @@ export class AudioEngine {
       counterline: {
         brightness: 0.8,
         every: 2,
-        gain: dbGain(-20),
+        gain: dbGain(-17),
         position: { x: 0, y: -3 },
         pulseRate: 1.5,
         ratio: ratios[0],
         sustain: 2.5,
         type: 'triangle',
       },
-      gain: dbGain(-21),
+      gain: dbGain(-16),
       harmonics: [1, 1.5, 2, 3],
       mode: 'additive',
       octaveSpan: 5,
@@ -437,7 +458,8 @@ export class AudioEngine {
     this.voice({
       category: 'ui',
       duration: durationFromPulse(semanticPulse(kind)),
-      gain: dbGain(kind === 'error' ? -8 : -11),
+      gain: dbGain(kind === 'error' ? -6 : -8),
+      spatial: false,
       tone: {
         brightness: kind === 'error' ? 0.25 : 0.65,
         frequency: ratioToFrequency(ratio, kind === 'cancel' ? 43 : 55),
