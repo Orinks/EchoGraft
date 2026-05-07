@@ -41,4 +41,21 @@ describe('audio movement cues', () => {
       spatial: true,
     })
   })
+
+  it('changes footstep timbre by movement surface type', () => {
+    const waterChamber = chambers.find((item) => item.system === 'Water')
+    const canopyChamber = chambers.find((item) => item.system === 'Canopy')
+    const memoryChamber = chambers.find((item) => item.system === 'Memory')
+    const waterPlayer = movePlayer(createPlayer(waterChamber.start), 0, 1, waterChamber)
+    const canopyPlayer = movePlayer(createPlayer(canopyChamber.start), 0, 1, canopyChamber)
+    const memoryPlayer = movePlayer(createPlayer(memoryChamber.start), 0, 1, memoryChamber)
+    const waterTone = movementVoices(waterPlayer, createPlayer(waterChamber.start), waterChamber)[0].tone
+    const canopyTone = movementVoices(canopyPlayer, createPlayer(canopyChamber.start), canopyChamber)[0].tone
+    const memoryTone = movementVoices(memoryPlayer, createPlayer(memoryChamber.start), memoryChamber)[0].tone
+
+    expect(waterTone).toMatchObject({ mode: 'am', type: 'sine' })
+    expect(canopyTone).toMatchObject({ brightness: 0.72, mode: 'additive' })
+    expect(memoryTone).toMatchObject({ brightness: 0.28, mode: 'am' })
+    expect(new Set([waterTone.type, canopyTone.type, memoryTone.type]).size).toBeGreaterThan(1)
+  })
 })

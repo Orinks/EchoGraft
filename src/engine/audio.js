@@ -58,6 +58,85 @@ function durationFromPulse(pulseRate) {
   return clamp(0.65 / Math.max(pulseRate, 0.25), 0.08, 0.85)
 }
 
+const surfaceFootstepTimbres = {
+  'archive loam': {
+    brightness: 0.28,
+    harmonic: [{ coefficient: 1, gain: 1, type: 'triangle' }],
+    mode: 'am',
+    pulseRate: 0.75,
+    rootMidi: 39,
+    type: 'triangle',
+  },
+  'compass rail': {
+    brightness: 0.5,
+    harmonic: [
+      { coefficient: 1, gain: 1, type: 'triangle' },
+      { coefficient: 2, gain: 0.24, type: 'sine' },
+    ],
+    mode: 'additive',
+    pulseRate: 1.25,
+    rootMidi: 44,
+    type: 'triangle',
+  },
+  'intake deck': {
+    brightness: 0.35,
+    harmonic: [{ coefficient: 1, gain: 1, type: 'triangle' }],
+    mode: 'additive',
+    pulseRate: 1,
+    rootMidi: 41,
+    type: 'triangle',
+  },
+  'leafglass lattice': {
+    brightness: 0.72,
+    harmonic: [
+      { coefficient: 1, gain: 1, type: 'triangle' },
+      { coefficient: 3, gain: 0.2, type: 'sawtooth' },
+    ],
+    mode: 'additive',
+    pulseRate: 1.8,
+    rootMidi: 48,
+    type: 'triangle',
+  },
+  'resonant heartwood': {
+    brightness: 0.62,
+    harmonic: [
+      { coefficient: 1, gain: 1, type: 'sine' },
+      { coefficient: 1.5, gain: 0.28, type: 'triangle' },
+    ],
+    mode: 'additive',
+    pulseRate: 1.1,
+    rootMidi: 43,
+    type: 'sine',
+  },
+  'rootfelt floor': {
+    brightness: 0.22,
+    harmonic: [
+      { coefficient: 1, gain: 1, type: 'triangle' },
+      { coefficient: 0.5, gain: 0.18, type: 'sine' },
+    ],
+    modAmount: 0.18,
+    mode: 'fm',
+    pulseRate: 0.65,
+    rootMidi: 36,
+    type: 'triangle',
+  },
+  'wet channel tile': {
+    brightness: 0.44,
+    mode: 'am',
+    pulseRate: 1.45,
+    rootMidi: 40,
+    type: 'sine',
+  },
+}
+
+function footstepTone(surface, player = {}) {
+  const { rootMidi = 41, ...timbre } = surfaceFootstepTimbres[surface] ?? surfaceFootstepTimbres['intake deck']
+  return {
+    ...timbre,
+    frequency: ratioToFrequency(1 + ((Math.abs(player.x ?? 0) + Math.abs(player.y ?? 0)) % 4) * 0.05, rootMidi),
+  }
+}
+
 function seedHarmonics(seed) {
   const brightness = clamp(seed.brightness)
   return [
@@ -582,14 +661,7 @@ export class AudioEngine {
       gain: dbGain(-13),
       position: feedback.footstepPosition,
       spatial: true,
-      tone: {
-        brightness: 0.35,
-        frequency: ratioToFrequency(1 + ((Math.abs(player.x) + Math.abs(player.y)) % 4) * 0.05, 41),
-        harmonic: [{ coefficient: 1, gain: 1, type: 'triangle' }],
-        mode: 'additive',
-        pulseRate: 1,
-        type: 'triangle',
-      },
+      tone: footstepTone(feedback.surface, player),
     })
 
     this.voice({
