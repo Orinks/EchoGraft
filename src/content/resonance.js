@@ -414,6 +414,21 @@ export function waterRootRoutingState(chambers, save = {}) {
   }
 }
 
+export function canopyDoorState(chambers, save = {}) {
+  const restoredSystems = save.restoredSystems ?? []
+  const solved = new Set(save.solvedChambers ?? [])
+  const canopyOnline = restoredSystems.includes('Canopy') || restoredSystems.includes('Canopy lights') || solved.has('rhythm')
+  const doors = chambers.filter((chamber) => chamber.photosynthesis || chamber.timbrePuzzle || chamber.thermalShutters)
+
+  return {
+    canopyOnline,
+    doors,
+    text: canopyOnline
+      ? `Canopy photosynthesis doors unlocked: ${doors.length} chamber door(s) can use brightness tuning, light thresholds, and filter planning.`
+      : `Canopy photosynthesis doors locked: restore Canopy Pulse Trellis to unlock brightness-door planning.`,
+  }
+}
+
 export function firstFullCampaignEstimate(scope) {
   const requiredContracts = scope.seasons.reduce((total, season) => total + season.requiredContracts, 0)
   const optionalContracts = scope.seasons.reduce((total, season) => total + season.optionalContracts, 0)

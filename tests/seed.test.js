@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -44,6 +44,19 @@ describe('seed DNA', () => {
     expect(report.label).toBe('pitch ratio')
     expect(report.role).toBe(tuningParameterDetails.pitchRatio.role)
     expect(report.text).toContain('Single-seed tuning role')
+  })
+
+  it('unlocks finer brightness tuning after Canopy comes online', () => {
+    const seed = createSeedDNA('canopy-tune', { brightness: 0.5 })
+    const basic = canopyBrightnessTuningState({ restoredSystems: [] })
+    const canopy = canopyBrightnessTuningState({ restoredSystems: ['Canopy'] })
+    const tuned = tuneSeedWithReport(seed, 'brightness', 1, canopy.brightnessStep / 0.05)
+
+    expect(basic.brightnessStep).toBe(0.05)
+    expect(canopy.canopyOnline).toBe(true)
+    expect(canopy.brightnessStep).toBe(0.03)
+    expect(canopy.text).toContain('photosynthesis doors')
+    expect(tuned.after).toBe(0.53)
   })
 
   it('summarizes seed audio previews for no-vision playback', () => {

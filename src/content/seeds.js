@@ -138,6 +138,19 @@ export function tuneSeed(seed, parameter, direction, step = 1) {
   return normalizeSeed(tuned)
 }
 
+export function canopyBrightnessTuningState(save = {}) {
+  const canopyOnline = save.restoredSystems?.includes('Canopy') || save.restoredSystems?.includes('Canopy lights')
+  const brightnessStep = canopyOnline ? 0.03 : 0.05
+
+  return {
+    brightnessStep,
+    canopyOnline,
+    text: canopyOnline
+      ? `Canopy brightness tuning unlocked: brightness changes in ${brightnessStep.toFixed(2)} steps for photosynthesis doors.`
+      : `Basic brightness tuning: restore Canopy to unlock finer photosynthesis-door control.`,
+  }
+}
+
 export function tuningLabel(parameter) {
   return tuningParameterDetails[parameter]?.label ?? parameter
 }

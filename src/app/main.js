@@ -5,10 +5,10 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -236,9 +236,11 @@ function tune(direction) {
   const seed = currentSeed()
   if (!seed) return
   const parameter = currentTuningParameter()
-  const report = tuneSeedWithReport(seed, parameter, direction)
+  const canopyTuning = canopyBrightnessTuningState(save)
+  const step = parameter === 'brightness' ? canopyTuning.brightnessStep / 0.05 : 1
+  const report = tuneSeedWithReport(seed, parameter, direction, step)
   inventory[selectedSeedIndex] = report.seed
-  log(report.text)
+  log(`${report.text}${parameter === 'brightness' ? ` ${canopyTuning.text}` : ''}`)
   audio.seed(inventory[selectedSeedIndex])
   persist()
 }
@@ -631,6 +633,7 @@ function atlas() {
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
+  const canopyDoors = canopyDoorState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
@@ -669,6 +672,13 @@ function atlas() {
         <p>${waterRouting.text}</p>
         <ol>
           ${waterRouting.rootContracts.slice(0, 6).map((item) => `<li>${item.title}: ${waterRouting.waterOnline ? 'current-routable' : 'awaiting Water'}; ${item.objective}</li>`).join('')}
+        </ol>
+      </section>
+      <section aria-labelledby="canopy-doors-title">
+        <h2 id="canopy-doors-title">Canopy Photosynthesis Doors</h2>
+        <p>${canopyDoors.text}</p>
+        <ol>
+          ${canopyDoors.doors.slice(0, 6).map((item) => `<li>${item.title}: ${canopyDoors.canopyOnline ? 'brightness-tunable' : 'awaiting Canopy'}; ${item.photosynthesis ? 'photosynthesis threshold' : item.timbrePuzzle ? 'brightness/timbre filter' : 'thermal shutter window'}.</li>`).join('')}
         </ol>
       </section>
       <section aria-labelledby="return-contracts-title">
