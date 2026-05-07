@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -80,6 +80,7 @@ describe('scan pulse', () => {
       fmDepthState: { band: 'light FM shimmer', carrier: 'primary FM synth route', fmDepth: 0.2 },
       nearbyState: { nearby: [] },
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
+      phaseMatchState: { band: 'matched', delta: 0, phase: 0, score: 1, target: 0, tolerance: 45, withinTolerance: true },
       pitchMatchState: { band: 'matched', delta: 0, pitchRatio: 1, score: 1, target: 1, tolerance: 0.25, withinTolerance: true },
       position: { x: 0, y: 1 },
       positionMatchState: { band: 'close', distance: 1, score: 0.333, tolerance: 1.5, withinTolerance: true },
@@ -103,6 +104,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Pitch match: matched; pitch 1 vs target 1, delta 0, score 1; tolerance 0.25.')
     expect(seedScan.text).toContain('Rhythm match: matched; pulse 1 vs target 1, delta 0, score 1; tolerance 0.5.')
     expect(seedScan.text).toContain('Timbre match: matched; waveform sine; required any chamber-compatible waveform.')
+    expect(seedScan.text).toContain('Phase match: matched; phase 0 vs target 0, offset 0 degree(s), score 1; tolerance 45 degree(s).')
     expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
     expect(seedScan.text).toContain('Envelope shape: attack 0.02, decay 0.12, sustain 0.5, release 0.25; quick bloom, balanced body, medium tail.')
     expect(seedScan.text).toContain('FM depth: 0.2; light FM shimmer; primary FM synth route.')
@@ -187,6 +189,24 @@ describe('scan pulse', () => {
       waveform: 'sine',
     })
     expect(timbre.text).toBe('Timbre match: off target; waveform sine; required triangle or sawtooth.')
+  })
+
+  it('reports a reusable circular phase match score', () => {
+    const phase = seedPhaseMatchScanState(
+      { phase: 350 },
+      { target: { phase: 10 }, tolerances: { phase: 40 } },
+    )
+
+    expect(phase).toMatchObject({
+      band: 'close',
+      delta: -20,
+      phase: 350,
+      score: 0.5,
+      target: 10,
+      tolerance: 40,
+      withinTolerance: true,
+    })
+    expect(phase.text).toBe('Phase match: close; phase 350 vs target 10, offset -20 degree(s), score 0.5; tolerance 40 degree(s).')
   })
 
   it('reports a reusable brightness filter state with chamber gates', () => {

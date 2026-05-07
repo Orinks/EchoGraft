@@ -155,6 +155,11 @@ function matchBand(delta, tolerance) {
   return 'off target'
 }
 
+function phaseDelta(value, target) {
+  if (!Number.isFinite(value) || !Number.isFinite(target)) return undefined
+  return Number((((value - target + 540) % 360) - 180).toFixed(0))
+}
+
 export function seedTuningScanState(seed = {}, chamber = {}) {
   const target = chamber.target ?? {}
   const traits = {
@@ -166,7 +171,7 @@ export function seedTuningScanState(seed = {}, chamber = {}) {
   }
   const deltas = {
     brightness: tuningDelta(traits.brightness, target.brightness),
-    phase: tuningDelta(traits.phase, target.phase),
+    phase: phaseDelta(traits.phase, target.phase),
     pitchRatio: tuningDelta(traits.pitchRatio, target.pitchRatio),
     pulseRate: tuningDelta(traits.pulseRate, target.pulseRate),
   }
@@ -233,6 +238,26 @@ export function seedTimbreMatchScanState(seed = {}, chamber = {}) {
     requiredWaveforms,
     waveform,
     text: `Timbre match: ${band}; waveform ${waveform}; required ${required}.`,
+  }
+}
+
+export function seedPhaseMatchScanState(seed = {}, chamber = {}) {
+  const phase = ((Number(seed.phase ?? 0) % 360) + 360) % 360
+  const target = chamber.target?.phase
+  const tolerance = chamber.tolerances?.phase ?? 45
+  const delta = phaseDelta(phase, target)
+  const score = Number.isFinite(delta) ? Number(clamp(1 - Math.abs(delta) / Math.max(tolerance, 0.001)).toFixed(3)) : undefined
+  const band = Number.isFinite(delta) ? matchBand(delta, tolerance) : 'unscored'
+
+  return {
+    band,
+    delta,
+    phase,
+    score,
+    target,
+    tolerance,
+    withinTolerance: Number.isFinite(delta) ? Math.abs(delta) <= tolerance : undefined,
+    text: `Phase match: ${band}; phase ${phase}${Number.isFinite(target) ? ` vs target ${target}, offset ${delta} degree(s), score ${score}` : ''}; tolerance ${tolerance} degree(s).`,
   }
 }
 
@@ -397,6 +422,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     noiseAmountState: seedNoiseAmountScanState(seed),
+    phaseMatchState: seedPhaseMatchScanState(seed, chamber),
     pitchMatchState: seedPitchMatchScanState(seed, chamber),
     position: seed.position ?? { x: 0, y: 0 },
     positionMatchState: seedPositionMatchScanState(seed, chamber),
@@ -412,7 +438,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
