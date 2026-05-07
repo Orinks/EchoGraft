@@ -240,6 +240,25 @@ export function pollinatorVaultSummary(save) {
   }
 }
 
+export function codexRecoverySummary(chambers, save) {
+  const recovered = new Set(save.codexIds ?? [])
+  const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))
+  const availableRecords = chambers
+    .filter((chamber) => ready.has(chamber.id) && !(save.solvedChambers ?? []).includes(chamber.id))
+    .flatMap((chamber) => (chamber.rewards?.codex ?? [])
+      .filter((id) => !recovered.has(id))
+      .map((id) => ({ id, chamberId: chamber.id, chamberTitle: chamber.title })))
+
+  return {
+    recoveredCount: recovered.size,
+    availableRecords,
+    nextRecovery: availableRecords[0],
+    text: availableRecords.length
+      ? `Codex recovery: ${recovered.size} recovered; next available perception in ${availableRecords[0].chamberTitle}.`
+      : `Codex recovery: ${recovered.size} recovered; no ready unrecovered perceptions in available contracts.`,
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))

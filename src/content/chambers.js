@@ -564,7 +564,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.18, pulseRate: 0.28, brightness: 0.2, phase: 35 },
     requires: ['wind-bellows'],
-    rewards: { materials: { memory: 2 } },
+    rewards: { codex: ['perception-02'], materials: { memory: 2 } },
   },
   {
     id: 'archive-vines',
@@ -580,7 +580,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.24, brightness: 0.16, phase: 38 },
     requires: ['memory-pond'],
-    rewards: { materials: { biomass: 1, memory: 2 } },
+    rewards: { codex: ['system-diagnostic-11'], materials: { biomass: 1, memory: 2 } },
   },
   {
     id: 'optional-record-grove',
@@ -597,7 +597,7 @@ export const chambers = [
     tolerances: { position: 1.2, pitchRatio: 0.1, pulseRate: 0.22, brightness: 0.16, phase: 25 },
     optional: true,
     requires: ['memory-pond'],
-    rewards: { materials: { memory: 2 } },
+    rewards: { codex: ['gardener-note-10', 'perception-04'], materials: { memory: 2 } },
   },
   {
     id: 'ancestor-filter',
@@ -613,7 +613,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.24, brightness: 0.08, phase: 45 },
     requires: ['archive-vines'],
-    rewards: { materials: { crystal: 1, memory: 2 } },
+    rewards: { codex: ['seed-ancestry-10'], materials: { crystal: 1, memory: 2 } },
   },
   {
     id: 'optional-whisper-formant',
@@ -647,7 +647,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 32 },
     requires: ['ancestor-filter'],
-    rewards: { materials: { biomass: 2, dreamCompost: 1, memory: 1 } },
+    rewards: { codex: ['plant-memory-12'], materials: { biomass: 2, dreamCompost: 1, memory: 1 } },
   },
   {
     id: 'optional-pastoral-loop',
@@ -681,7 +681,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.3, pitchRatio: 0.12, pulseRate: 0.22, brightness: 0.12, phase: 34 },
     requires: ['dream-compost'],
-    rewards: { materials: { crystal: 1, glassPollen: 1, memory: 2 } },
+    rewards: { codex: ['perception-07'], materials: { crystal: 1, glassPollen: 1, memory: 2 } },
   },
   {
     id: 'optional-mirror-return',

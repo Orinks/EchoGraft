@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedFamilies, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -16,6 +16,7 @@ describe('seed DNA', () => {
     expect(seedFamilies).toHaveLength(24)
     expect(seedFamilies.every((family) => family.name && family.affinity && family.origin)).toBe(true)
     expect(createSeedDNA('sol-cutting').family).toBe('Sol')
+    expect(seedLineageText(createSeedDNA('sol-cutting'))).toContain('Sol lineage')
   })
 
   it('tunes deep seed DNA traits', () => {
@@ -49,6 +50,8 @@ describe('seed DNA', () => {
     const graft = graftSeeds(createSeedDNA('a', { pitchRatio: 1 }), createSeedDNA('b', { pitchRatio: 2 }))
     expect(graft.grafted).toBe(true)
     expect(graft.pitchRatio).toBe(1.5)
+    expect(graft.lineageHistory.length).toBeGreaterThan(2)
+    expect(seedLineageText(graft)).toContain('Graft ancestry')
     expect(graftDiscoveries(graft)).toContain('hybrid resonance planting')
   })
 
@@ -58,7 +61,9 @@ describe('seed DNA', () => {
     expect(report.seed.grafted).toBe(true)
     expect(report.discoveries).toContain('hybrid resonance planting')
     expect(report.inheritedTraits).toEqual(expect.arrayContaining([expect.stringContaining('waveform')]))
+    expect(report.record).toMatchObject({ id: 'graft-record-sol-lumen', title: 'Sol-Lumen graft record' })
     expect(report.text).toContain('First graft')
+    expect(report.text).toContain('recovered record')
     expect(report.text).toContain('unlocked hybrid resonance planting')
   })
 

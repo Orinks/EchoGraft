@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -66,6 +66,15 @@ describe('resonance evaluation', () => {
     expect(vault.mechanic).toBe('pollinator vault alignment')
     expect(next.materials.glassPollen).toBe(1)
     expect(pollinatorVaultSummary(next).text).toContain('brightness and timbre')
+  })
+
+  it('tracks ready codex and perception recovery opportunities', () => {
+    const save = createDefaultSave()
+    save.solvedChambers = ['wind-bellows']
+    const summary = codexRecoverySummary(chambers, save)
+
+    expect(summary.availableRecords).toContainEqual(expect.objectContaining({ id: 'perception-02', chamberId: 'memory-pond' }))
+    expect(summary.text).toContain('next available perception')
   })
 
   it('gathers seed rewards once into the inventory', () => {

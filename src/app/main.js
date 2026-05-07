@@ -5,10 +5,10 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -42,7 +42,7 @@ function currentTuningParameter() {
 }
 
 function seedDnaText(seed) {
-  return `pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}, envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount}, growth ${seed.growthBehavior}`
+  return `pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}, envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount}, growth ${seed.growthBehavior}. ${seedLineageText(seed)}`
 }
 
 function loadPlanted(chamberId) {
@@ -61,6 +61,13 @@ function contractStatus(item) {
 
 function materialsText() {
   return Object.entries(save.materials).map(([key, value]) => `${key} ${value}`).join(', ')
+}
+
+function availableCodexRecords() {
+  return {
+    ...codexRecords,
+    ...Object.fromEntries((save.graftRecords ?? []).map((record) => [record.id, record])),
+  }
 }
 
 function materialRewardText(materials = {}) {
@@ -228,9 +235,14 @@ function graft() {
   selectedSeedIndex = seedCarryState(inventory, inventory.length - 1).selectedCarryIndex
   const newDiscoveries = report.discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
   save.unlockedGraftMechanics = [...save.unlockedGraftMechanics, ...newDiscoveries]
+  if (report.record && !(save.graftRecords ?? []).some((record) => record.id === report.record.id)) {
+    save.graftRecords = [...(save.graftRecords ?? []), report.record]
+    if (!save.codexIds.includes(report.record.id)) save.codexIds.push(report.record.id)
+  }
   log(report.text, 'success')
   log(`Grafted ${next.name}. ${heldInReserve ? 'Added to the library reserve because carried seeds are full' : 'Selected graft'}; pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
   if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
+  if (report.record) log(`Graft record recovered: ${report.record.title}.`, 'success')
   audio.ui('success')
   persist()
 }
@@ -284,7 +296,7 @@ function evaluate() {
   if (firstSolve) log(`${chamber.system} system restored and online.`, 'success')
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
-  if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
+  if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
   if (chamber.ending) {
     save.endgameResolution = chooseEndgameResolution(save).id
@@ -376,7 +388,7 @@ function handleGameKey(event) {
   else if (event.key.toLowerCase() === 'l') log(`Latest log: ${latestLogText()}`)
   else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
   else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
-  else if (event.key.toLowerCase() === 'c') log(save.codexIds.length ? `Codex: ${save.codexIds.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.` : 'Codex: no records recovered yet.')
+  else if (event.key.toLowerCase() === 'c') log(save.codexIds.length ? `Codex: ${save.codexIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.` : 'Codex: no records recovered yet.')
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
     event.preventDefault()
@@ -563,6 +575,7 @@ function atlas() {
   const campaign = firstFullCampaignEstimate(campaignScope)
   const stewardship = stewardshipSummary(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
+  const codexRecovery = codexRecoverySummary(chambers, save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -590,6 +603,11 @@ function atlas() {
       <section aria-labelledby="return-contracts-title">
         <h2 id="return-contracts-title">Optional Return Contracts</h2>
         ${returnContracts.length ? `<ol>${returnContracts.map((item) => `<li>${item.text} <button data-action="returnContract" data-contract="${item.id}">Return to ${item.title}</button></li>`).join('')}</ol>` : '<p>No low-rated restored chambers need return work.</p>'}
+      </section>
+      <section aria-labelledby="codex-recovery-title">
+        <h2 id="codex-recovery-title">Codex Recovery</h2>
+        <p>${codexRecovery.text}</p>
+        ${codexRecovery.availableRecords.length ? `<ol>${codexRecovery.availableRecords.map((record) => `<li>${codexRecords[record.id]?.title ?? record.id} in ${record.chamberTitle}.</li>`).join('')}</ol>` : ''}
       </section>
       <section aria-labelledby="decision-title">
         <h2 id="decision-title">Decision Point</h2>
@@ -679,7 +697,7 @@ function library() {
 
 function codex() {
   audio.setMusicScene('menu')
-  const trees = codexRecordTrees(codexRecords, save.codexIds)
+  const trees = codexRecordTrees(availableCodexRecords(), save.codexIds)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>

@@ -8,6 +8,7 @@ export function createDefaultSave() {
     codexIds: [],
     endgameResolution: null,
     environmentalChanges: [],
+    graftRecords: [],
     materials: {
       biomass: 0,
       crystal: 0,

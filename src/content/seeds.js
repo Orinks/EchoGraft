@@ -73,6 +73,7 @@ export function createSeedDNA(seedId, overrides = {}) {
     family: overrides.family ?? family.name,
     ecologicalAffinity: overrides.ecologicalAffinity ?? family.affinity,
     discoveredOrigin: overrides.discoveredOrigin ?? family.origin,
+    lineageHistory: overrides.lineageHistory ?? [`${family.name} lineage first recovered from ${family.origin}; affinity: ${family.affinity}.`],
     waveform: pick(waveforms, rng),
     pitchRatio: Number((0.75 + rng() * 1.75).toFixed(2)),
     oscillatorType: pick(oscillatorTypes, rng),
@@ -173,6 +174,11 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
     ecologicalAffinity: discovery?.mechanic ?? 'hybrid restoration behavior',
     discoveredOrigin: discovery?.record ?? 'Uncatalogued graft discovery.',
     graftAncestry: [seedA.family ?? seedA.id, seedB.family ?? seedB.id],
+    lineageHistory: [
+      ...(seedA.lineageHistory ?? [`${seedA.family ?? seedA.id} lineage history unknown.`]),
+      ...(seedB.lineageHistory ?? [`${seedB.family ?? seedB.id} lineage history unknown.`]),
+      discovery?.record ?? `A graft between ${seedA.family ?? seedA.id} and ${seedB.family ?? seedB.id} has no archive record yet.`,
+    ],
     discoveryId: discovery?.id,
     waveform: seedA.waveform,
     oscillatorType: seedB.oscillatorType,
@@ -193,6 +199,7 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
 export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   const seed = graftSeeds(seedA, seedB, id)
   const discoveries = graftDiscoveries(seed)
+  const record = graftRecordForSeed(seed)
   const inheritedTraits = [
     `waveform ${seed.waveform} from ${seedA.name}`,
     `synth ${seed.oscillatorType} from ${seedB.name}`,
@@ -203,8 +210,19 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   return {
     discoveries,
     inheritedTraits,
+    record,
     seed,
-    text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}.`,
+    text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}${record ? `; recovered record ${record.title}` : ''}.`,
+  }
+}
+
+export function graftRecordForSeed(seed) {
+  if (!seed.discoveryId || !seed.discoveredOrigin) return undefined
+
+  return {
+    id: `graft-record-${seed.discoveryId}`,
+    title: `${seed.family} record`,
+    text: seed.discoveredOrigin,
   }
 }
 
@@ -215,6 +233,12 @@ export function graftDiscoveries(seed) {
   if (seed.noiseAmount >= 0.2) discoveries.push('noise-bed masking')
   if (seed.growthBehavior === 'twining') discoveries.push('twined multi-position growth')
   return discoveries
+}
+
+export function seedLineageText(seed) {
+  const history = seed.lineageHistory?.length ? seed.lineageHistory.join(' ') : `${seed.family ?? seed.name} lineage history unknown.`
+  const ancestry = seed.graftAncestry?.length ? ` Graft ancestry: ${seed.graftAncestry.join(' plus ')}.` : ''
+  return `Lineage: ${history}${ancestry}`
 }
 
 export const starterSeeds = [
