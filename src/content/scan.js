@@ -94,6 +94,51 @@ export function seedScanState(plantedSeeds = []) {
   }
 }
 
+function hazardAxis(hazard = {}) {
+  if (Number.isFinite(hazard.pitchRatio)) return { label: 'pitch', key: 'pitchRatio', value: hazard.pitchRatio }
+  if (Number.isFinite(hazard.pulseRate)) return { label: 'pulse', key: 'pulseRate', value: hazard.pulseRate }
+  if (Number.isFinite(hazard.brightness)) return { label: 'brightness', key: 'brightness', value: hazard.brightness }
+  if (Number.isFinite(hazard.phase)) return { label: 'phase', key: 'phase', value: hazard.phase }
+  return { label: 'unknown', key: 'unknown', value: 0 }
+}
+
+export function hazardScanState(chamber = {}, plantedSeeds = []) {
+  const hazards = (chamber.hazards ?? []).map((hazard) => {
+    const axis = hazardAxis(hazard)
+    const radius = hazard.radius ?? 0
+    const lower = Number((axis.value - radius).toFixed(3))
+    const upper = Number((axis.value + radius).toFixed(3))
+    const breaches = plantedSeeds
+      .filter((seed) => Number.isFinite(seed[axis.key]) && Math.abs(seed[axis.key] - axis.value) <= radius)
+      .map((seed) => ({
+        name: seed.name ?? seed.id ?? 'unknown seed',
+        position: seed.position ?? { x: 0, y: 0 },
+        value: seed[axis.key],
+      }))
+
+    return {
+      axis,
+      breaches,
+      lower,
+      message: hazard.message ?? 'Unstable ecology detected.',
+      radius,
+      upper,
+    }
+  })
+  const unsafeZones = hazards.flatMap((hazard) =>
+    hazard.breaches.map((breach) => `${breach.name} at ${breach.position.x}, ${breach.position.y} inside ${hazard.axis.label} ${hazard.lower}-${hazard.upper}`),
+  )
+
+  return {
+    count: hazards.length,
+    hazards,
+    unsafeZones,
+    text: hazards.length
+      ? `Hazard scan: forbidden intervals ${hazards.map((hazard) => `${hazard.axis.label} ${hazard.lower}-${hazard.upper}: ${hazard.message}`).join('; ')}. Unsafe zones: ${unsafeZones.length ? unsafeZones.join('; ') : 'none occupied by planted seeds'}.`
+      : 'Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.',
+  }
+}
+
 export function navigationScanState(save = {}) {
   const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
 

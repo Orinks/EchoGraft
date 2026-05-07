@@ -172,6 +172,22 @@ describe('resonance evaluation', () => {
     expect(evaluateResonance(chamber, [breachedSeed]).hazardContainment.band).toBe('breached')
   })
 
+  it('treats pulse-rate hazard intervals as unsafe zones', () => {
+    const chamber = {
+      ...chambers.find((item) => item.hazards?.some((hazard) => Number.isFinite(hazard.pulseRate))),
+      requiredSeeds: 1,
+      target: { x: 0, y: 0, pitchRatio: 2, pulseRate: 2, brightness: 0.45, phase: 0 },
+      tolerances: { position: 2, pitchRatio: 1, pulseRate: 2, brightness: 1, phase: 360 },
+    }
+    const hazard = chamber.hazards[0]
+    const breachedSeed = createSeedDNA('pulse-breach', { pitchRatio: 2, pulseRate: hazard.pulseRate, position: chamber.target })
+    const safeSeed = createSeedDNA('pulse-safe', { pitchRatio: 2, pulseRate: hazard.pulseRate + hazard.radius + 0.5, position: chamber.target })
+
+    expect(hazardContainmentSummary(chamber, [breachedSeed]).band).toBe('breached')
+    expect(evaluateResonance(chamber, [breachedSeed]).missing).toContain(hazard.message)
+    expect(hazardContainmentSummary(chamber, [safeSeed]).band).toBe('contained')
+  })
+
   it('summarizes resource efficiency from saved chamber material spend', () => {
     const chamber = chambers.find((item) => item.rewards?.materials?.biomass)
     const save = createDefaultSave()

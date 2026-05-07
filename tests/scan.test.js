@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -71,6 +71,37 @@ describe('scan pulse', () => {
     })
     expect(seedScan.text).toContain('Seed scan: Sol phonoseed at 0, 1')
     expect(seedScan.text).toContain('traits pitch 1, pulse 1, brightness 0.45, phase 0, waveform sine')
+  })
+
+  it('summarizes hazard forbidden intervals and unsafe seed zones', () => {
+    const hazardScan = hazardScanState(
+      {
+        hazards: [
+          { pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' },
+          { pulseRate: 3, radius: 0.25, message: 'Hail surge rejects frantic pulses.' },
+        ],
+      },
+      [
+        { name: 'Umbra phonoseed', pitchRatio: 0.8, pulseRate: 0.75, position: { x: -1, y: 2 } },
+        { name: 'Spire phonoseed', pitchRatio: 2, pulseRate: 3, position: { x: 2, y: 0 } },
+      ],
+    )
+
+    expect(hazardScan.count).toBe(2)
+    expect(hazardScan.hazards[0]).toMatchObject({ lower: 0.55, upper: 0.95 })
+    expect(hazardScan.hazards[1].axis).toMatchObject({ key: 'pulseRate', label: 'pulse' })
+    expect(hazardScan.unsafeZones).toContain('Umbra phonoseed at -1, 2 inside pitch 0.55-0.95')
+    expect(hazardScan.unsafeZones).toContain('Spire phonoseed at 2, 0 inside pulse 2.75-3.25')
+    expect(hazardScan.text).toContain('Hazard scan: forbidden intervals pitch 0.55-0.95')
+    expect(hazardScan.text).toContain('Unsafe zones: Umbra phonoseed at -1, 2 inside pitch 0.55-0.95')
+  })
+
+  it('reports a clear hazard scan when no chamber hazards exist', () => {
+    const hazardScan = hazardScanState({}, [])
+
+    expect(hazardScan.count).toBe(0)
+    expect(hazardScan.unsafeZones).toEqual([])
+    expect(hazardScan.text).toBe('Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.')
   })
 
   it('expands scan range after Intake comes online', () => {

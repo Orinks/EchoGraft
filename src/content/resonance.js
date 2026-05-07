@@ -186,10 +186,12 @@ export function graftStabilitySummary(chamber, plantedSeeds = []) {
 
 export function hazardContainmentSummary(chamber, plantedSeeds = []) {
   const hazards = chamber.hazards ?? []
+  const hazardAxis = (hazard) => ['pitchRatio', 'pulseRate', 'brightness', 'phase'].find((key) => Number.isFinite(hazard[key]))
   const violations = hazards.flatMap((hazard) =>
-    plantedSeeds
-      .filter((seed) => Math.abs(seed.pitchRatio - hazard.pitchRatio) <= hazard.radius)
-      .map((seed) => ({ hazard, seed })),
+    plantedSeeds.filter((seed) => {
+      const axis = hazardAxis(hazard)
+      return axis && Number.isFinite(seed[axis]) && Math.abs(seed[axis] - hazard[axis]) <= hazard.radius
+    }).map((seed) => ({ hazard, seed })),
   )
   const band = hazards.length === 0 ? 'clear' : violations.length === 0 ? 'contained' : 'breached'
   const contained = violations.length === 0
@@ -339,7 +341,8 @@ export function evaluateResonance(chamber, plantedSeeds) {
     }
   }
   for (const hazard of chamber.hazards ?? []) {
-    if (plantedSeeds.some((seed) => Math.abs(seed.pitchRatio - hazard.pitchRatio) <= hazard.radius)) {
+    const axis = ['pitchRatio', 'pulseRate', 'brightness', 'phase'].find((key) => Number.isFinite(hazard[key]))
+    if (axis && plantedSeeds.some((seed) => Number.isFinite(seed[axis]) && Math.abs(seed[axis] - hazard[axis]) <= hazard.radius)) {
       missing.push(hazard.message)
     }
   }
