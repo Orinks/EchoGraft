@@ -430,7 +430,72 @@ export function restorationRating(result) {
   return 'Restored'
 }
 
-const ratingOrder = ['Dormant', 'Restored', 'Stable', 'Resonant']
+export function restorationOutcomeSummary(chamber, rating) {
+  if (rating === 'Stable') {
+    const requiredSystem = !chamber.optional
+    return {
+      campaignCanContinue: requiredSystem,
+      outcome: 'Stable',
+      rating,
+      requiredSystem,
+      systemOnline: requiredSystem,
+      text: requiredSystem
+        ? `Stable outcome: ${chamber.system} comes online and the campaign can continue.`
+        : `Stable outcome: optional contract ${chamber.title} strengthens ${chamber.system} without blocking campaign progress.`,
+    }
+  }
+
+  if (rating === 'Resonant' && chamber.harmonic) {
+    return {
+      campaignCanContinue: !chamber.optional,
+      endgameOptionStrength: 2,
+      extraMusicLayer: true,
+      outcome: 'Harmonic',
+      rating,
+      seedArrangement: 'especially elegant',
+      systemOnline: !chamber.optional,
+      text: `Harmonic outcome: ${chamber.title} preserves an especially elegant seed arrangement and strengthens endgame options for ${chamber.system}.`,
+    }
+  }
+
+  if (rating === 'Resonant') {
+    const materialYield = Object.keys(chamber.rewards?.materials ?? {}).length > 0
+    const seedTrait = Boolean(chamber.rewards?.seeds?.length || chamber.requiresGraft || chamber.researchReveal?.kind === 'trait')
+    return {
+      campaignCanContinue: !chamber.optional,
+      extraMusicLayer: true,
+      outcome: 'Flourishing',
+      rating,
+      resourceYield: materialYield,
+      seedTrait,
+      systemOnline: !chamber.optional,
+      text: `Flourishing outcome: ${chamber.title} contributes an extra ${chamber.system} music layer${materialYield ? ', resource yield' : ''}${seedTrait ? ', or seed trait' : ''}.`,
+    }
+  }
+
+  if (rating === 'Wild') {
+    return {
+      campaignCanContinue: !chamber.optional,
+      outcome: 'Wild',
+      rating,
+      rareMutationId: `${chamber.id}-wild-mutation`,
+      systemOnline: !chamber.optional,
+      unusualEndingMaterial: true,
+      text: `Wild outcome: ${chamber.title} preserves accepted instability as rare mutation ${chamber.id}-wild-mutation and unusual ending material.`,
+    }
+  }
+
+  return {
+    campaignCanContinue: false,
+    outcome: rating,
+    rating,
+    requiredSystem: !chamber.optional,
+    systemOnline: false,
+    text: `${rating} outcome: ${chamber.title} restored; review rating details for progression effects.`,
+  }
+}
+
+const ratingOrder = ['Dormant', 'Restored', 'Stable', 'Wild', 'Resonant']
 
 function strongerRating(currentRating, targetRating) {
   const currentIndex = ratingOrder.indexOf(currentRating ?? 'Restored')
@@ -453,6 +518,11 @@ export function mergeRewards(save, chamber, rating) {
     if (!next.codexIds.includes(codexId)) next.codexIds.push(codexId)
   }
   next.ratings[chamber.id] = rating
+  if (rating === 'Wild') {
+    const mutationId = `${chamber.id}-wild-mutation`
+    next.wildMutationIds = next.wildMutationIds ?? []
+    if (!next.wildMutationIds.includes(mutationId)) next.wildMutationIds.push(mutationId)
+  }
   if (chamber.contractType === 'stabilization' && chamber.stabilization?.improvesChamberId) {
     const improvedId = chamber.stabilization.improvesChamberId
     next.ratings[improvedId] = strongerRating(next.ratings[improvedId], chamber.stabilization.targetRating)

@@ -21,6 +21,8 @@ describe('save system', () => {
     save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
     save.postgameUnlocked = true
     save.unlockedGraftMechanics.push('hybrid resonance planting')
+    save.wildChamberIds.push('pitch')
+    save.wildMutationIds.push('pitch-wild-mutation')
     save.ratings.tutorial = 'Resonant'
     save.restoredSystems.push('Intake')
     save.codexIds.push('first-breath')
@@ -34,6 +36,8 @@ describe('save system', () => {
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
     expect(loadSave(storage).postgameUnlocked).toBe(true)
     expect(loadSave(storage).unlockedGraftMechanics).toEqual(['hybrid resonance planting'])
+    expect(loadSave(storage).wildChamberIds).toEqual(['pitch'])
+    expect(loadSave(storage).wildMutationIds).toEqual(['pitch-wild-mutation'])
     expect(loadSave(storage).ratings.tutorial).toBe('Resonant')
     expect(loadSave(storage).restoredSystems).toEqual(['Intake'])
     expect(loadSave(storage).codexIds).toEqual(['first-breath'])
@@ -53,6 +57,8 @@ describe('save system', () => {
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.unlockedGraftMechanics).toEqual([])
+    expect(loaded.wildChamberIds).toEqual([])
+    expect(loaded.wildMutationIds).toEqual([])
     expect(loaded.ratings).toEqual({})
     expect(loaded.restoredSystems).toEqual([])
     expect(loaded.restorationPhilosophy).toBe('preservation')

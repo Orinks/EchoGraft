@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -43,6 +43,51 @@ describe('resonance evaluation', () => {
     expect(restorationRating({ solved: true, score: 0.84 })).toBe('Restored')
     expect(restorationRating({ solved: true, score: 0.85 })).toBe('Stable')
     expect(restorationRating({ solved: true, score: 0.96 })).toBe('Resonant')
+  })
+
+  it('treats Stable required restorations as online campaign progression', () => {
+    const required = chambers.find((chamber) => !chamber.optional)
+    const optional = chambers.find((chamber) => chamber.optional)
+    const stable = restorationOutcomeSummary(required, 'Stable')
+
+    expect(stable.systemOnline).toBe(true)
+    expect(stable.campaignCanContinue).toBe(true)
+    expect(stable.text).toContain('comes online')
+    expect(stable.text).toContain('campaign can continue')
+    expect(restorationOutcomeSummary(optional, 'Stable').campaignCanContinue).toBe(false)
+  })
+
+  it('treats Resonant restorations as Flourishing chamber contributions', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const outcome = restorationOutcomeSummary(chamber, 'Resonant')
+
+    expect(outcome.outcome).toBe('Flourishing')
+    expect(outcome.extraMusicLayer).toBe(true)
+    expect(outcome.resourceYield).toBe(true)
+    expect(outcome.text).toContain('extra Intake music layer')
+    expect(outcome.text).toContain('resource yield')
+  })
+
+  it('treats Resonant harmonic chambers as elegant endgame contributions', () => {
+    const chamber = chambers.find((item) => item.harmonic)
+    const outcome = restorationOutcomeSummary(chamber, 'Resonant')
+
+    expect(outcome.outcome).toBe('Harmonic')
+    expect(outcome.seedArrangement).toBe('especially elegant')
+    expect(outcome.endgameOptionStrength).toBe(2)
+    expect(outcome.text).toContain('endgame options')
+  })
+
+  it('records Wild accepted instability as rare mutation material', () => {
+    const chamber = chambers.find((item) => item.hazards?.length)
+    const outcome = restorationOutcomeSummary(chamber, 'Wild')
+    const next = mergeRewards(createDefaultSave(), chamber, 'Wild')
+
+    expect(outcome.outcome).toBe('Wild')
+    expect(outcome.rareMutationId).toBe(`${chamber.id}-wild-mutation`)
+    expect(outcome.unusualEndingMaterial).toBe(true)
+    expect(next.ratings[chamber.id]).toBe('Wild')
+    expect(next.wildMutationIds).toContain(`${chamber.id}-wild-mutation`)
   })
 
   it('collects spores as crafting resources from authored contracts', () => {

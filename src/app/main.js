@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -255,6 +255,13 @@ function previewSelectedSeed() {
   log(seedAudioPreview(seed).text)
 }
 
+function acceptWildInstability() {
+  save.wildChamberIds = save.wildChamberIds ?? []
+  if (!save.wildChamberIds.includes(chamber.id)) save.wildChamberIds.push(chamber.id)
+  persist()
+  log(`Wild instability accepted for ${chamber.title}. A successful restoration here will preserve unusual mutation material instead of a conventional rating path.`, 'success')
+}
+
 function composeConservatory() {
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
   audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory)
@@ -285,7 +292,7 @@ function evaluate() {
     return
   }
   const firstSolve = !save.solvedChambers.includes(chamber.id)
-  const rating = restorationRating(lastResult)
+  const rating = save.wildChamberIds?.includes(chamber.id) ? 'Wild' : restorationRating(lastResult)
   if (firstSolve) save.solvedChambers.push(chamber.id)
   if (firstSolve && !save.restoredSystems.includes(chamber.system)) save.restoredSystems.push(chamber.system)
   const environmentalChange = `${chamber.system}: ${chamber.title} stabilized with ${rating} resonance`
@@ -295,7 +302,11 @@ function evaluate() {
   inventory = buildInventory()
   audio.ui('success')
   log(`${chamber.title} solved with ${rating} rating. Rewards now available in the atlas.`, 'success')
-  if (firstSolve) log(`${chamber.system} system restored and online.`, 'success')
+  if (firstSolve) {
+    log(`${chamber.system} system restored and online.`, 'success')
+    const outcome = restorationOutcomeSummary(chamber, rating)
+    if (outcome.systemOnline || ['Stable', 'Flourishing', 'Harmonic', 'Wild'].includes(outcome.outcome)) log(outcome.text, 'success')
+  }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
@@ -452,6 +463,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'evaluate') evaluateReport()
   if (action === 'selectSeed') selectSeed(Number(event.target.dataset.seedIndex))
   if (action === 'previewSeed') previewSelectedSeed()
+  if (action === 'wild') acceptWildInstability()
   if (action === 'compose') composeConservatory()
   if (action === 'compositionMode') {
     conservatoryMode = event.target.dataset.mode ?? conservatoryMode
@@ -559,6 +571,7 @@ function game() {
           <button data-action="tuningParameter" data-parameter="growthBehavior">Tune growth</button>
           <button data-action="graft">Graft first two seeds</button>
           <button data-action="restore">Restore chamber</button>
+          <button data-action="wild">Accept wild instability</button>
           <button data-action="reset">Reset chamber</button>
           <button data-action="atlas">Atlas</button>
           <button data-action="library">Seed library</button>

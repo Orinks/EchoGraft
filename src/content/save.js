@@ -20,6 +20,8 @@ export function createDefaultSave() {
     plantedByChamber: {},
     postgameUnlocked: false,
     unlockedGraftMechanics: [],
+    wildChamberIds: [],
+    wildMutationIds: [],
     ratings: {},
     restoredSystems: [],
     restorationPhilosophy: 'preservation',
@@ -50,6 +52,8 @@ export function loadSave(storage = globalThis.localStorage) {
       ...parsed,
       materials: { ...defaults.materials, ...(parsed.materials ?? {}) },
       settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
+      wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,
+      wildMutationIds: parsed.wildMutationIds ?? defaults.wildMutationIds,
     }
   } catch {
     return createDefaultSave()
