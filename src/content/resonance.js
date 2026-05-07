@@ -1,3 +1,4 @@
+import { weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
 
 function distance(a, b) {
@@ -84,6 +85,26 @@ export function pressureSailState(chamber, plantedSeeds) {
   }
 }
 
+export function timbrePuzzleState(chamber, plantedSeeds) {
+  if (!chamber.timbrePuzzle) return undefined
+
+  const { minBrightness, waveforms } = chamber.timbrePuzzle
+  const matchingSeed = plantedSeeds.find((seed) => seed.brightness >= minBrightness && waveforms.includes(seed.waveform))
+  const brightest = plantedSeeds.reduce((best, seed) => seed.brightness > best.brightness ? seed : best, plantedSeeds[0])
+  const waveformList = waveforms.join(' or ')
+
+  return {
+    active: Boolean(matchingSeed),
+    brightness: Number((brightest?.brightness ?? 0).toFixed(2)),
+    minBrightness,
+    waveform: brightest?.waveform ?? 'none',
+    waveforms,
+    text: matchingSeed
+      ? `Brightness/timbre puzzle open: ${matchingSeed.name} carries ${matchingSeed.waveform} at brightness ${matchingSeed.brightness}. ${chamber.timbrePuzzle.text}.`
+      : `Brightness/timbre puzzle needs brightness ${minBrightness} with ${waveformList} timbre; strongest planted voice is ${brightest?.waveform ?? 'none'} at ${brightest?.brightness ?? 0}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
@@ -93,6 +114,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   const photosynthesis = photosynthesisState(chamber, plantedSeeds)
   const thermalShutters = thermalShutterState(chamber, plantedSeeds)
   const pressureSails = pressureSailState(chamber, plantedSeeds)
+  const timbrePuzzle = timbrePuzzleState(chamber, plantedSeeds)
   const checks = [
     ['position', distance(ecology.position, chamber.target), chamber.tolerances.position, 'Move planted seed position closer to the heart.'],
     ['pitchRatio', Math.abs(ecology.pitchRatio - chamber.target.pitchRatio), chamber.tolerances.pitchRatio, 'Tune pitch ratio closer to the chamber heart.'],
@@ -107,6 +129,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   if (photosynthesis && !photosynthesis.active) missing.push('Raise brightness until the photosynthetic canopy opens.')
   if (thermalShutters && !thermalShutters.open) missing.push('Tune brightness until the thermal shutters open without overheating.')
   if (pressureSails && !pressureSails.steady) missing.push('Tune pulse until the pressure sails hold steady.')
+  if (timbrePuzzle && !timbrePuzzle.active) missing.push('Use a bright edged timbre to open the brightness/timbre puzzle.')
   if (chamber.plantingPattern) {
     const coverage = plantingCoverage(chamber, plantedSeeds)
     if (!coverage.complete) {
@@ -128,6 +151,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     photosynthesis,
     pressureSails,
     thermalShutters,
+    timbrePuzzle,
     plantingCoverage: chamber.plantingPattern ? plantingCoverage(chamber, plantedSeeds) : undefined,
   }
 }
@@ -146,7 +170,7 @@ export function availableChambers(chambers, solvedIds) {
   })
 }
 
-export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }) {
+export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
   const contracts = []
@@ -158,7 +182,7 @@ export function restorationPlanningSession(chambers, solvedIds, target = { min: 
     const nextMin = min + chamber.solveTimeMinutes.min
     const nextMax = max + chamber.solveTimeMinutes.max
     if (contracts.length && min >= target.min && nextMax > target.max) break
-    contracts.push({ ...chamber, ready: ready.has(chamber.id) })
+    contracts.push({ ...chamber, ready: ready.has(chamber.id), weatherWindow: weatherWindowState(chamber, arkClock) })
     min = nextMin
     max = nextMax
     if (min >= target.min) break

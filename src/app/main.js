@@ -1,5 +1,5 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -132,11 +132,13 @@ function listen() {
   const status = lastResult.solved ? 'restored' : `resonance ${Math.round(lastResult.score * 100)} percent`
   const cycle = chamberCycleState(chamber, save.arkClock)
   const cycleText = cycle ? ` ${cycle.text}` : ''
-  log(`Listen: ${chamber.title} is ${status}; ${planted}; heart pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}.${cycleText}`)
+  const weatherWindow = weatherWindowState(chamber, save.arkClock)
+  const windowText = weatherWindow ? ` ${weatherWindow.text}` : ''
+  log(`Listen: ${chamber.title} is ${status}; ${planted}; heart pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}.${cycleText}${windowText}`)
 }
 
 function locate() {
-  const pulse = scanPulse(player, chamber.target)
+  const pulse = scanPulse(player, chamber.target, chamber)
   audio.scan(player, chamber.target)
   log(`Locate: chamber heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.horizontal}, ${pulse.direction.vertical}. ${pulse.text}`)
 }
@@ -180,7 +182,7 @@ function positionMeaningText(position) {
 }
 
 function scan() {
-  const pulse = scanPulse(player, chamber.target)
+  const pulse = scanPulse(player, chamber.target, chamber)
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
     log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
@@ -301,7 +303,8 @@ function evaluateReport() {
   const photosynthesis = lastResult.photosynthesis ? ` ${lastResult.photosynthesis.text}` : ''
   const pressureSails = lastResult.pressureSails ? ` ${lastResult.pressureSails.text}` : ''
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}`
+  const timbrePuzzle = lastResult.timbrePuzzle ? ` ${lastResult.timbrePuzzle.text}` : ''
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle}`
   log(`Evaluate resonance: ${Math.round(lastResult.score * 100)} percent. ${details}`)
 }
 
@@ -551,11 +554,12 @@ function game() {
 function atlas() {
   audio.setMusicScene('menu')
   const available = new Set(unlockedContracts().map((item) => item.id))
-  const plan = restorationPlanningSession(chambers, save.solvedChambers)
+  const plan = restorationPlanningSession(chambers, save.solvedChambers, { min: 20, max: 40 }, save.arkClock)
   const campaign = firstFullCampaignEstimate(campaignScope)
   const stewardship = stewardshipSummary(chambers, save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
+  const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
   shell(`
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
@@ -564,6 +568,7 @@ function atlas() {
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
       <p>Ark clock: cycle ${save.arkClock}.</p>
       ${activeCycle ? `<p>Active chamber cycle: ${activeCycle.text}</p>` : ''}
+      ${activeWeatherWindow ? `<p>Active weather window: ${activeWeatherWindow.text}</p>` : ''}
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>
@@ -590,7 +595,7 @@ function atlas() {
         <h2 id="planning-title">Suggested Planning Session</h2>
         <p>${plan.min} to ${plan.max} minutes across ${plan.contracts.length} upcoming contracts.</p>
         <ol>
-          ${plan.contracts.map((item) => `<li>${item.title}: ${solveTimeText(item)}, ${item.ready ? 'ready now' : 'queued by atlas dependencies'}.</li>`).join('')}
+          ${plan.contracts.map((item) => `<li>${item.title}: ${solveTimeText(item)}, ${item.ready ? 'ready now' : 'queued by atlas dependencies'}${item.weatherWindow ? `; ${item.weatherWindow.text}` : ''}.</li>`).join('')}
         </ol>
       </section>
       <ol class="contract-list">

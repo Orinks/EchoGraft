@@ -22,6 +22,37 @@ export function chamberCycleState(chamber, arkClock = 0) {
   }
 }
 
+export function weatherWindowState(chamber, arkClock = 0) {
+  if (!chamber.weatherWindow) return undefined
+
+  const cycle = chamberCycleState(chamber, arkClock)
+  if (!cycle) return undefined
+
+  const preferredStateIds = chamber.weatherWindow.preferredStateIds ?? []
+  const favorable = preferredStateIds.includes(cycle.id)
+  let nextFavorableIn = favorable ? 0 : undefined
+
+  if (!favorable) {
+    for (let offset = 1; offset <= cycle.interval * chamber.cycle.states.length; offset += 1) {
+      const next = chamberCycleState(chamber, arkClock + offset)
+      if (preferredStateIds.includes(next.id)) {
+        nextFavorableIn = offset
+        break
+      }
+    }
+  }
+
+  return {
+    cycle,
+    favorable,
+    nextFavorableIn,
+    reward: chamber.weatherWindow.reward,
+    text: favorable
+      ? `Weather window favorable: ${cycle.name}. ${chamber.weatherWindow.reward} ${chamber.weatherWindow.text}.`
+      : `Weather window planning: ${cycle.name} is not ideal. ${chamber.weatherWindow.reward} in ${nextFavorableIn} Ark cycle(s) if you wait.`,
+  }
+}
+
 export const campaignScope = {
   firstFullCampaignHours: { min: 6, max: 10 },
   seasons: [
@@ -135,6 +166,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.8, phase: 0 },
     requiredSeeds: 1,
+    timbrePuzzle: { minBrightness: 0.72, waveforms: ['triangle', 'sawtooth'], text: 'glass leaves open for bright edged timbres instead of dull dark tones' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.08, phase: 180 },
     requires: ['rhythm'],
@@ -387,6 +419,11 @@ export const chambers = [
         { id: 'sunbreak', name: 'Sunbreak', text: 'Brief light through the rain brightens canopy glass before the next cycle.' },
       ],
     },
+    weatherWindow: {
+      preferredStateIds: ['drizzle'],
+      reward: 'Drizzle planning lowers crack risk and steadies planting echoes',
+      text: 'advance the Ark clock or schedule this contract so restoration work lands during steady rain',
+    },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.12, phase: 50 },
     requires: ['nutrient-lattice'],
@@ -488,6 +525,7 @@ export const chambers = [
     start: { x: 2, y: -4, facing: 340 },
     target: { x: -1, y: 1, pitchRatio: 1.25, pulseRate: 2, brightness: 0.55, phase: 60 },
     requiredSeeds: 1,
+    windEcho: { dx: 1, dy: 0, name: 'east bellows draft', text: 'wind carries scan echoes east before they settle back to the heart' },
     pressureSails: { minPulseRate: 1.75, maxPulseRate: 2.25, text: 'pressure sails hold open when airflow pulse stays steady' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.16, phase: 55 },

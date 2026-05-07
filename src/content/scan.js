@@ -2,7 +2,7 @@ function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
 }
 
-export function scanPulse(player, target = {}) {
+export function scanPulse(player, target = {}, chamber = {}) {
   const dx = (target.x ?? 0) - player.x
   const dy = (target.y ?? 0) - player.y
   const distance = Math.hypot(dx, dy)
@@ -12,6 +12,7 @@ export function scanPulse(player, target = {}) {
   const brightness = clamp(1 - distance / 8)
   const duration = clamp(0.16 + distance * 0.04, 0.18, 0.65)
   const delayTrail = [0, 0.04 + distance * 0.012, 0.09 + distance * 0.018].map((value) => Number(value.toFixed(3)))
+  const windEcho = chamber.windEcho ? windCarriedEcho(chamber.windEcho, distance) : undefined
 
   return {
     brightness,
@@ -19,6 +20,20 @@ export function scanPulse(player, target = {}) {
     direction: { dx, dy, horizontal, side, vertical },
     distance,
     duration,
-    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; delay trail ${delayTrail.join('/')}.`,
+    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; delay trail ${delayTrail.join('/')}.${windEcho ? ` ${windEcho.text}` : ''}`,
+    windEcho,
+  }
+}
+
+export function windCarriedEcho(windEcho, distance = 0) {
+  const horizontal = windEcho.dx < 0 ? 'west' : windEcho.dx > 0 ? 'east' : 'center'
+  const vertical = windEcho.dy < 0 ? 'south' : windEcho.dy > 0 ? 'north' : 'level'
+  const carriedDelay = Number((0.12 + distance * 0.02 + Math.hypot(windEcho.dx, windEcho.dy) * 0.05).toFixed(3))
+
+  return {
+    carriedDelay,
+    direction: { dx: windEcho.dx, dy: windEcho.dy, horizontal, vertical },
+    name: windEcho.name,
+    text: `Wind-carried echo: ${windEcho.name}, ${horizontal}, ${vertical}, delayed ${carriedDelay}. ${windEcho.text}.`,
   }
 }

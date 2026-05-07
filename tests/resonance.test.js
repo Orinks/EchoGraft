@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -62,6 +62,7 @@ describe('resonance evaluation', () => {
         pitchRatio: chamber.target.pitchRatio,
         pulseRate: chamber.target.pulseRate,
         brightness: chamber.target.brightness,
+        ...(chamber.timbrePuzzle ? { waveform: chamber.timbrePuzzle.waveforms[0] } : {}),
         phase: chamber.target.phase,
         position: chamber.plantingPattern
           ? { x: chamber.target.x + chamber.plantingPattern.offsets[index % chamber.plantingPattern.offsets.length].x, y: chamber.target.y + chamber.plantingPattern.offsets[index % chamber.plantingPattern.offsets.length].y }
@@ -226,6 +227,60 @@ describe('resonance evaluation', () => {
     expect(chamberCycleState(glassRain, 2).name).toBe('Drizzle hold')
     expect(chamberCycleState(glassRain, 4).name).toBe('Sunbreak')
     expect(chamberCycleState(glassRain, 6).name).toBe('Mist lift')
+  })
+
+  it('rewards planning around favorable weather windows', () => {
+    const glassRain = chambers.find((chamber) => chamber.id === 'glass-rain')
+    const mist = weatherWindowState(glassRain, 0)
+    const drizzle = weatherWindowState(glassRain, 2)
+
+    expect(mist.favorable).toBe(false)
+    expect(mist.nextFavorableIn).toBe(2)
+    expect(mist.text).toContain('Weather window planning')
+    expect(drizzle.favorable).toBe(true)
+    expect(drizzle.text).toContain('Drizzle planning lowers crack risk')
+  })
+
+  it('adds weather-window advice to restoration planning sessions', () => {
+    const solvedThroughRootworks = [
+      'tutorial',
+      'direction',
+      'binaural',
+      'pitch',
+      'rhythm',
+      'timbre',
+      'phase',
+      'harmony',
+      'graft',
+      'mold',
+      'finale',
+      'root-reservoir',
+      'root-choir',
+      'mycelium-gate',
+      'optional-root-echo',
+      'pressure-orchard',
+      'optional-rhizome-splice',
+      'nutrient-lattice',
+      'optional-deep-root',
+    ]
+    const plan = restorationPlanningSession(chambers, solvedThroughRootworks, { min: 6, max: 10 }, 2)
+    const glassRain = plan.contracts.find((chamber) => chamber.id === 'glass-rain')
+
+    expect(glassRain.weatherWindow.favorable).toBe(true)
+    expect(glassRain.weatherWindow.text).toContain('Weather window favorable')
+  })
+
+  it('requires bright edged timbre for brightness/timbre puzzles', () => {
+    const glassLeaves = chambers.find((chamber) => chamber.id === 'timbre')
+    const dullSeed = createSeedDNA('dull-glass', { waveform: 'sine', pitchRatio: 1, pulseRate: 1, brightness: 0.8, phase: 0, position: { x: 0, y: 0 } })
+    const darkSeed = createSeedDNA('dark-glass', { waveform: 'triangle', pitchRatio: 1, pulseRate: 1, brightness: 0.55, phase: 0, position: { x: 0, y: 0 } })
+    const brightSeed = createSeedDNA('bright-glass', { waveform: 'triangle', pitchRatio: 1, pulseRate: 1, brightness: 0.8, phase: 0, position: { x: 0, y: 0 } })
+
+    expect(timbrePuzzleState(glassLeaves, [dullSeed]).active).toBe(false)
+    expect(timbrePuzzleState(glassLeaves, [darkSeed]).active).toBe(false)
+    expect(evaluateResonance(glassLeaves, [dullSeed]).missing).toContain('Use a bright edged timbre to open the brightness/timbre puzzle.')
+    expect(timbrePuzzleState(glassLeaves, [brightSeed]).active).toBe(true)
+    expect(evaluateResonance(glassLeaves, [brightSeed]).solved).toBe(true)
   })
 
   it('authors Wind Bellows with steady pressure sail pulse limits', () => {
