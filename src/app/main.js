@@ -8,7 +8,7 @@ import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rota
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -43,7 +43,9 @@ function currentTuningParameter() {
 }
 
 function seedDnaText(seed) {
-  return `${seedNameState(seed).text} ${seedFamilyState(seed).text} ${seedEcologicalAffinityState(seed).text} ${seedDiscoveredOriginState(seed).text} ${seedGraftAncestryState(seed).text} ${seedPitchRatioState(seed, chamber.target.pitchRatio).text} ${seedPulseRateState(seed, chamber.target.pulseRate).text} ${seedBrightnessState(seed, chamber.target.brightness).text} ${seedPhaseState(seed, chamber.target.phase).text} ${seedWaveformState(seed, chamber.timbrePuzzle?.waveforms).text} ${seedSynthTypeState(seed).text} ${seedModulationProfileState(seed).text} ${seedEnvelopeState(seed).text} ${seedNoiseProfileState(seed).text} ${seedGrowthBehaviorState(seed, chamber).text} ${seedLineageText(seed)} ${historicalSeedTraitState(seed, save).text}`
+  const locked = seedLockedTraits(seed)
+  const lockedText = locked.length ? `Resin locked traits: ${locked.map(tuningLabel).join(', ')}.` : 'Resin locked traits: none.'
+  return `${seedNameState(seed).text} ${seedFamilyState(seed).text} ${seedEcologicalAffinityState(seed).text} ${seedDiscoveredOriginState(seed).text} ${seedGraftAncestryState(seed).text} ${seedPitchRatioState(seed, chamber.target.pitchRatio).text} ${seedPulseRateState(seed, chamber.target.pulseRate).text} ${seedBrightnessState(seed, chamber.target.brightness).text} ${seedPhaseState(seed, chamber.target.phase).text} ${seedWaveformState(seed, chamber.timbrePuzzle?.waveforms).text} ${seedSynthTypeState(seed).text} ${seedModulationProfileState(seed).text} ${seedEnvelopeState(seed).text} ${seedNoiseProfileState(seed).text} ${seedGrowthBehaviorState(seed, chamber).text} ${lockedText} ${seedLineageText(seed)} ${historicalSeedTraitState(seed, save).text}`
 }
 
 function loadPlanted(chamberId) {
@@ -244,6 +246,21 @@ function tune(direction) {
   inventory[selectedSeedIndex] = report.seed
   log(`${report.text} ${currency.text}${parameter === 'brightness' ? ` ${canopyTuning.text}` : ''}`)
   audio.seed(inventory[selectedSeedIndex])
+  persist()
+}
+
+function lockSelectedTrait() {
+  const seed = currentSeed()
+  if (!seed) return
+  const parameter = currentTuningParameter()
+  const lock = resinTraitLockState(save, seed, parameter)
+  if (!lock.canLock) {
+    log(lock.text)
+    return
+  }
+  save.materials.resin -= lock.cost
+  inventory[selectedSeedIndex] = lockSeedTrait(seed, parameter)
+  log(`Locked ${tuningLabel(parameter)} on ${seed.name}. ${lock.text}`)
   persist()
 }
 
@@ -502,6 +519,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'plant') plantOrPickUp()
   if (action === 'tuneDown') tune(-1)
   if (action === 'tuneUp') tune(1)
+  if (action === 'lockTrait') lockSelectedTrait()
   if (action === 'graft') graft()
   if (action === 'evaluate') evaluateReport()
   if (action === 'selectSeed') selectSeed(Number(event.target.dataset.seedIndex))
@@ -605,9 +623,10 @@ function game() {
           <button data-action="scanMode" data-mode="seeds">Seed scan</button>
           <button data-action="scanMode" data-mode="hazards">Hazard scan</button>
           <button data-action="plant">Plant or pick up</button>
-          <button data-action="tuneDown">Tune down</button>
-          <button data-action="tuneUp">Tune up</button>
-          <button data-action="evaluate">Evaluate resonance</button>
+        <button data-action="tuneDown">Tune down</button>
+        <button data-action="tuneUp">Tune up</button>
+        <button data-action="lockTrait">Lock selected trait with resin</button>
+        <button data-action="evaluate">Evaluate resonance</button>
           <button data-action="tuningParameter" data-parameter="envelope.attack">Tune envelope</button>
           <button data-action="tuningParameter" data-parameter="fmAmount">Tune modulation</button>
           <button data-action="tuningParameter" data-parameter="noiseAmount">Tune noise</button>
@@ -822,6 +841,7 @@ function library() {
         ${tuningParameters.map((parameter) => `<button data-action="tuningParameter" data-parameter="${parameter}">${tuningLabel(parameter)}</button>`).join('')}
         <button data-action="tuneDown">Tune down</button>
         <button data-action="tuneUp">Tune up</button>
+        <button data-action="lockTrait">Lock selected trait with resin</button>
       </section>
       <section aria-labelledby="graft-mechanics-title">
         <h2 id="graft-mechanics-title">Unlocked Graft Mechanics</h2>

@@ -15,6 +15,7 @@ export function createDefaultSave() {
       dreamCompost: 0,
       glassPollen: 0,
       memory: 0,
+      resin: 0,
       spores: 0,
     },
     plantedByChamber: {},

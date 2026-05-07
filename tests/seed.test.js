@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, rareGraftRewards, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -262,6 +262,24 @@ describe('seed DNA', () => {
     expect(empty.canSpend).toBe(false)
     expect(empty.remaining).toBe(0)
     expect(empty.text).toContain('common tuning currency')
+  })
+
+  it('uses resin to lock a seed trait against tuning changes', () => {
+    const seed = createSeedDNA('resin-lock', { pitchRatio: 1 })
+    const ready = resinTraitLockState({ materials: { resin: 1 } }, seed, 'pitchRatio')
+    const locked = lockSeedTrait(seed, 'pitchRatio')
+    const report = tuneSeedWithReport(locked, 'pitchRatio', 1)
+    const graft = graftSeedsWithReport(locked, createSeedDNA('lumen-lock-partner'), 'resin-locked-graft')
+
+    expect(ready.canLock).toBe(true)
+    expect(ready.remaining).toBe(0)
+    expect(ready.text).toContain('Resin lock ready')
+    expect(seedLockedTraits(locked)).toEqual(['pitchRatio'])
+    expect(tuneSeed(locked, 'pitchRatio', 1).pitchRatio).toBe(1)
+    expect(report.text).toContain('locked by resin')
+    expect(resinTraitLockState({ materials: { resin: 2 } }, locked, 'pitchRatio').alreadyLocked).toBe(true)
+    expect(seedLockedTraits(graft.seed)).toEqual(['pitchRatio'])
+    expect(graft.inheritedTraits).toContain('resin locked pitch ratio')
   })
 
   it('unlocks finer brightness tuning after Canopy comes online', () => {

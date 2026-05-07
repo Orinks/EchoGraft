@@ -362,7 +362,44 @@ export function seedGrowthBehaviorState(seed, chamber = {}) {
   }
 }
 
+export function seedLockedTraits(seed = {}) {
+  return Array.from(new Set((seed.lockedTraits ?? []).filter((trait) => tuningParameters.includes(trait))))
+}
+
+export function resinTraitLockState(saveOrMaterials = {}, seed = {}, parameter = 'pitchRatio') {
+  const materials = saveOrMaterials.materials ?? saveOrMaterials
+  const balance = Math.max(0, materials.resin ?? 0)
+  const cost = 1
+  const lockedTraits = seedLockedTraits(seed)
+  const alreadyLocked = lockedTraits.includes(parameter)
+  const canLock = balance >= cost && !alreadyLocked
+  const label = tuningLabel(parameter)
+
+  return {
+    alreadyLocked,
+    balance,
+    canLock,
+    cost,
+    lockedTraits,
+    remaining: Math.max(0, balance - (canLock ? cost : 0)),
+    text: alreadyLocked
+      ? `Resin lock: ${label} is already locked on ${seed.name ?? 'this seed'}.`
+      : canLock
+        ? `Resin lock ready: spend ${cost} resin to preserve ${label}; ${balance - cost} will remain.`
+        : `Resin lock unavailable: gather resin to preserve ${label} before tuning or grafting.`,
+  }
+}
+
+export function lockSeedTrait(seed, parameter = 'pitchRatio') {
+  if (!tuningParameters.includes(parameter)) return normalizeSeed(seed)
+  return normalizeSeed({
+    ...seed,
+    lockedTraits: Array.from(new Set([...seedLockedTraits(seed), parameter])),
+  })
+}
+
 export function tuneSeed(seed, parameter, direction, step = 1) {
+  if (seedLockedTraits(seed).includes(parameter)) return normalizeSeed(seed)
   const tuned = structuredClone(seed)
   tuned.envelope = tuned.envelope ?? { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 }
   const delta = direction * step
@@ -426,6 +463,7 @@ export function sporeTuningCurrencyState(saveOrMaterials = {}, parameter = 'pitc
 
 export function tuneSeedWithReport(seed, parameter, direction, step = 1) {
   const before = tuningValue(seed, parameter)
+  const locked = seedLockedTraits(seed).includes(parameter)
   const tuned = tuneSeed(seed, parameter, direction, step)
   const after = tuningValue(tuned, parameter)
   const label = tuningLabel(parameter)
@@ -437,7 +475,9 @@ export function tuneSeedWithReport(seed, parameter, direction, step = 1) {
     label,
     role,
     seed: tuned,
-    text: `Tuned ${tuned.name}: ${parameter} is ${after} (was ${before}; ${label}). Single-seed tuning role: ${role}.`,
+    text: locked
+      ? `Tuned ${tuned.name}: ${parameter} is locked by resin at ${after} (was ${before}; ${label}). Single-seed tuning role: ${role}.`
+      : `Tuned ${tuned.name}: ${parameter} is ${after} (was ${before}; ${label}). Single-seed tuning role: ${role}.`,
   }
 }
 
@@ -476,6 +516,7 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
       ...(seedB.lineageHistory ?? [`${seedB.family ?? seedB.id} lineage history unknown.`]),
       discovery?.record ?? `A graft between ${seedA.family ?? seedA.id} and ${seedB.family ?? seedB.id} has no archive record yet.`,
     ],
+    lockedTraits: Array.from(new Set([...seedLockedTraits(seedA), ...seedLockedTraits(seedB)])),
     discoveryId: discovery?.id,
     waveform: seedA.waveform,
     oscillatorType: seedB.oscillatorType,
@@ -598,6 +639,7 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
     `modulation FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount} from ${seedB.name}`,
     `growth ${seed.growthBehavior} from ${seedB.name}`,
     `envelope attack ${seed.envelope.attack} from ${seedA.name}`,
+    ...(seedLockedTraits(seed).length ? [`resin locked ${seedLockedTraits(seed).map(tuningLabel).join(', ')}`] : []),
     ...unlockedInheritedTraits.map(({ system, trait }) => `restored ${system} unlocked ${trait}`),
   ]
 
