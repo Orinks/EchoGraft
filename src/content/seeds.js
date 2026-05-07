@@ -236,6 +236,27 @@ export function seedSynthTypeState(seed) {
   }
 }
 
+export function seedModulationProfileState(seed) {
+  const fmAmount = clamp(Number(seed.fmAmount ?? 0), 0, 1)
+  const amAmount = clamp(Number(seed.amAmount ?? 0), 0, 1)
+  const noiseAmount = clamp(Number(seed.noiseAmount ?? 0), 0, 1)
+  const layers = [
+    { amount: fmAmount, label: 'FM', role: tuningParameterDetails.fmAmount.role },
+    { amount: amAmount, label: 'AM', role: tuningParameterDetails.amAmount.role },
+    { amount: noiseAmount, label: 'noise', role: tuningParameterDetails.noiseAmount.role },
+  ]
+  const dominant = layers.reduce((best, layer) => (layer.amount > best.amount ? layer : best), layers[0])
+  const dominantLayer = dominant.amount > 0 ? dominant.label : 'none'
+
+  return {
+    amAmount,
+    dominantLayer,
+    fmAmount,
+    noiseAmount,
+    text: `Modulation profile: FM ${fmAmount} (${tuningParameterDetails.fmAmount.role}), AM ${amAmount} (${tuningParameterDetails.amAmount.role}), noise ${noiseAmount} (${tuningParameterDetails.noiseAmount.role}); dominant layer ${dominantLayer}.`,
+  }
+}
+
 export function tuneSeed(seed, parameter, direction, step = 1) {
   const tuned = structuredClone(seed)
   tuned.envelope = tuned.envelope ?? { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 }

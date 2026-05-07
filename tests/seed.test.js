@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -84,6 +84,27 @@ describe('seed DNA', () => {
     expect(state.text).toBe('Synth type: fm; routes to frequency-modulated Syngen voice.')
     expect(createSeedDNA('bad-synth', { oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
     expect(seedSynthTypeState({ oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
+  })
+
+  it('reports modulation profile as readable FM, AM, and noise roles', () => {
+    const seed = createSeedDNA('modulation-report', { amAmount: 0.35, fmAmount: 0.2, noiseAmount: 0.1 })
+    const state = seedModulationProfileState(seed)
+
+    expect(state).toMatchObject({
+      amAmount: 0.35,
+      dominantLayer: 'AM',
+      fmAmount: 0.2,
+      noiseAmount: 0.1,
+    })
+    expect(state.text).toContain('pressure, root grit, and harmonic edge')
+    expect(state.text).toContain('current sway and rhythmic amplitude motion')
+    expect(state.text).toContain('breath, compost, and masking texture')
+    expect(seedModulationProfileState({ fmAmount: 2, amAmount: -1, noiseAmount: undefined })).toMatchObject({
+      amAmount: 0,
+      dominantLayer: 'FM',
+      fmAmount: 1,
+      noiseAmount: 0,
+    })
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {
