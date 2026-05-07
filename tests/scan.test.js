@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPositionState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -82,6 +82,7 @@ describe('scan pulse', () => {
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
       position: { x: 0, y: 1 },
       positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
+      spatialRadiusState: { falloff: 'close aura', heartDistance: 1, radius: 2.9, reachesHeart: true },
       substrateState: { substrate: 'breathable intake soil' },
       tuningState: {
         deltas: { brightness: 0, phase: 0, pitchRatio: 0, pulseRate: 0 },
@@ -90,6 +91,7 @@ describe('scan pulse', () => {
     })
     expect(seedScan.text).toContain('Seed scan: Sol phonoseed at 0, 1')
     expect(seedScan.text).toContain('Position: 0, 1; heart offset 0, 1; distance 1 step(s); inside position tolerance 1.5')
+    expect(seedScan.text).toContain('Spatial radius: 2.9 step(s); close aura; heart distance 1 step(s), reaches chamber heart.')
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
@@ -233,6 +235,21 @@ describe('scan pulse', () => {
     expect(position.distance).toBeCloseTo(2.828)
     expect(position.withinTolerance).toBe(false)
     expect(position.text).toContain('outside position tolerance 2')
+  })
+
+  it('reports a reusable spatial radius state for planted seeds', () => {
+    const radius = seedSpatialRadiusScanState(
+      { brightness: 0.6, growthBehavior: 'twining', position: { x: 4, y: 0 } },
+      { target: { x: 0, y: 0 } },
+    )
+
+    expect(radius).toMatchObject({
+      falloff: 'wide field',
+      heartDistance: 4,
+      radius: 4.2,
+      reachesHeart: true,
+    })
+    expect(radius.text).toBe('Spatial radius: 4.2 step(s); wide field; heart distance 4 step(s), reaches chamber heart.')
   })
 
   it('summarizes hazard forbidden intervals and unsafe seed zones', () => {
