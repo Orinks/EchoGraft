@@ -71,6 +71,29 @@ export function boundaryScanState(player, chamber = {}) {
   }
 }
 
+export function seedScanState(plantedSeeds = []) {
+  const seeds = plantedSeeds.map((seed) => ({
+    family: seed.family ?? 'unknown family',
+    name: seed.name ?? seed.id ?? 'unknown seed',
+    position: seed.position ?? { x: 0, y: 0 },
+    traits: {
+      brightness: seed.brightness ?? 0,
+      phase: seed.phase ?? 0,
+      pitchRatio: seed.pitchRatio ?? 1,
+      pulseRate: seed.pulseRate ?? 1,
+      waveform: seed.waveform ?? 'sine',
+    },
+  }))
+
+  return {
+    count: seeds.length,
+    seeds,
+    text: seeds.length
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; family ${seed.family}; traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
+      : 'Seed scan: no planted seed objects in this chamber.',
+  }
+}
+
 export function navigationScanState(save = {}) {
   const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
 

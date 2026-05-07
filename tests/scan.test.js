@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -47,6 +47,30 @@ describe('scan pulse', () => {
     expect(boundary.text).toContain('Boundary scan: chamber edges west -5, east 5, south -7, north 3')
     expect(boundary.text).toContain('Exits: east door 5, -2')
     expect(boundary.text).toContain('Safe return point 0, -2')
+  })
+
+  it('summarizes planted seed positions and traits', () => {
+    const seedScan = seedScanState([
+      {
+        brightness: 0.45,
+        family: 'Sol',
+        name: 'Sol phonoseed',
+        phase: 0,
+        pitchRatio: 1,
+        position: { x: 0, y: 1 },
+        pulseRate: 1,
+        waveform: 'sine',
+      },
+    ])
+
+    expect(seedScan.count).toBe(1)
+    expect(seedScan.seeds[0]).toMatchObject({
+      family: 'Sol',
+      position: { x: 0, y: 1 },
+      traits: { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, waveform: 'sine' },
+    })
+    expect(seedScan.text).toContain('Seed scan: Sol phonoseed at 0, 1')
+    expect(seedScan.text).toContain('traits pitch 1, pulse 1, brightness 0.45, phase 0, waveform sine')
   })
 
   it('expands scan range after Intake comes online', () => {
