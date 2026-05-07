@@ -357,6 +357,33 @@ export function playerBuiltFinalChord(chambers, save, inventory = []) {
   }
 }
 
+export const conservatoryCompositionModes = [
+  { id: 'balanced', title: 'Balanced Chord', text: 'Layer recovered voices evenly as a stable postgame chord.' },
+  { id: 'solo', title: 'Seed Solo', text: 'Feature the selected seed voice while other recovered voices answer softly.' },
+  { id: 'network', title: 'Network Braid', text: 'Group voices by restored Ark systems so the composition follows the repair network.' },
+]
+
+export function freeCompositionConservatory(save, inventory = [], modeId = 'balanced') {
+  const mode = conservatoryCompositionModes.find((item) => item.id === modeId) ?? conservatoryCompositionModes[0]
+  const playableVoices = inventory.map((seed) => ({
+    family: seed.family,
+    name: seed.name,
+    pitchRatio: seed.pitchRatio,
+    pulseRate: seed.pulseRate,
+  }))
+  const unlocked = Boolean(save.postgameUnlocked)
+
+  return {
+    mode,
+    modes: conservatoryCompositionModes,
+    playableVoices,
+    text: unlocked
+      ? `Free-composition conservatory open: ${playableVoices.length} playable voice(s). Mode ${mode.title}: ${mode.text}`
+      : 'Free-composition conservatory locked until a finale resolution opens postgame restoration.',
+    unlocked,
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))

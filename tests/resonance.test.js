@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -253,6 +253,24 @@ describe('resonance evaluation', () => {
     expect(chord.systems).toEqual(['Intake', 'Verdancy Heart'])
     expect(chord.networkStrength).toBe(5)
     expect(chord.text).toContain('Player-built final chord')
+  })
+
+  it('opens postgame free-composition modes in the Conservatory', () => {
+    const locked = freeCompositionConservatory(createDefaultSave(), [])
+    expect(locked.unlocked).toBe(false)
+    expect(locked.text).toContain('locked')
+
+    const save = { ...createDefaultSave(), postgameUnlocked: true }
+    const inventory = [
+      createSeedDNA('sol-compose', { name: 'Sol compose voice' }),
+      createSeedDNA('lumen-compose', { name: 'Lumen compose voice' }),
+    ]
+    const network = freeCompositionConservatory(save, inventory, 'network')
+
+    expect(conservatoryCompositionModes.map((mode) => mode.id)).toEqual(['balanced', 'solo', 'network'])
+    expect(network.unlocked).toBe(true)
+    expect(network.mode.title).toBe('Network Braid')
+    expect(network.playableVoices.map((voice) => voice.name)).toEqual(['Sol compose voice', 'Lumen compose voice'])
   })
 
   it('keeps codex records and perceptions in the 80 to 120 band', () => {

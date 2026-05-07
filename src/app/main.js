@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -21,6 +21,7 @@ let inventory = buildInventory()
 let selectedSeedIndex = 0
 let tuningIndex = 0
 let scanMode = 'objective'
+let conservatoryMode = 'balanced'
 let plantedSeeds = loadPlanted(chamber.id)
 let lastResult = evaluateResonance(chamber, plantedSeeds)
 
@@ -255,8 +256,9 @@ function previewSelectedSeed() {
 }
 
 function composeConservatory() {
+  const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
   audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory)
-  log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord.`)
+  log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord. Mode ${composition.mode.title}: ${composition.mode.text}`)
 }
 
 function selectSeed(index) {
@@ -451,6 +453,11 @@ app.addEventListener('click', async (event) => {
   if (action === 'selectSeed') selectSeed(Number(event.target.dataset.seedIndex))
   if (action === 'previewSeed') previewSelectedSeed()
   if (action === 'compose') composeConservatory()
+  if (action === 'compositionMode') {
+    conservatoryMode = event.target.dataset.mode ?? conservatoryMode
+    const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
+    log(`Conservatory mode: ${composition.mode.title}. ${composition.mode.text}`)
+  }
   if (action === 'restore') restoreChamber()
   if (action === 'advanceClock') advanceArkClock()
   if (action === 'philosophy') {
@@ -747,6 +754,7 @@ function codex() {
 
 function conservatory() {
   audio.setMusicScene('ending', { inventory })
+  const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
   shell(`
     <main class="screen" aria-labelledby="conservatory-title">
       <h1 id="conservatory-title">Conservatory</h1>
@@ -757,7 +765,9 @@ function conservatory() {
       </section>
       <section aria-labelledby="composition-title">
         <h2 id="composition-title">Composition Palette</h2>
+        <p>${composition.text}</p>
         <p>${inventory.map((seed) => seed.name).join(', ')}.</p>
+        ${composition.modes.map((mode) => `<button data-action="compositionMode" data-mode="${mode.id}"${mode.id === composition.mode.id ? ' aria-pressed="true"' : ''}>${mode.title}</button>`).join('')}
       </section>
       <button data-action="compose">Compose conservatory chord</button>
       <button data-action="atlas">Atlas</button>
