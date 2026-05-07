@@ -105,6 +105,7 @@ export function normalizeSeed(seed) {
     name: String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed')),
     family: String(seed.family ?? 'Unknown'),
     waveform: waveforms.includes(seed.waveform) ? seed.waveform : 'sine',
+    oscillatorType: oscillatorTypes.includes(seed.oscillatorType) ? seed.oscillatorType : 'pure',
     envelope: {
       attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
       decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
@@ -215,6 +216,23 @@ export function seedWaveformState(seed, requiredWaveforms = []) {
     requiredWaveforms,
     text: `Waveform: ${waveform}; timbre shape for synthesis and graft inheritance; ${matchesRequirement ? 'matches' : 'does not match'} ${required}.`,
     waveform,
+  }
+}
+
+export function seedSynthTypeState(seed) {
+  const oscillatorType = oscillatorTypes.includes(seed.oscillatorType) ? seed.oscillatorType : 'pure'
+  const routingByType = {
+    am: 'amplitude-modulated Syngen voice',
+    fm: 'frequency-modulated Syngen voice',
+    'noise-kissed': 'buffer-noise kissed Syngen voice',
+    pure: 'additive Syngen voice',
+  }
+  const routing = routingByType[oscillatorType]
+
+  return {
+    oscillatorType,
+    routing,
+    text: `Synth type: ${oscillatorType}; routes to ${routing}.`,
   }
 }
 

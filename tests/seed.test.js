@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -73,6 +73,17 @@ describe('seed DNA', () => {
     expect(state.matchesRequirement).toBe(true)
     expect(state.text).toContain('timbre shape for synthesis and graft inheritance')
     expect(seedWaveformState(seed, ['sine']).matchesRequirement).toBe(false)
+  })
+
+  it('reports synth type as Syngen routing metadata', () => {
+    const seed = createSeedDNA('synth-report', { oscillatorType: 'fm' })
+    const state = seedSynthTypeState(seed)
+
+    expect(state.oscillatorType).toBe('fm')
+    expect(state.routing).toBe('frequency-modulated Syngen voice')
+    expect(state.text).toBe('Synth type: fm; routes to frequency-modulated Syngen voice.')
+    expect(createSeedDNA('bad-synth', { oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
+    expect(seedSynthTypeState({ oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {
