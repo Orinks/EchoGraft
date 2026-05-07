@@ -411,6 +411,48 @@ export function seedNearbyInteractionState(seed = {}, plantedSeeds = []) {
   }
 }
 
+function harmonicIntervalName(ratio) {
+  const intervals = [
+    { name: 'unison', ratio: 1 },
+    { name: 'major third', ratio: 1.25 },
+    { name: 'perfect fourth', ratio: 1.333 },
+    { name: 'perfect fifth', ratio: 1.5 },
+    { name: 'octave', ratio: 2 },
+  ]
+  const match = intervals.find((interval) => Math.abs(ratio - interval.ratio) <= 0.035)
+  return match?.name ?? 'complex interval'
+}
+
+export function seedHarmonicRelationshipScanState(seed = {}, plantedSeeds = []) {
+  const pitchRatio = Number(seed.pitchRatio ?? 1)
+  const position = seed.position ?? { x: 0, y: 0 }
+  const relationships = plantedSeeds
+    .filter((other) => other !== seed)
+    .map((other) => {
+      const otherPitchRatio = Number(other.pitchRatio ?? 1)
+      const low = Math.min(pitchRatio, otherPitchRatio)
+      const high = Math.max(pitchRatio, otherPitchRatio)
+      const ratio = Number((high / Math.max(low, 0.001)).toFixed(3))
+      const otherPosition = other.position ?? { x: 0, y: 0 }
+
+      return {
+        distance: Number(Math.hypot(otherPosition.x - position.x, otherPosition.y - position.y).toFixed(3)),
+        family: other.family ?? 'unknown family',
+        interval: harmonicIntervalName(ratio),
+        name: other.name ?? other.id ?? 'unknown seed',
+        pitchRatio: otherPitchRatio,
+        ratio,
+      }
+    })
+    .sort((a, b) => a.distance - b.distance || a.name.localeCompare(b.name))
+
+  return {
+    pitchRatio,
+    relationships,
+    text: `Harmonic relationship: ${relationships.length ? relationships.map((other) => `${other.name} (${other.family}) ${other.interval}, ratio ${other.ratio}, ${other.distance} step(s) away`).join('; ') : 'no other planted voices to compare'}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     amDepthState: seedAmDepthScanState(seed),
@@ -419,6 +461,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     family: seed.family ?? 'unknown family',
     familyState: seedFamilyScanState(seed),
     fmDepthState: seedFmDepthScanState(seed),
+    harmonicRelationshipState: seedHarmonicRelationshipScanState(seed, plantedSeeds),
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     noiseAmountState: seedNoiseAmountScanState(seed),
@@ -438,7 +481,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.harmonicRelationshipState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

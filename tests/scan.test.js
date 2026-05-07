@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -78,6 +78,7 @@ describe('scan pulse', () => {
       envelopeShapeState: { bloom: 'quick bloom', body: 'balanced body', tail: 'medium tail' },
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
       fmDepthState: { band: 'light FM shimmer', carrier: 'primary FM synth route', fmDepth: 0.2 },
+      harmonicRelationshipState: { pitchRatio: 1, relationships: [] },
       nearbyState: { nearby: [] },
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
       phaseMatchState: { band: 'matched', delta: 0, phase: 0, score: 1, target: 0, tolerance: 45, withinTolerance: true },
@@ -101,6 +102,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
+    expect(seedScan.text).toContain('Harmonic relationship: no other planted voices to compare.')
     expect(seedScan.text).toContain('Pitch match: matched; pitch 1 vs target 1, delta 0, score 1; tolerance 0.25.')
     expect(seedScan.text).toContain('Rhythm match: matched; pulse 1 vs target 1, delta 0, score 1; tolerance 0.5.')
     expect(seedScan.text).toContain('Timbre match: matched; waveform sine; required any chamber-compatible waveform.')
@@ -301,6 +303,21 @@ describe('scan pulse', () => {
       expect.objectContaining({ distance: 1.414, family: 'Lumen', name: 'Lumen phonoseed' }),
     ])
     expect(interactions.text).toContain('Lumen phonoseed (Lumen) 1.414 step(s) away')
+  })
+
+  it('reports harmonic relationships between planted voices', () => {
+    const sol = { family: 'Sol', name: 'Sol phonoseed', pitchRatio: 1, position: { x: 0, y: 0 } }
+    const lumen = { family: 'Lumen', name: 'Lumen phonoseed', pitchRatio: 1.5, position: { x: 1, y: 1 } }
+    const umbra = { family: 'Umbra', name: 'Umbra phonoseed', pitchRatio: 1.26, position: { x: 3, y: 0 } }
+    const relationships = seedHarmonicRelationshipScanState(sol, [sol, lumen, umbra])
+
+    expect(relationships.pitchRatio).toBe(1)
+    expect(relationships.relationships).toEqual([
+      expect.objectContaining({ distance: 1.414, family: 'Lumen', interval: 'perfect fifth', name: 'Lumen phonoseed', pitchRatio: 1.5, ratio: 1.5 }),
+      expect.objectContaining({ distance: 3, family: 'Umbra', interval: 'major third', name: 'Umbra phonoseed', pitchRatio: 1.26, ratio: 1.26 }),
+    ])
+    expect(relationships.text).toContain('Lumen phonoseed (Lumen) perfect fifth, ratio 1.5, 1.414 step(s) away')
+    expect(relationships.text).toContain('Umbra phonoseed (Umbra) major third, ratio 1.26, 3 step(s) away')
   })
 
   it('reports a reusable seed position state relative to the chamber heart', () => {
