@@ -430,6 +430,16 @@ export function restorationRating(result) {
   return 'Restored'
 }
 
+const ratingOrder = ['Dormant', 'Restored', 'Stable', 'Resonant']
+
+function strongerRating(currentRating, targetRating) {
+  const currentIndex = ratingOrder.indexOf(currentRating ?? 'Restored')
+  const targetIndex = ratingOrder.indexOf(targetRating ?? 'Stable')
+  if (targetIndex === -1) return currentRating ?? 'Restored'
+  if (currentIndex === -1) return targetRating
+  return targetIndex > currentIndex ? targetRating : currentRating
+}
+
 export function mergeRewards(save, chamber, rating) {
   const rewards = chamber.rewards ?? {}
   const next = structuredClone(save)
@@ -443,5 +453,9 @@ export function mergeRewards(save, chamber, rating) {
     if (!next.codexIds.includes(codexId)) next.codexIds.push(codexId)
   }
   next.ratings[chamber.id] = rating
+  if (chamber.contractType === 'stabilization' && chamber.stabilization?.improvesChamberId) {
+    const improvedId = chamber.stabilization.improvesChamberId
+    next.ratings[improvedId] = strongerRating(next.ratings[improvedId], chamber.stabilization.targetRating)
+  }
   return next
 }

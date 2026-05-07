@@ -53,6 +53,26 @@ export function weatherWindowState(chamber, arkClock = 0) {
   }
 }
 
+export function restorationContractSummary(chamber) {
+  if (chamber.contractType !== 'restoration') return undefined
+
+  return {
+    subsystem: chamber.system,
+    text: `Restoration contract: repairs the named Ark subsystem ${chamber.system} through ${chamber.mechanic}.`,
+  }
+}
+
+export function stabilizationContractSummary(chamber, chamberList = chambers) {
+  if (chamber.contractType !== 'stabilization') return undefined
+
+  const target = chamberList.find((item) => item.id === chamber.stabilization?.improvesChamberId)
+  return {
+    improvesChamberId: chamber.stabilization?.improvesChamberId,
+    targetRating: chamber.stabilization?.targetRating ?? 'Stable',
+    text: `Stabilization contract: improves restored chamber ${target?.title ?? chamber.stabilization?.improvesChamberId ?? 'unknown'} toward ${chamber.stabilization?.targetRating ?? 'Stable'} rating through ${chamber.mechanic}.`,
+  }
+}
+
 export const campaignScope = {
   firstFullCampaignHours: { min: 6, max: 10 },
   seasons: [
@@ -81,6 +101,11 @@ export const chambers = [
     system: 'Intake',
     contractType: 'training',
     mechanic: 'movement, listening, and scan',
+    training: {
+      focus: 'chamber heart scan',
+      stakes: 'low',
+      text: 'Teaches one safe mechanic: listen, locate, and scan for the chamber heart before any hazard or resource pressure appears.',
+    },
     objective: 'Move, scan the chamber heart, plant Sol, and match the calm heart tone.',
     start: { x: 0, y: -2, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0 },
@@ -167,6 +192,7 @@ export const chambers = [
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.8, phase: 0 },
     requiredSeeds: 1,
     timbrePuzzle: { minBrightness: 0.72, waveforms: ['triangle', 'sawtooth'], text: 'glass leaves open for bright edged timbres instead of dull dark tones' },
+    stabilization: { improvesChamberId: 'rhythm', targetRating: 'Stable' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.08, phase: 180 },
     requires: ['rhythm'],
@@ -342,6 +368,7 @@ export const chambers = [
     start: { x: 3, y: -3, facing: 300 },
     target: { x: 0, y: 2, pitchRatio: 1, pulseRate: 2.5, brightness: 0.58, phase: 60 },
     requiredSeeds: 1,
+    stabilization: { improvesChamberId: 'mycelium-gate', targetRating: 'Stable' },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.18, pulseRate: 0.22, brightness: 0.16, phase: 65 },
     requires: ['mycelium-gate'],
@@ -441,6 +468,7 @@ export const chambers = [
     target: { x: 1, y: 2, pitchRatio: 2, pulseRate: 1.5, brightness: 0.85, phase: 90 },
     requiredSeeds: 1,
     thermalShutters: { minBrightness: 0.75, maxBrightness: 0.9, text: 'thermal shutters open when focused light is warm enough but not overheated' },
+    stabilization: { improvesChamberId: 'glass-rain', targetRating: 'Stable' },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.28, brightness: 0.08, phase: 50 },
     requires: ['glass-rain'],
@@ -610,6 +638,7 @@ export const chambers = [
     start: { x: -4, y: 1, facing: 90 },
     target: { x: 2, y: -1, pitchRatio: 1, pulseRate: 2, brightness: 0.76, phase: 90 },
     requiredSeeds: 1,
+    stabilization: { improvesChamberId: 'archive-vines', targetRating: 'Stable' },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.24, brightness: 0.08, phase: 45 },
     requires: ['archive-vines'],

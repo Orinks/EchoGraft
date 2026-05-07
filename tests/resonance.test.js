@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, restorationContractSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -294,6 +294,48 @@ describe('resonance evaluation', () => {
     expect(intake.contractType).toBe('restoration')
     expect(intake.mechanic).toContain('chamber heart scan')
     expect(intake.rewards.codex).toContain('intake-lung')
+  })
+
+  it('summarizes restoration contracts as named Ark subsystem repairs', () => {
+    const restorationContracts = chambers.filter((chamber) => chamber.contractType === 'restoration')
+
+    expect(restorationContracts.length).toBeGreaterThan(0)
+    for (const contract of restorationContracts) {
+      const summary = restorationContractSummary(contract)
+      expect(summary.subsystem, contract.id).toBe(contract.system)
+      expect(summary.text, contract.id).toContain(`named Ark subsystem ${contract.system}`)
+      expect(summary.text, contract.id).toContain(contract.mechanic)
+    }
+    expect(restorationContractSummary(chambers.find((chamber) => chamber.contractType === 'training'))).toBeUndefined()
+  })
+
+  it('uses stabilization contracts to improve a restored chamber rating', () => {
+    const stabilizationContracts = chambers.filter((chamber) => chamber.contractType === 'stabilization')
+    const glassLeaves = chambers.find((chamber) => chamber.id === 'timbre')
+    const save = createDefaultSave()
+    save.solvedChambers = ['rhythm']
+    save.ratings = { rhythm: 'Restored' }
+
+    expect(stabilizationContracts.length).toBeGreaterThan(0)
+    for (const contract of stabilizationContracts) {
+      const summary = stabilizationContractSummary(contract)
+      expect(summary.improvesChamberId, contract.id).toBeTruthy()
+      expect(summary.targetRating, contract.id).toBe('Stable')
+      expect(summary.text, contract.id).toContain('improves restored chamber')
+      expect(contract.requires, contract.id).toContain(summary.improvesChamberId)
+    }
+    expect(stabilizationContractSummary(chambers.find((chamber) => chamber.contractType === 'restoration'))).toBeUndefined()
+    expect(mergeRewards(save, glassLeaves, 'Stable').ratings.rhythm).toBe('Stable')
+  })
+
+  it('authors the training contract as one low-stakes mechanic lesson', () => {
+    const training = chambers.find((chamber) => chamber.id === 'tutorial')
+
+    expect(training.contractType).toBe('training')
+    expect(training.training).toMatchObject({ focus: 'chamber heart scan', stakes: 'low' })
+    expect(training.training.text).toContain('Teaches one safe mechanic')
+    expect(training.hazards ?? []).toHaveLength(0)
+    expect(training.solveTimeMinutes.max).toBeLessThanOrEqual(6)
   })
 
   it('authors Navigation Grove as a direction and distance contract', () => {
