@@ -228,6 +228,28 @@ export function resourceEfficiencySummary(chamber, save = {}) {
   }
 }
 
+export function optionalRecordRecoverySummary(chamber, save = {}) {
+  const recordIds = chamber.rewards?.codex ?? []
+  const recovered = recordIds.filter((id) => save.codexIds?.includes(id))
+  const pending = recordIds.filter((id) => !save.codexIds?.includes(id))
+  const band = recordIds.length === 0 ? 'none' : pending.length === 0 ? 'recovered' : 'available'
+  const ratingContribution = band === 'recovered'
+    ? 'supports stronger restoration ratings'
+    : band === 'available'
+      ? 'can still improve optional stewardship'
+      : 'neutral for this contract'
+
+  return {
+    band,
+    dimension: 'Optional record recovery',
+    pending,
+    ratingContribution,
+    recovered,
+    total: recordIds.length,
+    text: `Optional record recovery ${band}; recovered ${recovered.length} of ${recordIds.length} record(s); ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), hazardContainment: hazardContainmentSummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -119,6 +119,20 @@ describe('resonance evaluation', () => {
     expect(resourceEfficiencySummary(chamber, save).band).toBe('balanced')
     save.resourcesSpentByChamber[chamber.id] = { biomass: 99 }
     expect(resourceEfficiencySummary(chamber, save).text).toContain('weakens resource-efficiency stewardship')
+  })
+
+  it('summarizes optional record recovery from chamber rewards', () => {
+    const chamber = chambers.find((item) => item.rewards?.codex?.length)
+    const save = createDefaultSave()
+    const available = optionalRecordRecoverySummary(chamber, save)
+    save.codexIds.push(chamber.rewards.codex[0])
+    const recovered = optionalRecordRecoverySummary(chamber, save)
+
+    expect(available.band).toBe('available')
+    expect(available.pending).toContain(chamber.rewards.codex[0])
+    expect(recovered.band).toBe('recovered')
+    expect(recovered.ratingContribution).toContain('stronger restoration ratings')
+    expect(optionalRecordRecoverySummary(chambers.find((item) => !item.rewards?.codex?.length), save).band).toBe('none')
   })
 
   it('treats Stable required restorations as online campaign progression', () => {

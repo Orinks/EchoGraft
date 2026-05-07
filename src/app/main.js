@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -321,6 +321,7 @@ function evaluate() {
     log(lastResult.graftStability.text, 'success')
     log(lastResult.hazardContainment.text, 'success')
     log(resourceEfficiencySummary(chamber, save).text, 'success')
+    log(optionalRecordRecoverySummary(chamber, save).text, 'success')
   }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
@@ -345,7 +346,7 @@ function evaluateReport() {
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
   const timbrePuzzle = lastResult.timbrePuzzle ? ` ${lastResult.timbrePuzzle.text}` : ''
   const moveSummary = seedMoveSummary(chamber, seedMoveCount())
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle} ${moveSummary.text} ${lastResult.graftStability.text} ${lastResult.hazardContainment.text} ${resourceEfficiencySummary(chamber, save).text}`
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle} ${moveSummary.text} ${lastResult.graftStability.text} ${lastResult.hazardContainment.text} ${resourceEfficiencySummary(chamber, save).text} ${optionalRecordRecoverySummary(chamber, save).text}`
   log(`Evaluate resonance: ${lastResult.accuracy.text} ${details}`)
 }
 
