@@ -1,6 +1,7 @@
 import { createRng } from '../content/rng.js'
 import { movementFeedback } from '../content/player.js'
 import { scanPulse } from '../content/scan.js'
+import { createListenerPositionState } from './position.js'
 import { syngen } from './syngen.js'
 
 const categoryDefaults = {
@@ -277,6 +278,7 @@ export class AudioEngine {
     this.settings = { ...categoryDefaults, ...settings }
     this.enabled = false
     this.syngen = syngen
+    this.listenerPosition = createListenerPositionState()
     this.buses = {}
     this.hasAudioStack = Boolean(syngen?.audio?.synth && syngen?.audio?.mixer && syngen?.prop?.base)
     this.spatialVoice = createSpatialVoicePrototype()
@@ -389,10 +391,7 @@ export class AudioEngine {
   }
 
   updateListener(player) {
-    if (!syngen?.position?.setVector || !syngen?.position?.setEuler) return
-    syngen.position.setVector({ x: player.x, y: player.y, z: 0 })
-    const toRadians = syngen?.utility?.degreesToRadians ?? ((degrees) => degrees * Math.PI / 180)
-    syngen.position.setEuler({ yaw: toRadians(player.facing) })
+    return this.listenerPosition.update(player)
   }
 
   voice({

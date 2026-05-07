@@ -12,7 +12,10 @@ const audioPaths = [
   join(process.cwd(), 'src', 'js', 'main.js'),
 ]
 const source = audioPaths.map((path) => readFileSync(path, 'utf8')).join('\n')
-const appAudioSource = readFileSync(join(process.cwd(), 'src', 'engine', 'audio.js'), 'utf8')
+const appAudioSource = [
+  join(process.cwd(), 'src', 'engine', 'audio.js'),
+  join(process.cwd(), 'src', 'engine', 'position.js'),
+].map((path) => readFileSync(path, 'utf8')).join('\n')
 
 const forbidden = [
   'new AudioContext',
