@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -57,7 +57,9 @@ describe('scan pulse', () => {
         discoveredOrigin: 'Intake lung',
         envelope: { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 },
         family: 'Sol',
+        fmAmount: 0.2,
         name: 'Sol phonoseed',
+        oscillatorType: 'fm',
         phase: 0,
         pitchRatio: 1,
         position: { x: 0, y: 1 },
@@ -72,6 +74,7 @@ describe('scan pulse', () => {
       brightnessFilterState: { brightness: 0.45, cutoffHz: 3120, delta: 0, withinTolerance: undefined },
       envelopeShapeState: { bloom: 'quick bloom', body: 'balanced body', tail: 'medium tail' },
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
+      fmDepthState: { band: 'light FM shimmer', carrier: 'primary FM synth route', fmDepth: 0.2 },
       nearbyState: { nearby: [] },
       position: { x: 0, y: 1 },
       positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
@@ -88,6 +91,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
     expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
     expect(seedScan.text).toContain('Envelope shape: attack 0.02, decay 0.12, sustain 0.5, release 0.25; quick bloom, balanced body, medium tail.')
+    expect(seedScan.text).toContain('FM depth: 0.2; light FM shimmer; primary FM synth route.')
     expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
@@ -155,6 +159,17 @@ describe('scan pulse', () => {
     })
     expect(envelope.text).toContain('Envelope shape: attack 0.16, decay 0.2, sustain 0.8, release 0.08')
     expect(envelope.text).toContain('slow bloom, full body, short tail')
+  })
+
+  it('reports a reusable FM depth scan state', () => {
+    const fm = seedFmDepthScanState({ fmAmount: 0.72, oscillatorType: 'pure' })
+
+    expect(fm).toMatchObject({
+      band: 'deep FM grit',
+      carrier: 'secondary modulation layer',
+      fmDepth: 0.72,
+    })
+    expect(fm.text).toBe('FM depth: 0.72; deep FM grit; secondary modulation layer.')
   })
 
   it('reports chamber substrate and mutation pressure for planted seeds', () => {

@@ -210,6 +210,19 @@ export function seedEnvelopeShapeScanState(seed = {}) {
   }
 }
 
+export function seedFmDepthScanState(seed = {}) {
+  const fmDepth = clamp(Number(seed.fmAmount ?? 0), 0, 1)
+  const band = fmDepth >= 0.67 ? 'deep FM grit' : fmDepth >= 0.34 ? 'medium FM edge' : fmDepth > 0 ? 'light FM shimmer' : 'no FM depth'
+  const carrier = seed.oscillatorType === 'fm' ? 'primary FM synth route' : 'secondary modulation layer'
+
+  return {
+    band,
+    carrier,
+    fmDepth,
+    text: `FM depth: ${fmDepth}; ${band}; ${carrier}.`,
+  }
+}
+
 export function seedSubstrateScanState(seed = {}, chamber = {}) {
   const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
   const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
@@ -250,6 +263,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     envelopeShapeState: seedEnvelopeShapeScanState(seed),
     family: seed.family ?? 'unknown family',
     familyState: seedFamilyScanState(seed),
+    fmDepthState: seedFmDepthScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     position: seed.position ?? { x: 0, y: 0 },
@@ -262,7 +276,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
