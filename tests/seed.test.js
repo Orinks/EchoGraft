@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -122,6 +122,24 @@ describe('seed DNA', () => {
       decay: 0.04,
       sustain: 1,
       release: 0.25,
+    })
+  })
+
+  it('reports noise profile texture and synthesis route', () => {
+    const seed = createSeedDNA('noise-report', { noiseAmount: 0.25, oscillatorType: 'noise-kissed' })
+    const state = seedNoiseProfileState(seed)
+
+    expect(state.noiseAmount).toBe(0.25)
+    expect(state.texture).toBe('compost hiss')
+    expect(state.synthRoute).toBe('noise-kissed Syngen buffer voice')
+    expect(state.text).toContain('breath, compost, and masking texture')
+    expect(seedNoiseProfileState({ noiseAmount: 0 }).texture).toBe('clean tone')
+    expect(seedNoiseProfileState({ noiseAmount: 0.1 }).texture).toBe('breath trace')
+    expect(seedNoiseProfileState({ noiseAmount: 0.6 }).texture).toBe('dense masking bed')
+    expect(seedNoiseProfileState({ noiseAmount: 2, oscillatorType: 'pure' })).toMatchObject({
+      noiseAmount: 1,
+      synthRoute: 'additive or modulated Syngen voice with harmonic noise color',
+      texture: 'dense masking bed',
     })
   })
 

@@ -271,6 +271,27 @@ export function seedEnvelopeState(seed) {
   }
 }
 
+export function seedNoiseProfileState(seed) {
+  const noiseAmount = clamp(Number(seed.noiseAmount ?? 0), 0, 1)
+  const texture = noiseAmount >= 0.5
+    ? 'dense masking bed'
+    : noiseAmount >= 0.2
+      ? 'compost hiss'
+      : noiseAmount > 0
+        ? 'breath trace'
+        : 'clean tone'
+  const synthRoute = seed.oscillatorType === 'noise-kissed'
+    ? 'noise-kissed Syngen buffer voice'
+    : 'additive or modulated Syngen voice with harmonic noise color'
+
+  return {
+    noiseAmount,
+    synthRoute,
+    text: `Noise profile: ${noiseAmount}; ${texture}; ${tuningParameterDetails.noiseAmount.role}; routes through ${synthRoute}.`,
+    texture,
+  }
+}
+
 export function tuneSeed(seed, parameter, direction, step = 1) {
   const tuned = structuredClone(seed)
   tuned.envelope = tuned.envelope ?? { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 }
