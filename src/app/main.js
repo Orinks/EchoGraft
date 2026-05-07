@@ -1,6 +1,6 @@
 import { AudioEngine } from '../engine/audio.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, launchGardenSummary, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
+import { chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -370,7 +370,10 @@ function evaluate() {
   persist()
   if (chamber.ending) {
     save.endgameResolution = chooseEndgameResolution(save).id
+    const reflectionRewards = endingResolutionReflectionRewards(save)
+    save = mergeEndingResolutionReflections(save)
     save.postgameUnlocked = true
+    log(`Ending reflections recovered: ${reflectionRewards.recordIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
     persist()
     audio.ending(chambers, inventory)
     screen = 'ending'

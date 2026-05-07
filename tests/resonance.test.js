@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
+import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -493,6 +493,19 @@ describe('resonance evaluation', () => {
     expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'adaptation' }).text).toContain('Hybrid lineages')
     expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'release' }).text).toContain('launch garden')
     expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'conservatory' }).text).toContain('living archive')
+  })
+
+  it('recovers ending reflections for each finale resolution path', () => {
+    const resolutionIds = endgameResolutions.map((resolution) => resolution.id)
+    const reflectionIds = resolutionIds.flatMap((resolution) => endingResolutionReflectionRewards({ ...createDefaultSave(), endgameResolution: resolution }).recordIds)
+    const merged = mergeEndingResolutionReflections({ ...createDefaultSave(), endgameResolution: 'preservation' })
+    const trees = codexRecordTrees(codexRecords, merged.codexIds)
+    const reflectionTree = trees.find((tree) => tree.id === 'ending-reflections')
+
+    expect([...new Set(reflectionIds)].sort()).toEqual(Array.from({ length: 8 }, (_, index) => `ending-reflection-${String(index + 1).padStart(2, '0')}`))
+    expect(endingResolutionReflectionRewards({ ...createDefaultSave(), endgameResolution: 'release' }).recordIds).toContain('ending-reflection-03')
+    expect(merged.codexIds).toEqual(expect.arrayContaining(['ending-reflection-01', 'ending-reflection-05', 'ending-reflection-07', 'ending-reflection-08']))
+    expect(reflectionTree.records.map((record) => record.title)).toContain('Ending Reflection 01')
   })
 
   it('tracks the Central Heart as the season five network hub', () => {

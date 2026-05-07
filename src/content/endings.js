@@ -99,6 +99,13 @@ export const resolutionEndingScenes = {
   },
 }
 
+export const endingResolutionReflectionIds = {
+  preservation: ['ending-reflection-01', 'ending-reflection-05', 'ending-reflection-07', 'ending-reflection-08'],
+  adaptation: ['ending-reflection-02', 'ending-reflection-05', 'ending-reflection-06', 'ending-reflection-08'],
+  release: ['ending-reflection-03', 'ending-reflection-06', 'ending-reflection-07', 'ending-reflection-08'],
+  conservatory: ['ending-reflection-04', 'ending-reflection-05', 'ending-reflection-07', 'ending-reflection-08'],
+}
+
 export function chooseEndgameResolution(save) {
   const solved = new Set(save.solvedChambers ?? [])
   if (solved.has('optional-heart-root')) return endgameResolutions.find((resolution) => resolution.id === 'release')
@@ -107,6 +114,31 @@ export function chooseEndgameResolution(save) {
   if (save.restorationPhilosophy === 'preservation') return endgameResolutions.find((resolution) => resolution.id === 'preservation')
   if (solved.has('optional-heart-graft') || (save.unlockedGraftMechanics?.length ?? 0) >= 3) return endgameResolutions.find((resolution) => resolution.id === 'adaptation')
   return endgameResolutions.find((resolution) => resolution.id === 'preservation')
+}
+
+export function endingResolutionReflectionRewards(save) {
+  const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation
+
+  return {
+    recordIds,
+    resolution,
+    text: `Ending reflections recovered for ${resolution}: ${recordIds.join(', ')}.`,
+  }
+}
+
+export function mergeEndingResolutionReflections(save) {
+  const next = {
+    ...save,
+    codexIds: [...(save.codexIds ?? [])],
+  }
+  const rewards = endingResolutionReflectionRewards(next)
+
+  for (const recordId of rewards.recordIds) {
+    if (!next.codexIds.includes(recordId)) next.codexIds.push(recordId)
+  }
+
+  return next
 }
 
 export function resolutionSpecificEnding(save) {
