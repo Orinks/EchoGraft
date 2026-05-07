@@ -405,6 +405,25 @@ export function tuningValue(seed, parameter) {
   return seed[parameter]
 }
 
+export function sporeTuningCurrencyState(saveOrMaterials = {}, parameter = 'pitchRatio') {
+  const materials = saveOrMaterials.materials ?? saveOrMaterials
+  const balance = Math.max(0, materials.spores ?? 0)
+  const cost = 1
+  const label = tuningLabel(parameter)
+  const role = tuningParameterDetails[parameter]?.role ?? 'seed voice behavior'
+  const canSpend = balance >= cost
+
+  return {
+    balance,
+    canSpend,
+    cost,
+    remaining: Math.max(0, balance - (canSpend ? cost : 0)),
+    text: canSpend
+      ? `Spores spent as tuning currency: ${cost} spore for ${label}; ${role}; ${balance - cost} remain.`
+      : `Spores are the common tuning currency; none are available, so this training adjustment is free.`,
+  }
+}
+
 export function tuneSeedWithReport(seed, parameter, direction, step = 1) {
   const before = tuningValue(seed, parameter)
   const tuned = tuneSeed(seed, parameter, direction, step)

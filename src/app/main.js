@@ -8,7 +8,7 @@ import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rota
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -238,9 +238,11 @@ function tune(direction) {
   const parameter = currentTuningParameter()
   const canopyTuning = canopyBrightnessTuningState(save)
   const step = parameter === 'brightness' ? canopyTuning.brightnessStep / 0.05 : 1
+  const currency = sporeTuningCurrencyState(save, parameter)
   const report = tuneSeedWithReport(seed, parameter, direction, step)
+  if (currency.canSpend) save.materials.spores -= currency.cost
   inventory[selectedSeedIndex] = report.seed
-  log(`${report.text}${parameter === 'brightness' ? ` ${canopyTuning.text}` : ''}`)
+  log(`${report.text} ${currency.text}${parameter === 'brightness' ? ` ${canopyTuning.text}` : ''}`)
   audio.seed(inventory[selectedSeedIndex])
   persist()
 }

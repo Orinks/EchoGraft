@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, rareGraftRewards, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, rareGraftRewards, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -248,6 +248,20 @@ describe('seed DNA', () => {
     expect(report.label).toBe('pitch ratio')
     expect(report.role).toBe(tuningParameterDetails.pitchRatio.role)
     expect(report.text).toContain('Single-seed tuning role')
+  })
+
+  it('treats spores as the common tuning currency', () => {
+    const funded = sporeTuningCurrencyState({ materials: { spores: 2 } }, 'fmAmount')
+    const empty = sporeTuningCurrencyState({ materials: { spores: 0 } }, 'pitchRatio')
+
+    expect(funded.canSpend).toBe(true)
+    expect(funded.cost).toBe(1)
+    expect(funded.remaining).toBe(1)
+    expect(funded.text).toContain('Spores spent as tuning currency')
+    expect(funded.text).toContain(tuningParameterDetails.fmAmount.role)
+    expect(empty.canSpend).toBe(false)
+    expect(empty.remaining).toBe(0)
+    expect(empty.text).toContain('common tuning currency')
   })
 
   it('unlocks finer brightness tuning after Canopy comes online', () => {
