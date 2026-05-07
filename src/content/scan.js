@@ -1,3 +1,5 @@
+import { chamberMovementBounds } from './player.js'
+
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
 }
@@ -52,6 +54,20 @@ export function heartScanState(player, chamber = {}, scanRange = chamber.scanRan
     objective,
     pulse,
     text: `Heart scan: direction ${pulse.direction.horizontal}, ${pulse.direction.vertical} (${pulse.direction.side}); distance ${pulse.distance.toFixed(1)} step(s); objective ${objective}`,
+  }
+}
+
+export function boundaryScanState(player, chamber = {}) {
+  const edges = chamberMovementBounds(chamber)
+  const safeReturnPoint = chamber.returnPoint ?? chamber.start ?? { x: 0, y: 0 }
+  const exits = chamber.exits ?? [{ id: 'safe-return', name: 'safe return point', position: safeReturnPoint }]
+  const exitText = exits.map((exit) => `${exit.name ?? exit.id ?? 'exit'} ${exit.position.x}, ${exit.position.y}`).join('; ')
+
+  return {
+    edges,
+    exits,
+    safeReturnPoint,
+    text: `Boundary scan: chamber edges west ${edges.west}, east ${edges.east}, south ${edges.south}, north ${edges.north}. Exits: ${exitText}. Safe return point ${safeReturnPoint.x}, ${safeReturnPoint.y}. Current position ${player.x}, ${player.y}.`,
   }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -33,6 +33,20 @@ describe('scan pulse', () => {
     expect(heartScan.text).toContain('Heart scan: direction center, north')
     expect(heartScan.text).toContain('distance 3.0 step(s)')
     expect(heartScan.text).toContain('objective Restore the intake heart.')
+  })
+
+  it('summarizes boundary scan edges, exits, and safe return point', () => {
+    const boundary = boundaryScanState(
+      { x: 1, y: -2 },
+      { start: { x: 0, y: -2 }, exits: [{ id: 'east-door', name: 'east door', position: { x: 5, y: -2 } }] },
+    )
+
+    expect(boundary.edges).toMatchObject({ west: -5, east: 5, south: -7, north: 3 })
+    expect(boundary.exits[0]).toMatchObject({ id: 'east-door', position: { x: 5, y: -2 } })
+    expect(boundary.safeReturnPoint).toMatchObject({ x: 0, y: -2 })
+    expect(boundary.text).toContain('Boundary scan: chamber edges west -5, east 5, south -7, north 3')
+    expect(boundary.text).toContain('Exits: east door 5, -2')
+    expect(boundary.text).toContain('Safe return point 0, -2')
   })
 
   it('expands scan range after Intake comes online', () => {

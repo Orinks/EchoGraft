@@ -4,9 +4,9 @@ import { chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflecti
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
-import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
+import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
-import { chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
+import { boundaryScanState, chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
@@ -189,8 +189,8 @@ function recentLogText() {
 }
 
 function boundaryInfoText() {
-  const bounds = chamberMovementBounds(chamber)
-  return `Boundaries: west ${bounds.west}, east ${bounds.east}, south ${bounds.south}, north ${bounds.north}. Return point ${chamber.start.x}, ${chamber.start.y}. Current position ${player.x}, ${player.y}.`
+  const boundary = boundaryScanState(player, chamber)
+  return `Boundaries: west ${boundary.edges.west}, east ${boundary.edges.east}, south ${boundary.edges.south}, north ${boundary.edges.north}. Return point ${boundary.safeReturnPoint.x}, ${boundary.safeReturnPoint.y}. ${boundary.text}`
 }
 
 function plantedVoicesText() {
@@ -213,7 +213,7 @@ function scan() {
     audio.scan(player, chamber.target)
     log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
-  if (scanMode === 'boundaries') log(`Boundary scan: safe work zone extends from ${chamber.start.x - 5}, ${chamber.start.y - 5} to ${chamber.start.x + 5}, ${chamber.start.y + 5}. Current position ${player.x}, ${player.y}.`)
+  if (scanMode === 'boundaries') log(boundaryScanState(player, chamber).text)
   if (scanMode === 'seeds') log(plantedSeeds.length ? `Seed scan: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}`).join('; ')}.` : 'Seed scan: no planted seed objects in this chamber.')
   if (scanMode === 'hazards') log(`Hazard scan: ${hazardsText()}`)
 }
