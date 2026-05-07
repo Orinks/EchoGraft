@@ -23,9 +23,10 @@ describe('audio movement cues', () => {
 
     expect(voices[0]).toMatchObject({
       category: 'ui',
-      position: { x: player.x, y: player.y },
       spatial: true,
     })
+    expect(voices[0].position).toMatchObject({ x: player.x })
+    expect(voices[0].position.y).toBeGreaterThan(player.y)
   })
 
   it('still spatializes the footstep cue when a boundary holds the step', () => {
@@ -57,5 +58,19 @@ describe('audio movement cues', () => {
     expect(canopyTone).toMatchObject({ brightness: 0.72, mode: 'additive' })
     expect(memoryTone).toMatchObject({ brightness: 0.28, mode: 'am' })
     expect(new Set([waterTone.type, canopyTone.type, memoryTone.type]).size).toBeGreaterThan(1)
+  })
+
+  it('moves footstep placement toward the movement direction', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const previous = createPlayer(chamber.start)
+    const northPlayer = movePlayer(previous, 0, 1, chamber)
+    const eastPlayer = movePlayer(previous, 1, 0, chamber)
+    const northPosition = movementVoices(northPlayer, previous, chamber)[0].position
+    const eastPosition = movementVoices(eastPlayer, previous, chamber)[0].position
+
+    expect(northPosition.x).toBe(northPlayer.x)
+    expect(northPosition.y).toBeGreaterThan(northPlayer.y)
+    expect(eastPosition.x).toBeGreaterThan(eastPlayer.x)
+    expect(eastPosition.y).toBe(eastPlayer.y)
   })
 })

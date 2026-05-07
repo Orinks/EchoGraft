@@ -137,6 +137,19 @@ function footstepTone(surface, player = {}) {
   }
 }
 
+function directionalFootstepPosition(player = {}, previous = {}) {
+  const dx = (player.x ?? 0) - (previous.x ?? 0)
+  const dy = (player.y ?? 0) - (previous.y ?? 0)
+  const distance = Math.hypot(dx, dy)
+  if (!distance) return { x: player.x ?? 0, y: player.y ?? 0 }
+
+  const offset = 0.75
+  return {
+    x: (player.x ?? 0) + (dx / distance) * offset,
+    y: (player.y ?? 0) + (dy / distance) * offset,
+  }
+}
+
 function seedHarmonics(seed) {
   const brightness = clamp(seed.brightness)
   return [
@@ -659,7 +672,7 @@ export class AudioEngine {
       category: 'ui',
       duration: 0.11 + movedDistance * 0.04,
       gain: dbGain(-13),
-      position: feedback.footstepPosition,
+      position: directionalFootstepPosition(player, previous),
       spatial: true,
       tone: footstepTone(feedback.surface, player),
     })
