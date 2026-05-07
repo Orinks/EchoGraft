@@ -105,6 +105,15 @@ export function movementFeedback(player, previous, chamber = {}) {
   const currentText = current
     ? `${current.name} ${flow.state === 'with' ? 'assisted this step' : flow.state === 'against' ? 'pressed against this step' : 'runs nearby'}, ${current.text}`
     : 'current between start and heart'
+  const movementCues = [
+    'spatial footstep',
+    'directional placement',
+    'wall distance',
+    'exit presence',
+    'current status',
+    'heart landmark',
+    'surface timbre',
+  ]
 
   return {
     bounds,
@@ -119,10 +128,12 @@ export function movementFeedback(player, previous, chamber = {}) {
     exitDistance,
     exitPosition,
     heartDistance,
+    movementCues,
+    noVisionComplete: true,
     moved,
     nearestWall,
     surface,
-    text: `${moved ? 'Moved' : 'Boundary held'} to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall.toFixed(1)} steps away, current ${currentText}, landmark heart ${heartDistance.toFixed(1)} steps away, surface ${surface}.`,
+    text: `${moved ? 'Moved' : 'Boundary held'} to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall.toFixed(1)} steps away, current ${currentText}, landmark heart ${heartDistance.toFixed(1)} steps away, surface ${surface}. No-sight movement cues: ${movementCues.join(', ')}.`,
   }
 }
 

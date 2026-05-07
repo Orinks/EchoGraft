@@ -20,6 +20,16 @@ describe('movement', () => {
     const feedback = movementFeedback(player, previous, chamber)
 
     expect(feedback.moved).toBe(true)
+    expect(feedback.noVisionComplete).toBe(true)
+    expect(feedback.movementCues).toEqual([
+      'spatial footstep',
+      'directional placement',
+      'wall distance',
+      'exit presence',
+      'current status',
+      'heart landmark',
+      'surface timbre',
+    ])
     expect(feedback.surface).toBe('compass rail')
     expect(feedback.exitDistance).toBeGreaterThan(0)
     expect(feedback.exitPosition).toMatchObject(chamber.start)
@@ -27,6 +37,7 @@ describe('movement', () => {
     expect(feedback.text).toContain('wall')
     expect(feedback.text).toContain('current between start and heart')
     expect(feedback.text).toContain('landmark heart')
+    expect(feedback.text).toContain('No-sight movement cues')
   })
 
   it('varies movement surface by Ark system', () => {

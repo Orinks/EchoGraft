@@ -55,6 +55,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.keyboard.press('ArrowUp')
   await expect(eventLog.getByText(/Movement audio: spatial footstep, wall .* current .* landmark heart/)).toBeVisible()
+  await expect(eventLog.getByText(/No-sight movement cues: spatial footstep, directional placement, wall distance, exit presence, current status, heart landmark, surface timbre/)).toBeVisible()
   await page.keyboard.press('ArrowUp')
   await page.keyboard.press('Enter')
   await expect(eventLog.getByText(/Meaningful position: within .* chamber heart/)).toBeVisible()
