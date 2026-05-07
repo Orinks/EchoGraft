@@ -159,7 +159,7 @@ function boundaryInfoText() {
 
 function plantedVoicesText() {
   return plantedSeeds.length
-    ? `Planted voices: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; family ${seed.family}; tuning pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}`).join('; ')}.`
+    ? `Planted voices: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; family ${seed.family}; tuning pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}; ${seed.growthTiming?.text ?? 'Growth timing: not recorded yet. No reflex timing required.'}`).join('; ')}.`
     : 'Planted voices: none in this chamber.'
 }
 

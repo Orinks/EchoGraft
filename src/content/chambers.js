@@ -83,6 +83,7 @@ export const chambers = [
     objective: 'Tune a seed to the bright third: ratio 1.5.',
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 1, pitchRatio: 1.5, pulseRate: 1, brightness: 0.45, phase: 0 },
+    current: { dx: 0, dy: 1, name: 'pump current', text: 'north toward the water pump heart' },
     requiredSeeds: 1,
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.08, pulseRate: 0.6, brightness: 0.3, phase: 180 },
@@ -132,6 +133,10 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1.25, pulseRate: 1.5, brightness: 0.58, phase: 45 },
     requiredSeeds: 2,
+    plantingPattern: {
+      name: 'twin root anchor points',
+      offsets: [{ x: -1, y: 0 }, { x: 1, y: 0 }],
+    },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 2, pitchRatio: 0.3, pulseRate: 0.6, brightness: 0.25, phase: 180 },
     harmonic: true,

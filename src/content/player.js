@@ -18,16 +18,37 @@ function clampPosition(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
+export function chamberCurrent(chamber = {}) {
+  if (!chamber.current) return null
+  return {
+    dx: Math.sign(chamber.current.dx ?? 0),
+    dy: Math.sign(chamber.current.dy ?? 0),
+    name: chamber.current.name ?? 'water current',
+    text: chamber.current.text ?? 'through the chamber',
+  }
+}
+
+function currentEffect(dx, dy, current) {
+  if (!current) return { dx: 0, dy: 0, state: 'none' }
+
+  const dot = (dx * current.dx) + (dy * current.dy)
+  if (dot < 0) return { dx: 0, dy: 0, state: 'against' }
+  if (dot > 0) return { dx: current.dx, dy: current.dy, state: 'with' }
+  return { dx: 0, dy: 0, state: 'cross' }
+}
+
 export function movePlayer(player, dx, dy, chamber) {
   if (!chamber) {
     return { ...player, x: player.x + dx, y: player.y + dy }
   }
 
   const bounds = chamberMovementBounds(chamber)
+  const current = chamberCurrent(chamber)
+  const flow = currentEffect(dx, dy, current)
   return {
     ...player,
-    x: clampPosition(player.x + dx, bounds.west, bounds.east),
-    y: clampPosition(player.y + dy, bounds.south, bounds.north),
+    x: clampPosition(player.x + dx + flow.dx, bounds.west, bounds.east),
+    y: clampPosition(player.y + dy + flow.dy, bounds.south, bounds.north),
   }
 }
 
@@ -49,6 +70,12 @@ export function movementFeedback(player, previous, chamber = {}) {
   const heartDistance = Math.hypot(target.x - player.x, target.y - player.y)
   const surface = movementSurface(chamber)
   const moved = player.x !== previous.x || player.y !== previous.y
+  const current = chamberCurrent(chamber)
+  const intended = { dx: Math.sign(player.x - previous.x), dy: Math.sign(player.y - previous.y) }
+  const flow = currentEffect(intended.dx, intended.dy, current)
+  const currentText = current
+    ? `${current.name} ${flow.state === 'with' ? 'assisted this step' : flow.state === 'against' ? 'pressed against this step' : 'runs nearby'}, ${current.text}`
+    : 'current between start and heart'
 
   return {
     bounds,
@@ -60,7 +87,7 @@ export function movementFeedback(player, previous, chamber = {}) {
     moved,
     nearestWall,
     surface,
-    text: `${moved ? 'Moved' : 'Boundary held'} to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall.toFixed(1)} steps away, current between start and heart, landmark heart ${heartDistance.toFixed(1)} steps away, surface ${surface}.`,
+    text: `${moved ? 'Moved' : 'Boundary held'} to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall.toFixed(1)} steps away, current ${currentText}, landmark heart ${heartDistance.toFixed(1)} steps away, surface ${surface}.`,
   }
 }
 

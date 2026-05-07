@@ -1,3 +1,5 @@
+import { plantingCoverage } from './planting.js'
+
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
 }
@@ -42,6 +44,12 @@ export function evaluateResonance(chamber, plantedSeeds) {
   const missing = checks.filter(([, value, tolerance]) => value > tolerance).map(([, , , message]) => message)
 
   if (chamber.requiresGraft && !ecology.grafted) missing.push('Create and plant a grafted seed.')
+  if (chamber.plantingPattern) {
+    const coverage = plantingCoverage(chamber, plantedSeeds)
+    if (!coverage.complete) {
+      missing.push(`Cover ${coverage.requiredCount - coverage.coveredCount} more multi-position planting slot(s).`)
+    }
+  }
   for (const hazard of chamber.hazards ?? []) {
     if (plantedSeeds.some((seed) => Math.abs(seed.pitchRatio - hazard.pitchRatio) <= hazard.radius)) {
       missing.push(hazard.message)
@@ -54,6 +62,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     score: Number(score.toFixed(2)),
     missing,
     ecology,
+    plantingCoverage: chamber.plantingPattern ? plantingCoverage(chamber, plantedSeeds) : undefined,
   }
 }
 

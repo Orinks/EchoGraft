@@ -48,17 +48,30 @@ describe('resonance evaluation', () => {
 
   it('has a solvable ideal target for every chamber', () => {
     for (const chamber of chambers) {
-      const ideal = createSeedDNA(`${chamber.id}-ideal`, {
+      const planted = Array.from({ length: chamber.requiredSeeds }, (_, index) => createSeedDNA(`${chamber.id}-ideal-${index + 1}`, {
         pitchRatio: chamber.target.pitchRatio,
         pulseRate: chamber.target.pulseRate,
         brightness: chamber.target.brightness,
         phase: chamber.target.phase,
-        position: chamber.target,
+        position: chamber.plantingPattern
+          ? { x: chamber.target.x + chamber.plantingPattern.offsets[index % chamber.plantingPattern.offsets.length].x, y: chamber.target.y + chamber.plantingPattern.offsets[index % chamber.plantingPattern.offsets.length].y }
+          : chamber.target,
         grafted: chamber.requiresGraft,
-      })
-      const planted = Array.from({ length: chamber.requiredSeeds }, () => ideal)
+      }))
       expect(evaluateResonance(chamber, planted).solved, chamber.id).toBe(true)
     }
+  })
+
+  it('requires authored multi-position planting slots when a chamber defines them', () => {
+    const chamber = chambers.find((item) => item.id === 'harmony')
+    const nearOneSlot = [
+      createSeedDNA('sol', { pitchRatio: 1.25, pulseRate: 1.5, brightness: 0.58, phase: 45, position: { x: -1, y: 0 } }),
+      createSeedDNA('lumen', { pitchRatio: 1.25, pulseRate: 1.5, brightness: 0.58, phase: 45, position: { x: -4, y: 0 } }),
+    ]
+    const result = evaluateResonance(chamber, nearOneSlot)
+
+    expect(result.plantingCoverage.complete).toBe(false)
+    expect(result.missing).toContain('Cover 1 more multi-position planting slot(s).')
   })
 
   it('keeps every chamber paced as a 5 to 10 minute solve', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { chamberSubstrate, plantedSeed, plantingAssessment } from '../src/content/planting.js'
+import { chamberSubstrate, growthTiming, plantedSeed, plantingAssessment, plantingCoverage, plantingPositions } from '../src/content/planting.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
 describe('planting', () => {
@@ -28,5 +28,31 @@ describe('planting', () => {
   it('names chamber substrate from the Ark system', () => {
     expect(chamberSubstrate({ system: 'Canopy' })).toBe('photosynthetic lattice')
     expect(chamberSubstrate({ system: 'Memory Orchard' })).toBe('archive loam')
+  })
+
+  it('tracks multi-position planting slots for harmonic chambers', () => {
+    const chamber = chambers.find((item) => item.id === 'harmony')
+    const sol = createSeedDNA('sol', { position: { x: -1, y: 0 } })
+    const lumen = createSeedDNA('lumen', { position: { x: 1, y: 0 } })
+    const slots = plantingPositions(chamber)
+    const assessment = plantingAssessment(sol, sol.position, chamber, [])
+    const coverage = plantingCoverage(chamber, [sol, lumen])
+
+    expect(slots).toMatchObject([{ x: -1, y: 0 }, { x: 1, y: 0 }])
+    expect(assessment.text).toContain('Planting slot 1 of 2')
+    expect(coverage.complete).toBe(true)
+    expect(coverage.coveredCount).toBe(2)
+  })
+
+  it('turns seed growth behavior into non-reflex timing guidance', () => {
+    const chamber = chambers.find((item) => item.id === 'rhythm')
+    const verdant = createSeedDNA('verdant', { growthBehavior: 'twining', pulseRate: 2 })
+    const planted = plantedSeed(verdant, chamber.target, chamber)
+    const timing = growthTiming(verdant, chamber)
+
+    expect(timing).toMatchObject({ behavior: 'twining', pulses: 6, reflexPressure: false })
+    expect(timing.text).toContain('No reflex timing required')
+    expect(planted.seed.growthTiming.text).toContain('listen for 6 pulse')
+    expect(planted.assessment.text).toContain('Growth timing: twining growth')
   })
 })

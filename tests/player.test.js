@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { createPlayer, movePlayer, movementFeedback, movementSurface } from '../src/content/player.js'
+import { chamberCurrent, createPlayer, movePlayer, movementFeedback, movementSurface } from '../src/content/player.js'
 
 describe('movement', () => {
   it('keeps early chamber movement grid-like and bounded by audible walls', () => {
@@ -31,5 +31,19 @@ describe('movement', () => {
     expect(movementSurface({ system: 'Water' })).toBe('wet channel tile')
     expect(movementSurface({ system: 'Canopy' })).toBe('leafglass lattice')
     expect(movementSurface({ system: 'Memory Orchard' })).toBe('archive loam')
+  })
+
+  it('lets water-current navigation assist movement toward the pump heart', () => {
+    const chamber = chambers.find((item) => item.id === 'pitch')
+    const player = createPlayer(chamber.start)
+    const withCurrent = movePlayer(player, 0, 1, chamber)
+    const againstCurrent = movePlayer(withCurrent, 0, -1, chamber)
+    const feedback = movementFeedback(withCurrent, player, chamber)
+
+    expect(chamberCurrent(chamber)).toMatchObject({ dx: 0, dy: 1, name: 'pump current' })
+    expect(withCurrent.y).toBe(player.y + 2)
+    expect(againstCurrent.y).toBe(withCurrent.y - 1)
+    expect(feedback.text).toContain('current pump current assisted this step')
+    expect(feedback.text).toContain('north toward the water pump heart')
   })
 })
