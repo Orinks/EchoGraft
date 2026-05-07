@@ -1,5 +1,7 @@
 # EchoGraft Game Spec
 
+For the full production direction, campaign scope, Syngen technical design, progression systems, and accessibility model, see `GAME_DESIGN_DOCUMENT.md`. This shorter spec describes the original vertical-slice mechanics and should be treated as implementation context, not the complete target game.
+
 EchoGraft is an accessible audio-first puzzle-strategy game set inside the Verdancy Ark, a derelict orbital greenhouse whose resonance gardens have gone silent. The player repairs chamber hearts by collecting, planting, tuning, and grafting synthesized phonoseeds.
 
 ## Core Loop
