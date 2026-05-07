@@ -268,7 +268,12 @@ function graft() {
     save.graftRecords = [...(save.graftRecords ?? []), report.record]
     if (!save.codexIds.includes(report.record.id)) save.codexIds.push(report.record.id)
   }
+  const bonusContractRewards = report.rareRewards?.rewards.filter((reward) => reward.kind === 'bonus-contract') ?? []
+  const ratingRewards = report.rareRewards?.rewards.filter((reward) => reward.kind === 'rating-improvement') ?? []
+  save.bonusContractIds = Array.from(new Set([...(save.bonusContractIds ?? []), ...bonusContractRewards.map((reward) => reward.id)]))
+  save.graftRatingBoosts = Array.from(new Set([...(save.graftRatingBoosts ?? []), ...ratingRewards.map((reward) => reward.id)]))
   log(report.text, 'success')
+  if (report.rareRewards?.rare) log(report.rareRewards.text, 'success')
   log(`Grafted ${next.name}. ${heldInReserve ? 'Added to the library reserve because carried seeds are full' : 'Selected graft'}; pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
   if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
   if (report.record) log(`Graft record recovered: ${report.record.title}.`, 'success')

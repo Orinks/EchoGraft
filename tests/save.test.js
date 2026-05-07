@@ -21,6 +21,8 @@ describe('save system', () => {
     save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
     save.postgameUnlocked = true
     save.unlockedGraftMechanics.push('hybrid resonance planting')
+    save.bonusContractIds.push('bonus-sol-myco')
+    save.graftRatingBoosts.push('rating-sol-myco')
     save.wildChamberIds.push('pitch')
     save.wildMutationIds.push('pitch-wild-mutation')
     save.seedMovesByChamber.tutorial = 1
@@ -38,6 +40,8 @@ describe('save system', () => {
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
     expect(loadSave(storage).postgameUnlocked).toBe(true)
     expect(loadSave(storage).unlockedGraftMechanics).toEqual(['hybrid resonance planting'])
+    expect(loadSave(storage).bonusContractIds).toEqual(['bonus-sol-myco'])
+    expect(loadSave(storage).graftRatingBoosts).toEqual(['rating-sol-myco'])
     expect(loadSave(storage).wildChamberIds).toEqual(['pitch'])
     expect(loadSave(storage).wildMutationIds).toEqual(['pitch-wild-mutation'])
     expect(loadSave(storage).seedMovesByChamber.tutorial).toBe(1)
@@ -61,6 +65,8 @@ describe('save system', () => {
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.unlockedGraftMechanics).toEqual([])
+    expect(loaded.bonusContractIds).toEqual([])
+    expect(loaded.graftRatingBoosts).toEqual([])
     expect(loaded.wildChamberIds).toEqual([])
     expect(loaded.wildMutationIds).toEqual([])
     expect(loaded.seedMovesByChamber).toEqual({})

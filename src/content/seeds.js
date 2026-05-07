@@ -522,6 +522,36 @@ export function restoredSystemInheritedTraits(restoredSystems = []) {
     restored.has(system) || Array.from(restored).some((item) => item.toLowerCase().includes(system.toLowerCase())))
 }
 
+export function rareGraftRewards(seed, discoveries = graftDiscoveries(seed), record = graftRecordForSeed(seed)) {
+  const rareSignals = discoveries.filter((discovery) => discovery !== 'hybrid resonance planting')
+  const rare = Boolean(record) || rareSignals.length > 0 || (seed.unlockedInheritedTraits?.length ?? 0) > 0
+  const rewards = []
+
+  if (record) rewards.push({ kind: 'record', id: record.id, text: `record reveal ${record.title}` })
+  if (rareSignals.length) {
+    rewards.push({
+      kind: 'bonus-contract',
+      id: `bonus-${seed.discoveryId ?? seed.id}`,
+      text: `bonus contract lead from ${rareSignals.join(', ')}`,
+    })
+  }
+  if ((seed.unlockedInheritedTraits?.length ?? 0) > 0 || rareSignals.length >= 2) {
+    rewards.push({
+      kind: 'rating-improvement',
+      id: `rating-${seed.discoveryId ?? seed.id}`,
+      text: 'improved restoration rating option for graft-compatible chambers',
+    })
+  }
+
+  return {
+    rare,
+    rewards,
+    text: rare
+      ? `Rare graft rewards: ${rewards.map((reward) => reward.text).join('; ')}.`
+      : 'Rare graft rewards: none yet; keep experimenting with stronger trait contrasts.',
+  }
+}
+
 export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`, options = {}) {
   const failureReason = options.forceFailure ? 'forced graft instability' : graftFailureReason(seedA, seedB)
   if (failureReason) {
@@ -537,6 +567,11 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   const discoveries = graftDiscoveries(seed)
   const record = graftRecordForSeed(seed)
   const unlockedInheritedTraits = restoredSystemInheritedTraits(options.restoredSystems ?? [])
+  const seedWithUnlocks = {
+    ...seed,
+    unlockedInheritedTraits,
+  }
+  const rareRewards = rareGraftRewards(seedWithUnlocks, discoveries, record)
   const inheritedTraits = [
     `root pitch ${seed.pitchRatio} from ${seedA.name}`,
     `waveform ${seed.waveform} from ${seedA.name}`,
@@ -550,13 +585,11 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   return {
     discoveries,
     inheritedTraits,
+    rareRewards,
     record,
-    seed: {
-      ...seed,
-      unlockedInheritedTraits,
-    },
+    seed: seedWithUnlocks,
     unlockedInheritedTraits,
-    text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}${record ? `; recovered record ${record.title}` : ''}.`,
+    text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}${record ? `; recovered record ${record.title}` : ''}. ${rareRewards.text}`,
   }
 }
 

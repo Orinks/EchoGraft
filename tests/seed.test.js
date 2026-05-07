@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, rareGraftRewards, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -368,6 +368,26 @@ describe('seed DNA', () => {
     expect(report.noisyTool.name).toBe('Sol-Sol noisy graft tool')
     expect(report.text).toContain('Recovered 1 dream compost')
     expect(report.text).toContain('noise-kissed tool')
+  })
+
+  it('rewards rare grafts with records, bonus contract leads, and rating options', () => {
+    const seed = graftSeeds(createSeedDNA('sol'), createSeedDNA('myco'))
+    const rewards = rareGraftRewards(seed)
+    const report = graftSeedsWithReport(createSeedDNA('sol'), createSeedDNA('myco'), 'rare-sol-myco', {
+      restoredSystems: ['Memory Orchard'],
+    })
+
+    expect(rewards.rare).toBe(true)
+    expect(rewards.rewards).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'record', id: 'graft-record-sol-myco' }),
+      expect.objectContaining({ kind: 'bonus-contract', id: 'bonus-sol-myco' }),
+    ]))
+    expect(report.rareRewards.rewards).toEqual(expect.arrayContaining([
+      expect.objectContaining({ kind: 'rating-improvement', id: 'rating-sol-myco' }),
+    ]))
+    expect(report.text).toContain('Rare graft rewards')
+    expect(report.text).toContain('bonus contract lead')
+    expect(report.text).toContain('improved restoration rating option')
   })
 
   it('reports graft ancestry as parent seed lines and archive record', () => {
