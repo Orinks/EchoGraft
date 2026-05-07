@@ -250,6 +250,37 @@ export function optionalRecordRecoverySummary(chamber, save = {}) {
   }
 }
 
+export function finalEcologyPhilosophySummary(save = {}) {
+  const philosophy = save.restorationPhilosophy ?? 'preservation'
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const adaptiveSignals = (save.unlockedGraftMechanics?.length ?? 0) + (save.wildMutationIds?.length ?? 0) + (save.customSeeds?.length ?? 0)
+  const support = philosophy === 'adaptation' ? adaptiveSignals : carefulRestorations
+  const strain = philosophy === 'adaptation' ? Math.max(0, carefulRestorations - adaptiveSignals) : adaptiveSignals
+  const band = support === 0
+    ? 'unproven'
+    : support >= strain
+      ? 'aligned'
+      : 'strained'
+  const ratingContribution = band === 'aligned'
+    ? 'supports the chosen Ark philosophy'
+    : band === 'strained'
+      ? 'asks for more stewardship before the finale'
+      : 'needs more restored ecology evidence'
+
+  return {
+    adaptiveSignals,
+    band,
+    carefulRestorations,
+    dimension: 'Final ecology philosophy support',
+    philosophy,
+    ratingContribution,
+    strain,
+    support,
+    text: `Final ecology philosophy support ${band}; ${philosophy} support ${support}, strain ${strain}; ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), hazardContainment: hazardContainmentSummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }

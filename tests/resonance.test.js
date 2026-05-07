@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -133,6 +133,22 @@ describe('resonance evaluation', () => {
     expect(recovered.band).toBe('recovered')
     expect(recovered.ratingContribution).toContain('stronger restoration ratings')
     expect(optionalRecordRecoverySummary(chambers.find((item) => !item.rewards?.codex?.length), save).band).toBe('none')
+  })
+
+  it('summarizes whether final ecology supports the chosen philosophy', () => {
+    const preservation = createDefaultSave()
+    preservation.ratings = { tutorial: 'Stable', direction: 'Resonant' }
+    const adaptation = createDefaultSave()
+    adaptation.restorationPhilosophy = 'adaptation'
+    adaptation.unlockedGraftMechanics = ['hybrid resonance planting', 'FM pressure grafting']
+    const strained = createDefaultSave()
+    strained.restorationPhilosophy = 'preservation'
+    strained.ratings = { tutorial: 'Stable' }
+    strained.wildMutationIds = ['wild-one', 'wild-two']
+
+    expect(finalEcologyPhilosophySummary(preservation)).toMatchObject({ band: 'aligned', philosophy: 'preservation' })
+    expect(finalEcologyPhilosophySummary(adaptation)).toMatchObject({ band: 'aligned', philosophy: 'adaptation' })
+    expect(finalEcologyPhilosophySummary(strained).text).toContain('asks for more stewardship')
   })
 
   it('treats Stable required restorations as online campaign progression', () => {

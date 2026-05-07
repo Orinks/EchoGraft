@@ -80,6 +80,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Heart: network resonance and endgame resolutions/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
   await expect(page.getByText(/1 of 4\d contracts restored/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Final Ecology Philosophy' })).toBeVisible()
+  await expect(page.getByText(/Final ecology philosophy support aligned/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Decision Point' })).toBeVisible()
   await expect(page.getByText(/Recommended next work: Contract 1: Intake Lung/)).toBeVisible()
   await expect(page.getByText(/Post-restore options: improve the active chamber, take another work order, research grafts, or advance the Ark clock/)).toBeVisible()

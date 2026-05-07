@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -625,6 +625,7 @@ function atlas() {
   const launchGarden = launchGardenSummary(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
+  const finalEcology = finalEcologyPhilosophySummary(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -674,6 +675,10 @@ function atlas() {
         <h2 id="final-chord-title">Player-Built Final Chord</h2>
         <p>${finalChord.text}</p>
         ${finalChord.voices.length ? `<ol>${finalChord.voices.slice(0, 8).map((voice) => `<li>${voice.name}: ${voice.system}, pitch ${voice.pitchRatio}, pulse ${voice.pulseRate}.</li>`).join('')}</ol>` : ''}
+      </section>
+      <section aria-labelledby="final-ecology-title">
+        <h2 id="final-ecology-title">Final Ecology Philosophy</h2>
+        <p>${finalEcology.text}</p>
       </section>
       <section aria-labelledby="crew-wake-title">
         <h2 id="crew-wake-title">Crew Wake Cycle</h2>
