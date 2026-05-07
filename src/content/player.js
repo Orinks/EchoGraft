@@ -28,6 +28,33 @@ export function chamberCurrent(chamber = {}) {
   }
 }
 
+export function waterSystemState(save = {}) {
+  const waterOnline = save.restoredSystems?.includes('Water') || save.restoredSystems?.includes('Water pumps')
+
+  return {
+    waterOnline,
+    text: waterOnline
+      ? 'Water current navigation unlocked: restored flow can route Rootworks contracts.'
+      : 'Water offline: currents remain local until Water Pumps come online.',
+  }
+}
+
+export function waterRoutedChamber(chamber = {}, save = {}) {
+  const system = chamber.system?.toLowerCase() ?? ''
+  const water = waterSystemState(save)
+  if (chamber.current || !water.waterOnline || !system.includes('root')) return chamber
+
+  return {
+    ...chamber,
+    current: {
+      dx: 0,
+      dy: 1,
+      name: 'restored water route',
+      text: 'north through the root contract channel',
+    },
+  }
+}
+
 function currentEffect(dx, dy, current) {
   if (!current) return { dx: 0, dy: 0, state: 'none' }
 

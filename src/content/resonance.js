@@ -396,6 +396,24 @@ export function navigationAtlasState(chambers, save = {}) {
   }
 }
 
+export function waterRootRoutingState(chambers, save = {}) {
+  const restoredSystems = save.restoredSystems ?? []
+  const solved = new Set(save.solvedChambers ?? [])
+  const waterOnline = restoredSystems.includes('Water') || restoredSystems.includes('Water pumps') || solved.has('pitch')
+  const rootContracts = chambers.filter((chamber) => chamber.system === 'Rootworks')
+  const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))
+  const routedContracts = waterOnline ? rootContracts.filter((chamber) => ready.has(chamber.id) || chamber.requires?.some((id) => solved.has(id))) : []
+
+  return {
+    rootContracts,
+    routedContracts,
+    waterOnline,
+    text: waterOnline
+      ? `Water root routing unlocked: ${routedContracts.length} Rootworks contract(s) can receive current navigation and pump-flow planning.`
+      : `Water root routing locked: restore Water Pumps before root contracts can receive current navigation.`,
+  }
+}
+
 export function firstFullCampaignEstimate(scope) {
   const requiredContracts = scope.seasons.reduce((total, season) => total + season.requiredContracts, 0)
   const optionalContracts = scope.seasons.reduce((total, season) => total + season.optionalContracts, 0)

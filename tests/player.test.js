@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { chamberCurrent, createPlayer, movePlayer, movementFeedback, movementSurface } from '../src/content/player.js'
+import { chamberCurrent, createPlayer, movePlayer, movementFeedback, movementSurface, waterRoutedChamber, waterSystemState } from '../src/content/player.js'
 
 describe('movement', () => {
   it('keeps early chamber movement grid-like and bounded by audible walls', () => {
@@ -45,5 +45,19 @@ describe('movement', () => {
     expect(againstCurrent.y).toBe(withCurrent.y - 1)
     expect(feedback.text).toContain('current pump current assisted this step')
     expect(feedback.text).toContain('north toward the water pump heart')
+  })
+
+  it('routes restored Water currents into Rootworks chambers', () => {
+    const chamber = chambers.find((item) => item.id === 'root-reservoir')
+    const dry = waterRoutedChamber(chamber, { restoredSystems: [] })
+    const routed = waterRoutedChamber(chamber, { restoredSystems: ['Water'] })
+    const player = createPlayer(chamber.start)
+    const moved = movePlayer(player, 0, 1, routed)
+
+    expect(waterSystemState({ restoredSystems: [] }).waterOnline).toBe(false)
+    expect(waterSystemState({ restoredSystems: ['Water'] }).text).toContain('current navigation unlocked')
+    expect(dry.current).toBeUndefined()
+    expect(chamberCurrent(routed)).toMatchObject({ dy: 1, name: 'restored water route' })
+    expect(moved.y).toBe(player.y + 2)
   })
 })

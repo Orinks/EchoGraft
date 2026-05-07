@@ -4,8 +4,8 @@ import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, laun
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
-import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
+import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -132,9 +132,10 @@ function continueGame() {
 
 function movement(dx, dy) {
   const previous = player
-  player = movePlayer(player, dx, dy, chamber)
-  audio.movement(player, previous, chamber)
-  log(movementFeedback(player, previous, chamber).text)
+  const routedChamber = waterRoutedChamber(chamber, save)
+  player = movePlayer(player, dx, dy, routedChamber)
+  audio.movement(player, previous, routedChamber)
+  log(movementFeedback(player, previous, routedChamber).text)
 }
 
 function rotate(degrees) {
@@ -629,6 +630,7 @@ function atlas() {
   const launchGarden = launchGardenSummary(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const navigationAtlas = navigationAtlasState(chambers, save)
+  const waterRouting = waterRootRoutingState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
@@ -660,6 +662,13 @@ function atlas() {
         <p>${navigationAtlas.text}</p>
         <ol>
           ${navigationAtlas.previews.map((item) => `<li>${item.text}</li>`).join('')}
+        </ol>
+      </section>
+      <section aria-labelledby="water-routing-title">
+        <h2 id="water-routing-title">Water Root Routing</h2>
+        <p>${waterRouting.text}</p>
+        <ol>
+          ${waterRouting.rootContracts.slice(0, 6).map((item) => `<li>${item.title}: ${waterRouting.waterOnline ? 'current-routable' : 'awaiting Water'}; ${item.objective}</li>`).join('')}
         </ol>
       </section>
       <section aria-labelledby="return-contracts-title">
