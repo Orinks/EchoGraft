@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
-import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -175,6 +175,14 @@ describe('resonance evaluation', () => {
     expect(restorationPhilosophies.map((philosophy) => philosophy.id)).toEqual(['preservation', 'adaptation'])
   })
 
+  it('provides resolution-specific ending scenes', () => {
+    expect(Object.keys(resolutionEndingScenes)).toEqual(['preservation', 'adaptation', 'release', 'conservatory'])
+    expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'preservation' }).text).toContain('original greenhouse')
+    expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'adaptation' }).text).toContain('Hybrid lineages')
+    expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'release' }).text).toContain('launch garden')
+    expect(resolutionSpecificEnding({ ...createDefaultSave(), endgameResolution: 'conservatory' }).text).toContain('living archive')
+  })
+
   it('tracks the Central Heart as the season five network hub', () => {
     const dormant = centralHeartSummary(chambers, createDefaultSave())
     expect(dormant.central.id).toBe('heart-atria')
@@ -201,6 +209,50 @@ describe('resonance evaluation', () => {
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-memory'] }).stageId).toBe('consent-check')
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['finale'], postgameUnlocked: true }).stageId).toBe('wake')
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], postgameUnlocked: true }).text).toContain('deferred')
+  })
+
+  it('models launch garden readiness for the release path', () => {
+    expect(launchGardenStages.map((stage) => stage.id)).toEqual(['sealed', 'preparing', 'armed', 'launched'])
+    expect(launchGardenSummary(createDefaultSave()).stageId).toBe('sealed')
+    expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria'] }).stageId).toBe('preparing')
+    expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-root'] }).stageId).toBe('armed')
+    expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], postgameUnlocked: true }).stageId).toBe('launched')
+  })
+
+  it('builds a multi-chamber resonance network from restored systems and ratings', () => {
+    const save = createDefaultSave()
+    save.solvedChambers = ['tutorial', 'binaural', 'pitch', 'rhythm', 'phase', 'heart-atria']
+    save.ratings = {
+      tutorial: 'Resonant',
+      binaural: 'Stable',
+      pitch: 'Restored',
+      rhythm: 'Stable',
+      phase: 'Resonant',
+      'heart-atria': 'Stable',
+    }
+    const network = multiChamberResonanceNetwork(chambers, save)
+
+    expect(network.onlineNodes.map((node) => node.system)).toEqual(expect.arrayContaining(['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Verdancy Heart']))
+    expect(network.readyForFinale).toBe(true)
+    expect(network.totalStrength).toBe(13)
+    expect(network.nodes.find((node) => node.system === 'Intake').text).toContain('network strength 3')
+  })
+
+  it('builds the final chord from the player planted restored chamber voices', () => {
+    const save = createDefaultSave()
+    save.solvedChambers = ['tutorial', 'heart-atria']
+    save.ratings = { tutorial: 'Resonant', 'heart-atria': 'Stable' }
+    save.plantedByChamber = {
+      tutorial: [createSeedDNA('sol-final', { name: 'Sol final voice', pitchRatio: 1, pulseRate: 1 })],
+      'heart-atria': [createSeedDNA('pulse-final', { name: 'Pulse final voice', family: 'Pulse', pitchRatio: 1.25, pulseRate: 2.5 })],
+      pitch: [createSeedDNA('ignored-unrestored', { name: 'Ignored unrestored voice' })],
+    }
+    const chord = playerBuiltFinalChord(chambers, save)
+
+    expect(chord.voices.map((voice) => voice.name)).toEqual(['Sol final voice', 'Pulse final voice'])
+    expect(chord.systems).toEqual(['Intake', 'Verdancy Heart'])
+    expect(chord.networkStrength).toBe(5)
+    expect(chord.text).toContain('Player-built final chord')
   })
 
   it('keeps codex records and perceptions in the 80 to 120 band', () => {

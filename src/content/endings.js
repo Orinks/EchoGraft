@@ -57,6 +57,48 @@ export const crewWakeCycleStages = [
   },
 ]
 
+export const launchGardenStages = [
+  {
+    id: 'sealed',
+    title: 'Sealed',
+    text: 'Launch garden pods remain closed while the Heart and root anchors are still offline.',
+  },
+  {
+    id: 'preparing',
+    title: 'Preparing',
+    text: 'The Central Heart can feed launch pods, but release roots still need a dispersal anchor.',
+  },
+  {
+    id: 'armed',
+    title: 'Armed',
+    text: 'Heart Root restoration prepares seed libraries for launch beyond the Ark hull.',
+  },
+  {
+    id: 'launched',
+    title: 'Launched',
+    text: 'The Ark disperses living seed libraries as mobile gardens instead of keeping every future aboard.',
+  },
+]
+
+export const resolutionEndingScenes = {
+  preservation: {
+    title: 'Preservation Ending',
+    text: 'The Ark wakes as close to its original greenhouse design as the restored chambers allow. Old ecosystems remain legible, crew protocols stay intact, and the final chord favors stable continuity over mutation.',
+  },
+  adaptation: {
+    title: 'Adaptation Ending',
+    text: 'The Ark accepts grafted ecologies as its new operating plan. Hybrid lineages reshape the greenhouse around changed conditions, and the final chord keeps learning from every inherited voice.',
+  },
+  release: {
+    title: 'Release Ending',
+    text: 'The Ark opens its launch garden and sends seed libraries outward before waking the crew. The final chord becomes a dispersal signal, carrying restored life beyond the hull.',
+  },
+  conservatory: {
+    title: 'Conservatory Ending',
+    text: 'The Ark remains a living archive where restored systems, recovered records, and seed voices can keep composing. The final chord is preserved as an instrument instead of a single answer.',
+  },
+}
+
 export function chooseEndgameResolution(save) {
   const solved = new Set(save.solvedChambers ?? [])
   if (solved.has('optional-heart-root')) return endgameResolutions.find((resolution) => resolution.id === 'release')
@@ -65,6 +107,16 @@ export function chooseEndgameResolution(save) {
   if (save.restorationPhilosophy === 'preservation') return endgameResolutions.find((resolution) => resolution.id === 'preservation')
   if (solved.has('optional-heart-graft') || (save.unlockedGraftMechanics?.length ?? 0) >= 3) return endgameResolutions.find((resolution) => resolution.id === 'adaptation')
   return endgameResolutions.find((resolution) => resolution.id === 'preservation')
+}
+
+export function resolutionSpecificEnding(save) {
+  const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const scene = resolutionEndingScenes[resolution] ?? resolutionEndingScenes.preservation
+
+  return {
+    resolution,
+    ...scene,
+  }
 }
 
 export function crewWakeCycleSummary(save) {
@@ -89,5 +141,31 @@ export function crewWakeCycleSummary(save) {
     stage,
     stageId,
     text: `Crew wake cycle: ${stage.title}. ${stage.text} ${crewOutcome}`,
+  }
+}
+
+export function launchGardenSummary(save) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const stageId = resolution === 'release' && (save.postgameUnlocked || solved.has('finale'))
+    ? 'launched'
+    : solved.has('optional-heart-root')
+      ? 'armed'
+      : solved.has('heart-atria')
+        ? 'preparing'
+        : 'sealed'
+  const stage = launchGardenStages.find((item) => item.id === stageId)
+  const releaseOutcome = stageId === 'launched'
+    ? 'Release resolution active: launch garden is the primary Ark future.'
+    : stageId === 'armed'
+      ? 'Release is available if the final resolution favors dispersal.'
+      : 'Restore Heart Atria and Heart Root to make seed dispersal viable.'
+
+  return {
+    releaseOutcome,
+    resolution,
+    stage,
+    stageId,
+    text: `Launch garden: ${stage.title}. ${stage.text} ${releaseOutcome}`,
   }
 }

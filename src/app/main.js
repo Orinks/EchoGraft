@@ -1,11 +1,11 @@
 import { AudioEngine } from '../engine/audio.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../content/chambers.js'
-import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, restorationPhilosophies } from '../content/endings.js'
+import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, launchGardenSummary, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -583,6 +583,9 @@ function atlas() {
   const codexRecovery = codexRecoverySummary(chambers, save)
   const centralHeart = centralHeartSummary(chambers, save)
   const crewWakeCycle = crewWakeCycleSummary(save)
+  const launchGarden = launchGardenSummary(save)
+  const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
+  const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -623,9 +626,23 @@ function atlas() {
         <p>Ready finale branches: ${centralHeart.readyBranches.map((item) => item.title).join(', ') || 'none ready'}.</p>
         <p>Restored finale branches: ${centralHeart.restoredBranches.map((item) => item.title).join(', ') || 'none restored'}.</p>
       </section>
+      <section aria-labelledby="network-title">
+        <h2 id="network-title">Multi-Chamber Resonance Network</h2>
+        <p>${resonanceNetwork.text}</p>
+        <ol>${resonanceNetwork.nodes.map((node) => `<li>${node.text}</li>`).join('')}</ol>
+      </section>
+      <section aria-labelledby="final-chord-title">
+        <h2 id="final-chord-title">Player-Built Final Chord</h2>
+        <p>${finalChord.text}</p>
+        ${finalChord.voices.length ? `<ol>${finalChord.voices.slice(0, 8).map((voice) => `<li>${voice.name}: ${voice.system}, pitch ${voice.pitchRatio}, pulse ${voice.pulseRate}.</li>`).join('')}</ol>` : ''}
+      </section>
       <section aria-labelledby="crew-wake-title">
         <h2 id="crew-wake-title">Crew Wake Cycle</h2>
         <p>${crewWakeCycle.text}</p>
+      </section>
+      <section aria-labelledby="launch-garden-title">
+        <h2 id="launch-garden-title">Launch Garden</h2>
+        <p>${launchGarden.text}</p>
       </section>
       <section aria-labelledby="decision-title">
         <h2 id="decision-title">Decision Point</h2>
@@ -813,12 +830,21 @@ function pause() {
 function ending() {
   audio.setMusicScene('ending', { inventory })
   const resolution = endgameResolutions.find((item) => item.id === save.endgameResolution) ?? chooseEndgameResolution(save)
+  const endingScene = resolutionSpecificEnding(save)
   const crewWakeCycle = crewWakeCycleSummary(save)
+  const launchGarden = launchGardenSummary(save)
+  const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
       <p>Resolution: ${resolution.title}. ${resolution.text}</p>
+      <section aria-labelledby="resolution-ending-title">
+        <h2 id="resolution-ending-title">${endingScene.title}</h2>
+        <p>${endingScene.text}</p>
+      </section>
       <p>${crewWakeCycle.text}</p>
+      <p>${launchGarden.text}</p>
+      <p>${finalChord.text}</p>
       <p>The repaired resonance gardens answer one another. Every grafted voice becomes part of a living orbital chord.</p>
       <button data-action="atlas">Return to atlas</button>
       <button data-action="menu">Main menu</button>

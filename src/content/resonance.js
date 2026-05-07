@@ -283,6 +283,80 @@ export function centralHeartSummary(chambers, save) {
   }
 }
 
+export function multiChamberResonanceNetwork(chambers, save) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratingWeights = { Dormant: 0, Restored: 1, Stable: 2, Resonant: 3, Wild: 2 }
+  const restored = chambers.filter((chamber) => solved.has(chamber.id))
+  const systems = Array.from(new Set(chambers.map((chamber) => chamber.system)))
+  const nodes = systems.map((system) => {
+    const chambersForSystem = restored.filter((chamber) => chamber.system === system)
+    const strength = chambersForSystem.reduce((total, chamber) => total + (ratingWeights[save.ratings?.[chamber.id] ?? 'Restored'] ?? 1), 0)
+    return {
+      online: chambersForSystem.length > 0,
+      restoredCount: chambersForSystem.length,
+      strength,
+      system,
+      text: `${system}: ${chambersForSystem.length} restored chamber(s), network strength ${strength}.`,
+    }
+  })
+  const onlineNodes = nodes.filter((node) => node.online)
+  const totalStrength = nodes.reduce((total, node) => total + node.strength, 0)
+  const heartOnline = Boolean(centralHeartSummary(chambers, save).online)
+  const readyForFinale = heartOnline && onlineNodes.length >= 6
+
+  return {
+    heartOnline,
+    nodes,
+    onlineNodes,
+    readyForFinale,
+    restoredCount: restored.length,
+    totalStrength,
+    text: readyForFinale
+      ? `Multi-chamber resonance network ready: ${onlineNodes.length} systems online with strength ${totalStrength}.`
+      : `Multi-chamber resonance network building: ${onlineNodes.length} systems online, ${restored.length} chambers restored, strength ${totalStrength}. Restore Heart Atria and more systems before final network resonance.`,
+  }
+}
+
+export function playerBuiltFinalChord(chambers, save, inventory = []) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const plantedByChamber = save.plantedByChamber ?? {}
+  const plantedVoices = Object.entries(plantedByChamber)
+    .filter(([chamberId]) => solved.has(chamberId))
+    .flatMap(([chamberId, seeds]) => {
+      const chamber = chambers.find((item) => item.id === chamberId)
+      return (seeds ?? []).map((seed) => ({
+        chamberId,
+        chamberTitle: chamber?.title ?? chamberId,
+        family: seed.family,
+        name: seed.name,
+        pitchRatio: seed.pitchRatio,
+        pulseRate: seed.pulseRate,
+        system: chamber?.system ?? 'Unknown',
+      }))
+    })
+  const fallbackVoices = plantedVoices.length ? [] : inventory.map((seed) => ({
+    chamberId: 'inventory',
+    chamberTitle: 'Seed Library',
+    family: seed.family,
+    name: seed.name,
+    pitchRatio: seed.pitchRatio,
+    pulseRate: seed.pulseRate,
+    system: 'Library',
+  }))
+  const voices = [...plantedVoices, ...fallbackVoices]
+  const systems = Array.from(new Set(voices.map((voice) => voice.system)))
+  const network = multiChamberResonanceNetwork(chambers, save)
+
+  return {
+    networkStrength: network.totalStrength,
+    systems,
+    text: voices.length
+      ? `Player-built final chord: ${voices.length} voice(s) from ${systems.join(', ')} carry network strength ${network.totalStrength}. Lead voice ${voices[0].name} from ${voices[0].chamberTitle}.`
+      : 'Player-built final chord: no planted voices recorded yet; restore chambers so the ending can use the player-built chord.',
+    voices,
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))
