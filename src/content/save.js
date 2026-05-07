@@ -22,6 +22,7 @@ export function createDefaultSave() {
     unlockedGraftMechanics: [],
     wildChamberIds: [],
     wildMutationIds: [],
+    seedMovesByChamber: {},
     ratings: {},
     restoredSystems: [],
     restorationPhilosophy: 'preservation',
@@ -54,6 +55,7 @@ export function loadSave(storage = globalThis.localStorage) {
       settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
       wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,
       wildMutationIds: parsed.wildMutationIds ?? defaults.wildMutationIds,
+      seedMovesByChamber: parsed.seedMovesByChamber ?? defaults.seedMovesByChamber,
     }
   } catch {
     return createDefaultSave()

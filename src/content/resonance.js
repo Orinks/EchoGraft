@@ -128,6 +128,26 @@ export function resonanceAccuracySummary(resultOrScore = 0) {
   }
 }
 
+export function seedMoveSummary(chamber, moveCount = 0) {
+  const moves = Math.max(0, moveCount)
+  const expectedMoves = Math.max(chamber.requiredSeeds ?? 1, chamber.plantingPattern?.slots?.length ?? 1)
+  const band = moves <= expectedMoves ? 'efficient' : moves <= expectedMoves + 2 ? 'careful' : 'messy'
+  const ratingContribution = band === 'efficient'
+    ? 'supports stronger restoration ratings'
+    : band === 'careful'
+      ? 'keeps the rating stable'
+      : 'weakens high-rating stewardship'
+
+  return {
+    band,
+    dimension: 'Seed moves used',
+    expectedMoves,
+    moves,
+    ratingContribution,
+    text: `Seed moves used ${moves}; ${band} against ${expectedMoves} expected placement(s); ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { accuracy: resonanceAccuracySummary(0), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }

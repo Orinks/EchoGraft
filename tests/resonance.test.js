@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -57,6 +57,19 @@ describe('resonance evaluation', () => {
     expect(result.accuracy.ratingContribution).toContain('Resonant')
     expect(resonanceAccuracySummary(0.85).band).toBe('stable')
     expect(resonanceAccuracySummary(0.49).ratingContribution).toContain('does not yet support')
+  })
+
+  it('summarizes seed moves used as a rating dimension', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const efficient = seedMoveSummary(chamber, 1)
+    const messy = seedMoveSummary(chamber, 4)
+
+    expect(efficient.dimension).toBe('Seed moves used')
+    expect(efficient.band).toBe('efficient')
+    expect(efficient.expectedMoves).toBe(chamber.requiredSeeds)
+    expect(efficient.ratingContribution).toContain('stronger restoration ratings')
+    expect(messy.band).toBe('messy')
+    expect(messy.text).toContain('weakens high-rating stewardship')
   })
 
   it('treats Stable required restorations as online campaign progression', () => {

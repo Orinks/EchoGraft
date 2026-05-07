@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -87,6 +87,15 @@ function persist() {
   save.customSeeds = inventory.filter((seed) => seed.grafted)
   save.plantedByChamber[chamber.id] = structuredClone(plantedSeeds)
   saveGame(save)
+}
+
+function seedMoveCount() {
+  return save.seedMovesByChamber?.[chamber.id] ?? 0
+}
+
+function recordSeedMove() {
+  save.seedMovesByChamber = save.seedMovesByChamber ?? {}
+  save.seedMovesByChamber[chamber.id] = seedMoveCount() + 1
 }
 
 function startChamber(nextChamber = chamber) {
@@ -204,11 +213,13 @@ function plantOrPickUp() {
   const existing = plantedSeeds.findIndex((seed) => seed.position.x === player.x && seed.position.y === player.y)
   if (existing >= 0) {
     const [seed] = plantedSeeds.splice(existing, 1)
+    recordSeedMove()
     log(`Picked up ${seed.name}.`)
   } else {
     const planted = plantedSeed(currentSeed(), { x: player.x, y: player.y }, chamber, plantedSeeds)
     const seed = planted.seed
     plantedSeeds.push(seed)
+    recordSeedMove()
     audio.seed(seed)
     log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${planted.assessment.text}`)
   }
@@ -306,6 +317,7 @@ function evaluate() {
     log(`${chamber.system} system restored and online.`, 'success')
     const outcome = restorationOutcomeSummary(chamber, rating)
     if (outcome.systemOnline || ['Stable', 'Flourishing', 'Harmonic', 'Wild'].includes(outcome.outcome)) log(outcome.text, 'success')
+    log(seedMoveSummary(chamber, seedMoveCount()).text, 'success')
   }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
@@ -329,7 +341,8 @@ function evaluateReport() {
   const pressureSails = lastResult.pressureSails ? ` ${lastResult.pressureSails.text}` : ''
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
   const timbrePuzzle = lastResult.timbrePuzzle ? ` ${lastResult.timbrePuzzle.text}` : ''
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle}`
+  const moveSummary = seedMoveSummary(chamber, seedMoveCount())
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle} ${moveSummary.text}`
   log(`Evaluate resonance: ${lastResult.accuracy.text} ${details}`)
 }
 
@@ -356,6 +369,8 @@ function advanceArkClock() {
 function resetChamber() {
   plantedSeeds = []
   save.plantedByChamber[chamber.id] = []
+  save.seedMovesByChamber = save.seedMovesByChamber ?? {}
+  save.seedMovesByChamber[chamber.id] = 0
   audio.syncSeedObjects(chamber.id, plantedSeeds)
   startChamber(chamber)
   log('Chamber reset.')
