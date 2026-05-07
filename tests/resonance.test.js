@@ -273,6 +273,8 @@ describe('resonance evaluation', () => {
     const dreamCompost = chambers.find((chamber) => chamber.id === 'dream-compost')
     const next = mergeRewards(save, dreamCompost, 'Stable')
 
+    expect(dreamCompost.rewards.materials.archiveLoam).toBe(1)
+    expect(next.materials.archiveLoam).toBe(1)
     expect(dreamCompost.rewards.materials.dreamCompost).toBe(1)
     expect(next.materials.dreamCompost).toBe(1)
     expect(dreamCompostSummary(next).text).toContain('safer graft experiments')

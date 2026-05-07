@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -221,6 +221,22 @@ describe('seed DNA', () => {
     expect(unlocked.memoryOnline).toBe(true)
     expect(unlocked.text).toContain(seed.family)
     expect(unlocked.text).toContain(seed.discoveredOrigin)
+  })
+
+  it('reveals hidden ancestry when archive loam is available', () => {
+    const seed = createSeedDNA('loam-archive', {
+      discoveredOrigin: 'Dream compost',
+      ecologicalAffinity: 'archive loam and ancestry reveal',
+      family: 'Loam',
+    })
+    const locked = archiveLoamHiddenAncestryState(seed, { materials: { archiveLoam: 0 } })
+    const revealed = archiveLoamHiddenAncestryState(seed, { materials: { archiveLoam: 1 } })
+
+    expect(locked.revealed).toBe(false)
+    expect(locked.text).toContain('locked')
+    expect(revealed.revealed).toBe(true)
+    expect(revealed.hiddenAncestry).toContain('Loam hidden ancestry')
+    expect(revealed.text).toContain('Dream compost')
   })
 
   it('tunes deep seed DNA traits', () => {

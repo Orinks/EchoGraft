@@ -777,7 +777,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 32 },
     requires: ['ancestor-filter'],
-    rewards: { codex: ['plant-memory-12'], materials: { biomass: 2, dreamCompost: 1, memory: 1 } },
+    rewards: { codex: ['plant-memory-12'], materials: { archiveLoam: 1, biomass: 2, dreamCompost: 1, memory: 1 } },
   },
   {
     id: 'optional-pastoral-loop',

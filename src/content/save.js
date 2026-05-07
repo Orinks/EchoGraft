@@ -18,6 +18,7 @@ export function createDefaultSave() {
       mycelium: 0,
       resin: 0,
       spores: 0,
+      archiveLoam: 0,
     },
     plantedByChamber: {},
     postgameUnlocked: false,

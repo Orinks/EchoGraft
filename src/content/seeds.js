@@ -602,6 +602,24 @@ export function glassPollenUnlockedTraits(saveOrMaterials = {}) {
   }
 }
 
+export function archiveLoamHiddenAncestryState(seed = {}, saveOrMaterials = {}) {
+  const materials = saveOrMaterials.materials ?? saveOrMaterials
+  const count = Math.max(0, materials.archiveLoam ?? 0)
+  const family = seed.family ?? 'unknown family'
+  const origin = seed.discoveredOrigin ?? 'unknown origin'
+  const affinity = seed.ecologicalAffinity ?? 'unmapped ecology'
+  const hiddenAncestry = `${family} hidden ancestry: ${origin}; ${affinity}.`
+
+  return {
+    count,
+    hiddenAncestry,
+    revealed: count > 0,
+    text: count > 0
+      ? `Archive loam reveals hidden ancestry: ${hiddenAncestry}`
+      : 'Archive loam hidden ancestry locked: recover archive loam to reveal older seed-line context.',
+  }
+}
+
 export function rareGraftRewards(seed, discoveries = graftDiscoveries(seed), record = graftRecordForSeed(seed)) {
   const rareSignals = discoveries.filter((discovery) => discovery !== 'hybrid resonance planting')
   const rare = Boolean(record) || rareSignals.length > 0 || (seed.unlockedInheritedTraits?.length ?? 0) > 0
