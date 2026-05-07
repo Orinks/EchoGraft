@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { evaluateResonance, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, evaluateResonance, mergeRewards, restorationRating, unlockNext } from '../src/content/resonance.js'
+import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
 describe('resonance evaluation', () => {
@@ -17,6 +18,22 @@ describe('resonance evaluation', () => {
   it('unlocks only sequential chambers', () => {
     expect(unlockNext(chambers, ['tutorial'])).toContain('direction')
     expect(unlockNext(chambers, [])).toEqual(['tutorial'])
+  })
+
+  it('uses explicit contract requirements for optional atlas branches', () => {
+    expect(availableChambers(chambers, ['tutorial', 'direction', 'binaural', 'pitch']).map((item) => item.id)).toContain('harmony')
+    expect(availableChambers(chambers, ['tutorial', 'direction', 'binaural', 'pitch']).map((item) => item.id)).not.toContain('graft')
+  })
+
+  it('records rating and rewards when a contract is restored', () => {
+    const chamber = chambers[0]
+    const result = evaluateResonance(chamber, [
+      createSeedDNA('sol', { pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0, position: { x: 0, y: 0 } }),
+    ])
+    const next = mergeRewards(createDefaultSave(), chamber, restorationRating(result))
+    expect(next.ratings[chamber.id]).toBe('Resonant')
+    expect(next.codexIds).toContain('first-breath')
+    expect(next.materials.biomass).toBe(1)
   })
 
   it('has a solvable ideal target for every chamber', () => {

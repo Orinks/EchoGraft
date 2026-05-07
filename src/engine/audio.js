@@ -178,6 +178,29 @@ export class AudioEngine {
       step: 0,
     }
     this.musicFrameHandler = null
+    this.seedLoops = new Map()
+  }
+
+  syncSeedObjects(chamberId, plantedSeeds = []) {
+    const active = new Set(plantedSeeds.map((seed, index) => `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`))
+    for (const [key, loop] of this.seedLoops.entries()) {
+      if (active.has(key)) continue
+      clearInterval(loop.timer)
+      this.seedLoops.delete(key)
+    }
+    plantedSeeds.forEach((seed, index) => {
+      const key = `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`
+      if (this.seedLoops.has(key)) return
+      const play = () => this.seed({ ...seed, persistent: true })
+      play()
+      const timer = setInterval(play, Math.max(900, 2200 / Math.max(seed.pulseRate ?? 1, 0.25)))
+      this.seedLoops.set(key, { timer })
+    })
+  }
+
+  clearSeedObjects() {
+    for (const loop of this.seedLoops.values()) clearInterval(loop.timer)
+    this.seedLoops.clear()
   }
 
   async start() {
@@ -551,6 +574,7 @@ export class AudioEngine {
 
   chamber(chamber, plantedSeeds = []) {
     this.setMusicScene('game', { chamber, plantedSeeds })
+    this.syncSeedObjects(chamber.id, plantedSeeds)
     const ecology = plantedSeeds.length ? plantedSeeds : [{ ...chamber.target, waveform: 'sine', oscillatorType: 'am', fmAmount: 0.1, amAmount: 0.2, noiseAmount: 0.05 }]
     ecology.forEach((seed, index) => {
       const ratio = seed.pitchRatio ?? chamber.target.pitchRatio

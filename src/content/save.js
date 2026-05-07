@@ -4,8 +4,16 @@ export function createDefaultSave() {
   return {
     version: 1,
     currentChamberId: 'tutorial',
+    codexIds: [],
+    materials: {
+      biomass: 0,
+      crystal: 0,
+      memory: 0,
+    },
+    plantedByChamber: {},
+    ratings: {},
     solvedChambers: [],
-    inventoryIds: ['sol', 'lumen', 'umbra', 'spire'],
+    inventoryIds: ['sol', 'lumen', 'umbra'],
     customSeeds: [],
     settings: {
       master: 0.8,
@@ -24,7 +32,14 @@ export function createDefaultSave() {
 export function loadSave(storage = globalThis.localStorage) {
   try {
     const raw = storage?.getItem(saveKey)
-    return raw ? { ...createDefaultSave(), ...JSON.parse(raw) } : createDefaultSave()
+    const defaults = createDefaultSave()
+    const parsed = raw ? JSON.parse(raw) : {}
+    return {
+      ...defaults,
+      ...parsed,
+      materials: { ...defaults.materials, ...(parsed.materials ?? {}) },
+      settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
+    }
   } catch {
     return createDefaultSave()
   }

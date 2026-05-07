@@ -59,5 +59,37 @@ export function evaluateResonance(chamber, plantedSeeds) {
 
 export function unlockNext(chambers, solvedIds) {
   const solved = new Set(solvedIds)
-  return chambers.filter((chamber, index) => index === 0 || solved.has(chambers[index - 1].id)).map((chamber) => chamber.id)
+  return availableChambers(chambers, solvedIds).map((chamber) => chamber.id)
+}
+
+export function availableChambers(chambers, solvedIds) {
+  const solved = new Set(solvedIds)
+  return chambers.filter((chamber, index) => {
+    if (index === 0) return true
+    if (chamber.requires?.length) return chamber.requires.every((id) => solved.has(id))
+    return solved.has(chambers[index - 1].id)
+  })
+}
+
+export function restorationRating(result) {
+  if (!result.solved) return 'Dormant'
+  if (result.score >= 0.96) return 'Resonant'
+  if (result.score >= 0.85) return 'Stable'
+  return 'Restored'
+}
+
+export function mergeRewards(save, chamber, rating) {
+  const rewards = chamber.rewards ?? {}
+  const next = structuredClone(save)
+  for (const [key, value] of Object.entries(rewards.materials ?? {})) {
+    next.materials[key] = (next.materials[key] ?? 0) + value
+  }
+  for (const seedId of rewards.seeds ?? []) {
+    if (!next.inventoryIds.includes(seedId)) next.inventoryIds.push(seedId)
+  }
+  for (const codexId of rewards.codex ?? []) {
+    if (!next.codexIds.includes(codexId)) next.codexIds.push(codexId)
+  }
+  next.ratings[chamber.id] = rating
+  return next
 }
