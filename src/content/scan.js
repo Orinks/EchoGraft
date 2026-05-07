@@ -90,6 +90,26 @@ export function seedPositionState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedPositionMatchScanState(seed = {}, chamber = {}) {
+  const positionState = seedPositionState(seed, chamber)
+  const tolerance = positionState.tolerance ?? chamber.tolerances?.position ?? 1
+  const score = Number(clamp(1 - positionState.distance / Math.max(tolerance, 0.001)).toFixed(3))
+  const band = positionState.distance <= tolerance * 0.25
+    ? 'matched'
+    : positionState.distance <= tolerance
+      ? 'close'
+      : 'off target'
+
+  return {
+    band,
+    distance: positionState.distance,
+    score,
+    tolerance,
+    withinTolerance: positionState.distance <= tolerance,
+    text: `Position match: ${band}; score ${score}; distance ${positionState.distance} of ${tolerance} allowed step(s).`,
+  }
+}
+
 export function seedSpatialRadiusScanState(seed = {}, chamber = {}) {
   const position = seed.position ?? { x: 0, y: 0 }
   const target = chamber.target ?? { x: 0, y: 0 }
@@ -315,6 +335,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     noiseAmountState: seedNoiseAmountScanState(seed),
     position: seed.position ?? { x: 0, y: 0 },
+    positionMatchState: seedPositionMatchScanState(seed, chamber),
     positionState: seedPositionState(seed, chamber),
     substrateState: seedSubstrateScanState(seed, chamber),
     spatialRadiusState: seedSpatialRadiusScanState(seed, chamber),
@@ -325,7 +346,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
