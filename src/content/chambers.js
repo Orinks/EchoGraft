@@ -73,6 +73,48 @@ export function stabilizationContractSummary(chamber, chamberList = chambers) {
   }
 }
 
+export function researchContractSummary(chamber) {
+  if (chamber.contractType !== 'research') return undefined
+
+  const reveal = chamber.researchReveal ?? { kind: 'record', name: chamber.rewards?.codex?.[0] }
+  return {
+    kind: reveal.kind,
+    name: reveal.name,
+    text: `Research contract: reveals ${reveal.kind} ${reveal.name} through ${chamber.mechanic}.`,
+  }
+}
+
+export function emergencyContractSummary(chamber) {
+  if (chamber.contractType !== 'emergency') return undefined
+
+  const deadline = chamber.emergency?.softDeadlineMinutes
+  return {
+    hazardCount: chamber.hazards?.length ?? 0,
+    softDeadlineMinutes: deadline,
+    text: `Emergency contract: contains ${chamber.hazards?.length ?? 0} unstable hazard(s) with a soft deadline of ${deadline} minutes; ${chamber.emergency?.consequence ?? 'uncontained hazards reduce rating potential'}.`,
+  }
+}
+
+export function conservatoryContractSummary(chamber) {
+  if (chamber.contractType !== 'conservatory') return undefined
+
+  return {
+    compositionModes: chamber.conservatory?.compositionModes ?? [],
+    curation: chamber.conservatory?.curation ?? '',
+    text: `Conservatory contract: lets the player compose with ${chamber.conservatory?.compositionModes?.join(', ') ?? 'seed voice'} modes and curate seed voices by ${chamber.conservatory?.curation ?? 'reviewing recovered voices'}.`,
+  }
+}
+
+export function finaleContractSummary(chamber) {
+  if (chamber.contractType !== 'finale') return undefined
+
+  return {
+    networkContribution: chamber.finaleNetwork?.contribution ?? '',
+    systems: chamber.finaleNetwork?.systems ?? [],
+    text: `Finale contract: contributes to the endgame Ark network by ${chamber.finaleNetwork?.contribution ?? 'joining restored systems into a final resonance network'}.`,
+  }
+}
+
 export const campaignScope = {
   firstFullCampaignHours: { min: 6, max: 10 },
   seasons: [
@@ -217,6 +259,7 @@ export const chambers = [
     tolerances: { position: 2, pitchRatio: 0.3, pulseRate: 0.6, brightness: 0.25, phase: 180 },
     harmonic: true,
     optional: true,
+    researchReveal: { kind: 'record', name: 'twin-roots' },
     requires: ['pitch'],
     rewards: { codex: ['twin-roots'], materials: { memory: 1 } },
   },
@@ -251,6 +294,7 @@ export const chambers = [
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.35, brightness: 0.2, phase: 100 },
     requiresGraft: true,
     optional: true,
+    researchReveal: { kind: 'trait', name: 'graft ancestry' },
     requires: ['harmony'],
     rewards: { codex: ['splice-nursery'], materials: { biomass: 1, memory: 1 } },
   },
@@ -268,6 +312,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.12, pulseRate: 0.4, brightness: 0.2, phase: 120 },
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
+    emergency: { softDeadlineMinutes: 10, consequence: 'mold pressure spreads if the low interval is not contained before the planning window closes' },
     requires: ['phase'],
     rewards: { codex: ['mold-pressure'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
@@ -286,6 +331,10 @@ export const chambers = [
     tolerances: { position: 1.2, pitchRatio: 0.16, pulseRate: 0.3, brightness: 0.12, phase: 45 },
     harmonic: true,
     requiresGraft: true,
+    finaleNetwork: {
+      contribution: 'braiding restored Intake, Navigation, Water, Canopy, Memory, and Heart voices into the Verdancy Heart chord',
+      systems: ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'],
+    },
     requires: ['mold'],
     rewards: { codex: ['verdancy-heart'], materials: { biomass: 3, crystal: 2, memory: 2 } },
     ending: true,
@@ -337,6 +386,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.3, pitchRatio: 0.1, pulseRate: 0.3, brightness: 0.14, phase: 55 },
     hazards: [{ pitchRatio: 0.67, radius: 0.18, message: 'Fungus relays buckle around the sour mold band.' }],
+    emergency: { softDeadlineMinutes: 10, consequence: 'sour mold keeps relays unstable until routed around the forbidden band' },
     requires: ['root-choir'],
     rewards: { codex: ['fungus-relays'], materials: { biomass: 1, memory: 2, spores: 3 } },
   },
@@ -389,6 +439,7 @@ export const chambers = [
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.28, brightness: 0.18, phase: 60 },
     requiresGraft: true,
     optional: true,
+    researchReveal: { kind: 'trait', name: 'grafted root behavior' },
     requires: ['optional-root-echo'],
     rewards: { materials: { biomass: 1, memory: 2 } },
   },
@@ -521,6 +572,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.4, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 28 },
     hazards: [{ pulseRate: 3, radius: 0.25, message: 'Hail surge rejects frantic pulses.' }],
+    emergency: { softDeadlineMinutes: 10, consequence: 'hail clicks keep cracking the glass rhythm until damped' },
     requires: ['fog-harp'],
     rewards: { materials: { crystal: 2, memory: 1 } },
   },
@@ -539,6 +591,7 @@ export const chambers = [
     tolerances: { position: 1.8, pitchRatio: 0.2, pulseRate: 0.32, brightness: 0.12, phase: 70 },
     harmonic: true,
     optional: true,
+    researchReveal: { kind: 'seed family', name: 'glass' },
     requires: ['sun-prism'],
     rewards: { materials: { crystal: 2 } },
   },
@@ -659,6 +712,7 @@ export const chambers = [
     tolerances: { position: 1.5, pitchRatio: 0.14, pulseRate: 0.24, brightness: 0.14, phase: 45 },
     requiresGraft: true,
     optional: true,
+    researchReveal: { kind: 'trait', name: 'formant memory filtering' },
     requires: ['optional-record-grove'],
     rewards: { materials: { memory: 3 } },
   },
@@ -811,8 +865,30 @@ export const chambers = [
     tolerances: { position: 1.3, pitchRatio: 0.12, pulseRate: 0.2, brightness: 0.12, phase: 38 },
     requiresGraft: true,
     optional: true,
+    researchReveal: { kind: 'seed family', name: 'hybrid' },
     requires: ['heart-atria'],
     rewards: { materials: { biomass: 1, crystal: 1, memory: 2 } },
+  },
+  {
+    id: 'postgame-conservatory',
+    title: 'Optional Contract: Living Conservatory',
+    season: 5,
+    system: 'Verdancy Heart',
+    contractType: 'conservatory',
+    mechanic: 'free composition and seed voice curation',
+    objective: 'Compose with recovered seed voices and curate which voices lead the living archive.',
+    start: { x: 0, y: -2, facing: 0 },
+    target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1.5, brightness: 0.6, phase: 120 },
+    requiredSeeds: 1,
+    solveTimeMinutes: { min: 8, max: 10 },
+    tolerances: { position: 1.6, pitchRatio: 0.2, pulseRate: 0.35, brightness: 0.18, phase: 70 },
+    optional: true,
+    conservatory: {
+      compositionModes: ['balanced chord', 'seed solo', 'network braid'],
+      curation: 'choosing recovered seed voices for the living archive',
+    },
+    requires: ['finale'],
+    rewards: { codex: ['system-diagnostic-10'], materials: { memory: 2 } },
   },
 ]
 

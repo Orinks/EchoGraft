@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, restorationContractSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, finaleContractSummary, majorArkSystems, researchContractSummary, restorationContractSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -326,6 +326,66 @@ describe('resonance evaluation', () => {
     }
     expect(stabilizationContractSummary(chambers.find((chamber) => chamber.contractType === 'restoration'))).toBeUndefined()
     expect(mergeRewards(save, glassLeaves, 'Stable').ratings.rhythm).toBe('Stable')
+  })
+
+  it('summarizes research contracts as seed family, trait, or record reveals', () => {
+    const researchContracts = chambers.filter((chamber) => chamber.contractType === 'research')
+    const revealKinds = new Set()
+
+    expect(researchContracts.length).toBeGreaterThan(0)
+    for (const contract of researchContracts) {
+      const summary = researchContractSummary(contract)
+      revealKinds.add(summary.kind)
+      expect(['seed family', 'trait', 'record']).toContain(summary.kind)
+      expect(summary.name, contract.id).toBeTruthy()
+      expect(summary.text, contract.id).toContain(`reveals ${summary.kind}`)
+      expect(summary.text, contract.id).toContain(contract.mechanic)
+    }
+    expect(revealKinds).toEqual(new Set(['record', 'trait', 'seed family']))
+    expect(researchContractSummary(chambers.find((chamber) => chamber.contractType === 'stabilization'))).toBeUndefined()
+  })
+
+  it('summarizes emergency contracts as unstable hazards with soft deadlines', () => {
+    const emergencyContracts = chambers.filter((chamber) => chamber.contractType === 'emergency')
+
+    expect(emergencyContracts.length).toBeGreaterThan(0)
+    for (const contract of emergencyContracts) {
+      const summary = emergencyContractSummary(contract)
+      expect(summary.hazardCount, contract.id).toBeGreaterThan(0)
+      expect(summary.softDeadlineMinutes, contract.id).toBeGreaterThan(0)
+      expect(summary.softDeadlineMinutes, contract.id).toBeLessThanOrEqual(contract.solveTimeMinutes.max)
+      expect(summary.text, contract.id).toContain('unstable hazard')
+      expect(summary.text, contract.id).toContain('soft deadline')
+    }
+    expect(emergencyContractSummary(chambers.find((chamber) => chamber.contractType === 'research'))).toBeUndefined()
+  })
+
+  it('authors a conservatory contract for composing and curating seed voices', () => {
+    const contract = chambers.find((chamber) => chamber.contractType === 'conservatory')
+    const summary = conservatoryContractSummary(contract)
+
+    expect(contract.id).toBe('postgame-conservatory')
+    expect(contract.optional).toBe(true)
+    expect(contract.requires).toContain('finale')
+    expect(summary.compositionModes).toEqual(['balanced chord', 'seed solo', 'network braid'])
+    expect(summary.curation).toContain('recovered seed voices')
+    expect(summary.text).toContain('compose')
+    expect(summary.text).toContain('curate seed voices')
+    expect(availableChambers(chambers, ['finale']).map((chamber) => chamber.id)).toContain('postgame-conservatory')
+    expect(conservatoryContractSummary(chambers.find((chamber) => chamber.contractType === 'emergency'))).toBeUndefined()
+  })
+
+  it('summarizes finale contracts as endgame Ark network contributions', () => {
+    const finale = chambers.find((chamber) => chamber.contractType === 'finale')
+    const summary = finaleContractSummary(finale)
+
+    expect(finale.id).toBe('finale')
+    expect(finale.ending).toBe(true)
+    expect(summary.systems).toEqual(['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'])
+    expect(summary.networkContribution).toContain('Verdancy Heart chord')
+    expect(summary.text).toContain('endgame Ark network')
+    expect(summary.text).toContain('braiding restored')
+    expect(finaleContractSummary(chambers.find((chamber) => chamber.contractType === 'conservatory'))).toBeUndefined()
   })
 
   it('authors the training contract as one low-stakes mechanic lesson', () => {
