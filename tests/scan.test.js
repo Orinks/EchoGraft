@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
+import { chamberCompassCue, heartScanState, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -18,6 +18,21 @@ describe('scan pulse', () => {
 
     expect(pulse.brightness).toBeGreaterThan(0.8)
     expect(pulse.duration).toBeLessThan(0.25)
+  })
+
+  it('summarizes heart scan direction, distance, and objective together', () => {
+    const heartScan = heartScanState(
+      { x: 0, y: -2 },
+      { objective: 'Restore the intake heart.', target: { x: 0, y: 1 } },
+      8,
+    )
+
+    expect(heartScan.distance).toBe(3)
+    expect(heartScan.direction).toMatchObject({ horizontal: 'center', vertical: 'north' })
+    expect(heartScan.objective).toBe('Restore the intake heart.')
+    expect(heartScan.text).toContain('Heart scan: direction center, north')
+    expect(heartScan.text).toContain('distance 3.0 step(s)')
+    expect(heartScan.text).toContain('objective Restore the intake heart.')
   })
 
   it('expands scan range after Intake comes online', () => {

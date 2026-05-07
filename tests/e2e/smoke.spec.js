@@ -15,6 +15,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Listen: Training Contract: First Breath/)).toBeVisible()
   await page.getByRole('button', { name: 'Locate heart' }).click()
   await expect(eventLog.getByText(/Locate: chamber heart is/)).toBeVisible()
+  await expect(eventLog.getByText(/Locate: chamber heart is .* Heart scan: direction .* distance .* objective/)).toBeVisible()
   await page.getByRole('button', { name: 'Tune up' }).click()
   await expect(eventLog.getByText(/Tuned Sol phonoseed: pitchRatio is 1.05/)).toBeVisible()
   await page.getByRole('button', { name: 'Tune down' }).click()
@@ -42,6 +43,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
+  await expect(eventLog.getByText(/Objective scan: heart .* Heart scan: direction .* distance .* objective/)).toBeVisible()
   await expect(eventLog.getByText(/shape .* Target traits: .* Hazards: .* Required changes:/)).toBeVisible()
   await page.keyboard.press('z')
   await page.keyboard.press('Space')

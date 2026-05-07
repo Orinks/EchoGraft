@@ -42,6 +42,19 @@ export function scanRangeState(save = {}) {
   }
 }
 
+export function heartScanState(player, chamber = {}, scanRange = chamber.scanRange ?? 8) {
+  const pulse = scanPulse(player, chamber.target, { ...chamber, scanRange })
+  const objective = chamber.objective ?? 'Restore the chamber heart.'
+
+  return {
+    direction: pulse.direction,
+    distance: pulse.distance,
+    objective,
+    pulse,
+    text: `Heart scan: direction ${pulse.direction.horizontal}, ${pulse.direction.vertical} (${pulse.direction.side}); distance ${pulse.distance.toFixed(1)} step(s); objective ${objective}`,
+  }
+}
+
 export function navigationScanState(save = {}) {
   const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
 
