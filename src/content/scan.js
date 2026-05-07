@@ -485,6 +485,38 @@ export function seedHazardAvoidanceScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedNetworkContributionScanState(seed = {}, chamber = {}) {
+  const system = chamber.system ?? 'unassigned system'
+  const finaleSystems = chamber.finaleNetwork?.systems ?? []
+  const finaleRelevant = finaleSystems.includes(system) || finaleSystems.includes(system.replace('Verdancy ', ''))
+  const matchStates = [
+    seedPositionMatchScanState(seed, chamber),
+    seedPitchMatchScanState(seed, chamber),
+    seedRhythmMatchScanState(seed, chamber),
+    seedTimbreMatchScanState(seed, chamber),
+    seedPhaseMatchScanState(seed, chamber),
+  ]
+  const scored = matchStates.filter((state) => Number.isFinite(state.score) || state.matched !== undefined)
+  const score = scored.length
+    ? Number((scored.reduce((total, state) => total + (Number.isFinite(state.score) ? state.score : state.matched ? 1 : 0), 0) / scored.length).toFixed(3))
+    : 0
+  const band = score >= 0.75 ? 'strong system voice' : score >= 0.4 ? 'partial system voice' : 'weak system voice'
+  const finaleText = finaleSystems.length
+    ? `${finaleRelevant ? 'feeds' : 'does not directly feed'} finale systems ${finaleSystems.join(', ')}`
+    : 'no finale braid declared for this chamber'
+
+  return {
+    band,
+    contribution: chamber.finaleNetwork?.contribution ?? `${system} restoration layer`,
+    family: seed.family ?? 'unknown family',
+    finaleRelevant,
+    finaleSystems,
+    score,
+    system,
+    text: `Network contribution: ${band}; ${seed.name ?? seed.id ?? 'unknown seed'} contributes to ${system} as ${seed.family ?? 'unknown family'} voice, score ${score}; ${finaleText}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     amDepthState: seedAmDepthScanState(seed),
@@ -497,6 +529,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     hazardAvoidanceState: seedHazardAvoidanceScanState(seed, chamber),
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
+    networkContributionState: seedNetworkContributionScanState(seed, chamber),
     noiseAmountState: seedNoiseAmountScanState(seed),
     phaseMatchState: seedPhaseMatchScanState(seed, chamber),
     pitchMatchState: seedPitchMatchScanState(seed, chamber),
@@ -514,7 +547,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.harmonicRelationshipState.text} ${seed.hazardAvoidanceState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.harmonicRelationshipState.text} ${seed.hazardAvoidanceState.text} ${seed.networkContributionState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

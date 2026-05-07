@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -81,6 +81,7 @@ describe('scan pulse', () => {
       harmonicRelationshipState: { pitchRatio: 1, relationships: [] },
       hazardAvoidanceState: { band: 'clear', risks: [] },
       nearbyState: { nearby: [] },
+      networkContributionState: { band: 'strong system voice', finaleRelevant: false, score: 0.867, system: 'unassigned system' },
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
       phaseMatchState: { band: 'matched', delta: 0, phase: 0, score: 1, target: 0, tolerance: 45, withinTolerance: true },
       pitchMatchState: { band: 'matched', delta: 0, pitchRatio: 1, score: 1, target: 1, tolerance: 0.25, withinTolerance: true },
@@ -105,6 +106,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
     expect(seedScan.text).toContain('Harmonic relationship: no other planted voices to compare.')
     expect(seedScan.text).toContain('Hazard avoidance: clear; no chamber hazards to avoid.')
+    expect(seedScan.text).toContain('Network contribution: strong system voice; Sol phonoseed contributes to unassigned system as Sol voice, score 0.867; no finale braid declared for this chamber.')
     expect(seedScan.text).toContain('Pitch match: matched; pitch 1 vs target 1, delta 0, score 1; tolerance 0.25.')
     expect(seedScan.text).toContain('Rhythm match: matched; pulse 1 vs target 1, delta 0, score 1; tolerance 0.5.')
     expect(seedScan.text).toContain('Timbre match: matched; waveform sine; required any chamber-compatible waveform.')
@@ -342,6 +344,30 @@ describe('scan pulse', () => {
     ])
     expect(avoidance.text).toContain('pitch 0.72 vs forbidden 0.75 radius 0.08, unsafe, clearance -0.05')
     expect(avoidance.text).toContain('pulse 2 vs forbidden 2.2 radius 0.12, safe, clearance 0.08')
+  })
+
+  it('reports reusable network contribution for planted seed voices', () => {
+    const contribution = seedNetworkContributionScanState(
+      { family: 'Archive', name: 'Archive phonoseed', phase: 90, pitchRatio: 1.5, position: { x: 0, y: 0 }, pulseRate: 2, waveform: 'triangle' },
+      {
+        finaleNetwork: { contribution: 'braiding restored voices into the Verdancy Heart chord', systems: ['Intake', 'Memory', 'Heart'] },
+        requiredWaveforms: ['triangle'],
+        system: 'Memory',
+        target: { x: 0, y: 0, phase: 90, pitchRatio: 1.5, pulseRate: 2 },
+        tolerances: { phase: 30, pitchRatio: 0.2, position: 1, pulseRate: 0.25 },
+      },
+    )
+
+    expect(contribution).toMatchObject({
+      band: 'strong system voice',
+      contribution: 'braiding restored voices into the Verdancy Heart chord',
+      family: 'Archive',
+      finaleRelevant: true,
+      finaleSystems: ['Intake', 'Memory', 'Heart'],
+      score: 1,
+      system: 'Memory',
+    })
+    expect(contribution.text).toBe('Network contribution: strong system voice; Archive phonoseed contributes to Memory as Archive voice, score 1; feeds finale systems Intake, Memory, Heart.')
   })
 
   it('reports a reusable seed position state relative to the chamber heart', () => {
