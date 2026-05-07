@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -102,6 +102,37 @@ describe('scan pulse', () => {
     expect(hazardScan.count).toBe(0)
     expect(hazardScan.unsafeZones).toEqual([])
     expect(hazardScan.text).toBe('Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.')
+  })
+
+  it('summarizes recovered records and locked hidden memory echoes', () => {
+    const memoryScan = memoryScanState(
+      { rewards: { codex: ['first-breath', 'perception-02'] } },
+      { codexIds: ['first-breath'], restoredSystems: [], solvedChambers: [] },
+      {
+        'first-breath': { title: 'First Breath' },
+        'perception-02': { title: 'Perception 02' },
+      },
+    )
+
+    expect(memoryScan.recoveredCount).toBe(1)
+    expect(memoryScan.memoryOnline).toBe(false)
+    expect(memoryScan.chamberRecords).toContainEqual(expect.objectContaining({ id: 'perception-02', recovered: false }))
+    expect(memoryScan.hiddenEchoes).toEqual([])
+    expect(memoryScan.text).toContain('Memory scan: records First Breath')
+    expect(memoryScan.text).toContain('Perception 02 hidden')
+    expect(memoryScan.text).toContain('Hidden echoes: locked until Quiet Mirror or Memory Orchard comes online')
+  })
+
+  it('reveals pending chamber records as hidden echoes when Memory is online', () => {
+    const memoryScan = memoryScanState(
+      { rewards: { codex: ['perception-04'] } },
+      { codexIds: [], restoredSystems: ['Memory'], solvedChambers: [] },
+      { 'perception-04': { title: 'Perception 04' } },
+    )
+
+    expect(memoryScan.memoryOnline).toBe(true)
+    expect(memoryScan.hiddenEchoes).toContainEqual(expect.objectContaining({ id: 'perception-04', title: 'Perception 04' }))
+    expect(memoryScan.text).toContain('Hidden echoes: Perception 04 audible before restoration')
   })
 
   it('expands scan range after Intake comes online', () => {

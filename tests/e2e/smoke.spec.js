@@ -55,6 +55,9 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('z')
   await page.keyboard.press('Space')
   await expect(eventLog.getByText('Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.', { exact: true })).toBeVisible()
+  await page.keyboard.press('z')
+  await page.keyboard.press('Space')
+  await expect(eventLog.getByText(/Memory scan: records none recovered yet.*Chamber records: First Breath hidden/)).toBeVisible()
 
   await page.keyboard.press('ArrowUp')
   await expect(eventLog.getByText(/Movement audio: spatial footstep, wall .* current .* landmark heart/)).toBeVisible()

@@ -139,6 +139,45 @@ export function hazardScanState(chamber = {}, plantedSeeds = []) {
   }
 }
 
+function recordTitle(records = {}, id) {
+  return records[id]?.title ?? id
+}
+
+export function memoryScanState(chamber = {}, save = {}, records = {}) {
+  const recoveredIds = save.codexIds ?? []
+  const recovered = new Set(recoveredIds)
+  const chamberRecordIds = chamber.rewards?.codex ?? []
+  const chamberRecords = chamberRecordIds.map((id) => ({
+    id,
+    recovered: recovered.has(id),
+    title: recordTitle(records, id),
+  }))
+  const pending = chamberRecords.filter((record) => !record.recovered)
+  const restoredSystems = save.restoredSystems ?? []
+  const solved = new Set(save.solvedChambers ?? [])
+  const memoryOnline = restoredSystems.includes('Memory') || restoredSystems.includes('Memory Orchard') || solved.has('phase')
+  const hiddenEchoes = memoryOnline ? pending : []
+  const recoveredText = recoveredIds.length
+    ? recoveredIds.map((id) => recordTitle(records, id)).join(', ')
+    : 'none recovered yet'
+  const chamberText = chamberRecords.length
+    ? chamberRecords.map((record) => `${record.title} ${record.recovered ? 'recovered' : 'hidden'}`).join('; ')
+    : 'no chamber record hooks declared'
+  const hiddenText = memoryOnline
+    ? hiddenEchoes.length
+      ? `${hiddenEchoes.map((record) => record.title).join(', ')} audible before restoration`
+      : 'no hidden echoes remain in this chamber'
+    : 'locked until Quiet Mirror or Memory Orchard comes online'
+
+  return {
+    chamberRecords,
+    hiddenEchoes,
+    memoryOnline,
+    recoveredCount: recoveredIds.length,
+    text: `Memory scan: records ${recoveredText}. Chamber records: ${chamberText}. Hidden echoes: ${hiddenText}.`,
+  }
+}
+
 export function navigationScanState(save = {}) {
   const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
 

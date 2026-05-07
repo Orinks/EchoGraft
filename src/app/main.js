@@ -6,7 +6,7 @@ import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, navigationScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
@@ -216,6 +216,7 @@ function scan() {
   if (scanMode === 'boundaries') log(boundaryScanState(player, chamber).text)
   if (scanMode === 'seeds') log(seedScanState(plantedSeeds).text)
   if (scanMode === 'hazards') log(hazardScanState(chamber, plantedSeeds).text)
+  if (scanMode === 'memory') log(memoryScanState(chamber, save, availableCodexRecords()).text)
 }
 
 function plantOrPickUp() {
@@ -445,7 +446,7 @@ function updateSetting(key, value) {
 }
 
 function cycleScanMode() {
-  const modes = ['objective', 'boundaries', 'seeds', 'hazards']
+  const modes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory']
   scanMode = modes[(modes.indexOf(scanMode) + 1) % modes.length]
   log(`Scan mode: ${scanMode}.`)
 }
@@ -627,6 +628,7 @@ function game() {
           <button data-action="scanMode" data-mode="boundaries">Boundary scan</button>
           <button data-action="scanMode" data-mode="seeds">Seed scan</button>
           <button data-action="scanMode" data-mode="hazards">Hazard scan</button>
+          <button data-action="scanMode" data-mode="memory">Memory scan</button>
           <button data-action="plant">Plant or pick up</button>
         <button data-action="tuneDown">Tune down</button>
         <button data-action="tuneUp">Tune up</button>
