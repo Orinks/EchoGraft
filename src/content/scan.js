@@ -1,4 +1,5 @@
 import { chamberMovementBounds } from './player.js'
+import { chamberSubstrate, substrateMutationChance } from './planting.js'
 
 function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
@@ -132,6 +133,17 @@ export function seedTuningScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedSubstrateScanState(seed = {}, chamber = {}) {
+  const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
+  const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
+
+  return {
+    mutationChance,
+    substrate,
+    text: `Chamber substrate: ${substrate}; ${mutationChance.text}`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     family: seed.family ?? 'unknown family',
@@ -139,6 +151,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     name: seed.name ?? seed.id ?? 'unknown seed',
     position: seed.position ?? { x: 0, y: 0 },
     positionState: seedPositionState(seed, chamber),
+    substrateState: seedSubstrateScanState(seed, chamber),
     tuningState: seedTuningScanState(seed, chamber),
   }))
 
@@ -146,7 +159,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
