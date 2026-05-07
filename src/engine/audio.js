@@ -291,7 +291,7 @@ export class AudioEngine {
       resonance: null,
       step: 0,
     }
-    this.musicFrameHandler = null
+    this.frameHandler = null
     this.seedLoops = new Map()
   }
 
@@ -299,21 +299,23 @@ export class AudioEngine {
     const active = new Set(plantedSeeds.map((seed, index) => `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`))
     for (const [key, loop] of this.seedLoops.entries()) {
       if (active.has(key)) continue
-      clearInterval(loop.timer)
       this.seedLoops.delete(key)
     }
     plantedSeeds.forEach((seed, index) => {
       const key = `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`
       if (this.seedLoops.has(key)) return
-      const play = () => this.seed({ ...seed, persistent: true })
-      play()
-      const timer = setInterval(play, Math.max(900, 2200 / Math.max(seed.pulseRate ?? 1, 0.25)))
-      this.seedLoops.set(key, { timer })
+      const interval = Math.max(0.9, 2.2 / Math.max(seed.pulseRate ?? 1, 0.25))
+      this.seed({ ...seed, persistent: true })
+      this.seedLoops.set(key, {
+        interval,
+        nextBeat: this.audioTime() + interval,
+        seed,
+      })
     })
+    this.startFrameLoop()
   }
 
   clearSeedObjects() {
-    for (const loop of this.seedLoops.values()) clearInterval(loop.timer)
     this.seedLoops.clear()
   }
 
@@ -328,16 +330,23 @@ export class AudioEngine {
     if (!syngen.loop.isRunning()) syngen.loop.start()
     this.createBuses()
     this.applySettings()
-    this.startMusicLoop()
+    this.startFrameLoop()
     this.enabled = true
     return true
   }
 
-  startMusicLoop() {
+  audioTime() {
+    return this.hasAudioStack ? syngen.audio.time() : Date.now() / 1000
+  }
+
+  startFrameLoop() {
     if (!this.hasAudioStack) return
-    if (this.musicFrameHandler) return
-    this.musicFrameHandler = () => this.tickMusic()
-    syngen.loop.on('frame', this.musicFrameHandler)
+    if (this.frameHandler) return
+    this.frameHandler = () => {
+      this.tickSeedObjects()
+      this.tickMusic()
+    }
+    syngen.loop.on('frame', this.frameHandler)
   }
 
   createBuses() {
@@ -433,7 +442,7 @@ export class AudioEngine {
 
   tickMusic() {
     if (!this.enabled || !this.music.enabled) return
-    const now = syngen.audio.time()
+    const now = this.audioTime()
     if (this.music.nextBeat && now < this.music.nextBeat) return
 
     const phrase = this.createMusicPhrase()
@@ -485,6 +494,16 @@ export class AudioEngine {
 
     this.music.step += 1
     this.music.nextBeat = now + beatDuration * phrase.spacing
+  }
+
+  tickSeedObjects() {
+    if (!this.enabled || !this.seedLoops.size) return
+    const now = this.audioTime()
+    for (const loop of this.seedLoops.values()) {
+      if (now < loop.nextBeat) continue
+      this.seed({ ...loop.seed, persistent: true })
+      loop.nextBeat = now + loop.interval
+    }
   }
 
   createMusicPhrase() {

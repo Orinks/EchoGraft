@@ -15,6 +15,29 @@ function movementVoices(player, previous, chamber) {
 }
 
 describe('audio movement cues', () => {
+  it('schedules persistent planted seed voices from the frame loop', () => {
+    const audio = new AudioEngine()
+    const played = []
+
+    audio.enabled = true
+    audio.audioTime = () => 10
+    audio.seed = (seed) => played.push(seed)
+    audio.syncSeedObjects('tutorial', [
+      { brightness: 0.5, id: 'sol', pitchRatio: 1, position: { x: 0, y: 0 }, pulseRate: 2, waveform: 'sine' },
+    ])
+
+    expect(played).toHaveLength(1)
+    expect(played[0]).toMatchObject({ id: 'sol', persistent: true })
+    expect([...audio.seedLoops.values()][0]).toMatchObject({ interval: 1.1, nextBeat: 11.1 })
+
+    audio.audioTime = () => 11.2
+    audio.tickSeedObjects()
+
+    expect(played).toHaveLength(2)
+    expect(played[1]).toMatchObject({ id: 'sol', persistent: true })
+    expect([...audio.seedLoops.values()][0].nextBeat).toBeCloseTo(12.3)
+  })
+
   it('spatializes every footstep at the current player position', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)
