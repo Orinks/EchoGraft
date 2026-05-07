@@ -5,15 +5,46 @@ export const oscillatorTypes = ['pure', 'fm', 'am', 'noise-kissed']
 export const growthBehaviors = ['steady', 'climbing', 'breathing', 'twining']
 export const tuningParameters = ['pitchRatio', 'pulseRate', 'brightness', 'phase', 'envelope.attack', 'envelope.release', 'fmAmount', 'amAmount', 'noiseAmount', 'growthBehavior']
 
+export const seedFamilies = [
+  { id: 'sol', name: 'Sol', affinity: 'oxygen and stable pitch', origin: 'Intake lung' },
+  { id: 'lumen', name: 'Lumen', affinity: 'canopy light and brightness', origin: 'Glass leaves' },
+  { id: 'umbra', name: 'Umbra', affinity: 'phase cancellation and hidden records', origin: 'Quiet mirror' },
+  { id: 'spire', name: 'Spire', affinity: 'altitude and canopy access', origin: 'Mold pressure lock' },
+  { id: 'verdant', name: 'Verdant', affinity: 'growth rhythm and pulse timing', origin: 'Canopy pulse trellis' },
+  { id: 'myco', name: 'Myco', affinity: 'noise, compost, and root networks', origin: 'Mycelium gate' },
+  { id: 'glass', name: 'Glass', affinity: 'high brightness and reflections', origin: 'Sun prism' },
+  { id: 'tide', name: 'Tide', affinity: 'AM current systems', origin: 'Water pumps' },
+  { id: 'ember', name: 'Ember', affinity: 'heat and thermal shutters', origin: 'Pressure orchard' },
+  { id: 'archive', name: 'Archive', affinity: 'formant memory and codex echoes', origin: 'Memory pond' },
+  { id: 'moss', name: 'Moss', affinity: 'surface timbre and soft landings', origin: 'Root reservoir' },
+  { id: 'reed', name: 'Reed', affinity: 'airflow and wind bellows', origin: 'Wind bellows' },
+  { id: 'prism', name: 'Prism', affinity: 'weather refraction and scan trails', origin: 'Prism duet' },
+  { id: 'loam', name: 'Loam', affinity: 'archive loam and ancestry reveal', origin: 'Dream compost' },
+  { id: 'resin', name: 'Resin', affinity: 'trait locking and graft stability', origin: 'Rhizome splice' },
+  { id: 'pollen', name: 'Pollen', affinity: 'glass pollen and brightness traits', origin: 'Rain return' },
+  { id: 'chorus', name: 'Chorus', affinity: 'two-seed harmonic relationships', origin: 'Root choir' },
+  { id: 'drift', name: 'Drift', affinity: 'slow weather windows and planning', origin: 'Fog harp' },
+  { id: 'veil', name: 'Veil', affinity: 'phase fog and inverted direction cues', origin: 'Fog braid' },
+  { id: 'pulse', name: 'Pulse', affinity: 'restoration timing and crew wake cycles', origin: 'Heart atria' },
+  { id: 'bloom', name: 'Bloom', affinity: 'static bloom and weak-seed masking', origin: 'Heart glass' },
+  { id: 'anchor', name: 'Anchor', affinity: 'deep root stability and release endings', origin: 'Heart root' },
+  { id: 'vow', name: 'Vow', affinity: 'memory choices and conservatory endings', origin: 'Heart memory' },
+  { id: 'hybrid', name: 'Hybrid', affinity: 'adaptation endings and inherited mechanics', origin: 'Heart graft' },
+]
+
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
 export function createSeedDNA(seedId, overrides = {}) {
   const rng = createRng(seedId)
+  const family = seedFamilies.find((item) => seedId.toLowerCase().startsWith(item.id)) ?? seedFamilies[Math.floor(rng() * seedFamilies.length)]
   const dna = {
     id: seedId,
     name: overrides.name ?? `Seed ${seedId}`,
+    family: overrides.family ?? family.name,
+    ecologicalAffinity: overrides.ecologicalAffinity ?? family.affinity,
+    discoveredOrigin: overrides.discoveredOrigin ?? family.origin,
     waveform: pick(waveforms, rng),
     pitchRatio: Number((0.75 + rng() * 1.75).toFixed(2)),
     oscillatorType: pick(oscillatorTypes, rng),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftSeeds, tuneSeed } from '../src/content/seeds.js'
+import { createSeedDNA, graftDiscoveries, graftSeeds, seedFamilies, tuneSeed } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -10,6 +10,12 @@ describe('seed DNA', () => {
     const seed = createSeedDNA('tune', { pitchRatio: 1, pulseRate: 1, brightness: 0.5, phase: 0 })
     expect(tuneSeed(seed, 'pitchRatio', 1).pitchRatio).toBe(1.05)
     expect(tuneSeed(seed, 'phase', -1).phase).toBe(345)
+  })
+
+  it('keeps the seed family catalog in the 24 to 36 band', () => {
+    expect(seedFamilies).toHaveLength(24)
+    expect(seedFamilies.every((family) => family.name && family.affinity && family.origin)).toBe(true)
+    expect(createSeedDNA('sol-cutting').family).toBe('Sol')
   })
 
   it('tunes deep seed DNA traits', () => {
