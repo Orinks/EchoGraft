@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -674,6 +674,7 @@ function atlas() {
   const canopyDoors = canopyDoorState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
+  const embersapMutations = embersapEndgameMutationState(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -757,6 +758,7 @@ function atlas() {
       <section aria-labelledby="final-ecology-title">
         <h2 id="final-ecology-title">Final Ecology Philosophy</h2>
         <p>${finalEcology.text}</p>
+        <p>${embersapMutations.text}</p>
       </section>
       <section aria-labelledby="crew-wake-title">
         <h2 id="crew-wake-title">Crew Wake Cycle</h2>
@@ -977,6 +979,7 @@ function ending() {
   const launchGarden = launchGardenSummary(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
+  const embersapMutations = embersapEndgameMutationState(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -988,6 +991,7 @@ function ending() {
       </section>
       <p>${crewWakeCycle.text}</p>
       <p>${launchGarden.text}</p>
+      <p>${embersapMutations.text}</p>
       <p>${finalChord.text}</p>
       <p>The repaired resonance gardens answer one another. Every grafted voice becomes part of a living orbital chord.</p>
       <button data-action="atlas">Return to atlas</button>

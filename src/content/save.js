@@ -13,6 +13,7 @@ export function createDefaultSave() {
       biomass: 0,
       crystal: 0,
       dreamCompost: 0,
+      embersap: 0,
       glassPollen: 0,
       memory: 0,
       mycelium: 0,

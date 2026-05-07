@@ -289,6 +289,24 @@ export function finalEcologyPhilosophySummary(save = {}) {
   }
 }
 
+export function embersapEndgameMutationState(save = {}) {
+  const count = save.materials?.embersap ?? 0
+  const mutations = save.wildMutationIds ?? []
+  const poweredMutations = Math.min(count, mutations.length)
+
+  return {
+    count,
+    mutations,
+    poweredMutations,
+    ready: poweredMutations > 0,
+    text: poweredMutations > 0
+      ? `Embersap endgame mutations powered: ${poweredMutations} mutation path(s) can influence adaptation endings.`
+      : mutations.length
+        ? `Embersap needed: ${mutations.length} wild mutation path(s) recorded but no embersap is available to power endgame mutation choices.`
+        : 'Embersap endgame mutations dormant: accept and contain Wild restorations to gather embersap.',
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), hazardContainment: hazardContainmentSummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
@@ -759,7 +777,7 @@ export function restorationOutcomeSummary(chamber, rating) {
       rareMutationId: `${chamber.id}-wild-mutation`,
       systemOnline: !chamber.optional,
       unusualEndingMaterial: true,
-      text: `Wild outcome: ${chamber.title} preserves accepted instability as rare mutation ${chamber.id}-wild-mutation and unusual ending material.`,
+      text: `Wild outcome: ${chamber.title} preserves accepted instability as rare mutation ${chamber.id}-wild-mutation and embersap endgame mutation material.`,
     }
   }
 
@@ -798,6 +816,7 @@ export function mergeRewards(save, chamber, rating) {
   next.ratings[chamber.id] = rating
   if (rating === 'Wild') {
     const mutationId = `${chamber.id}-wild-mutation`
+    next.materials.embersap = (next.materials.embersap ?? 0) + 1
     next.wildMutationIds = next.wildMutationIds ?? []
     if (!next.wildMutationIds.includes(mutationId)) next.wildMutationIds.push(mutationId)
   }
