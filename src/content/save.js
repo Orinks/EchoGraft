@@ -12,6 +12,7 @@ export function createDefaultSave() {
       biomass: 0,
       crystal: 0,
       memory: 0,
+      spores: 0,
     },
     plantedByChamber: {},
     postgameUnlocked: false,

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chambers, codexRecords, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -35,6 +35,16 @@ describe('resonance evaluation', () => {
     expect(next.ratings[chamber.id]).toBe('Resonant')
     expect(next.codexIds).toContain('first-breath')
     expect(next.materials.biomass).toBe(1)
+    expect(next.materials.spores).toBe(1)
+  })
+
+  it('collects spores as crafting resources from authored contracts', () => {
+    const save = createDefaultSave()
+    const fungusRelays = chambers.find((chamber) => chamber.id === 'mycelium-gate')
+    const next = mergeRewards(save, fungusRelays, 'Stable')
+
+    expect(fungusRelays.rewards.materials.spores).toBeGreaterThan(0)
+    expect(next.materials.spores).toBe(3)
   })
 
   it('gathers seed rewards once into the inventory', () => {
@@ -173,7 +183,19 @@ describe('resonance evaluation', () => {
     expect(canopy.system).toBe('Canopy')
     expect(canopy.mechanic).toBe('pulse-rate rhythm matching')
     expect(canopy.target.pulseRate).toBe(2)
+    expect(canopy.photosynthesis.minBrightness).toBe(0.45)
     expect(canopy.rewards.codex).toContain('canopy-pulse')
+  })
+
+  it('requires enough brightness to open photosynthetic canopy chambers', () => {
+    const canopy = chambers.find((chamber) => chamber.id === 'rhythm')
+    const dimSeed = createSeedDNA('dim-canopy', { pitchRatio: 1, pulseRate: 2, brightness: 0.2, phase: 0, position: { x: 0, y: 0 } })
+    const brightSeed = createSeedDNA('bright-canopy', { pitchRatio: 1, pulseRate: 2, brightness: 0.45, phase: 0, position: { x: 0, y: 0 } })
+
+    expect(photosynthesisState(canopy, [dimSeed]).active).toBe(false)
+    expect(evaluateResonance(canopy, [dimSeed]).missing).toContain('Raise brightness until the photosynthetic canopy opens.')
+    expect(photosynthesisState(canopy, [brightSeed]).active).toBe(true)
+    expect(evaluateResonance(canopy, [brightSeed]).solved).toBe(true)
   })
 
   it('authors Root Pumps as the first Rootworks pulse-routing contract', () => {

@@ -1,6 +1,7 @@
 import { AudioEngine } from '../engine/audio.js'
 import { campaignScope, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
+import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
@@ -29,7 +30,11 @@ function buildInventory() {
 }
 
 function currentSeed() {
-  return inventory[selectedSeedIndex] ?? inventory[0]
+  return seedCarryState(inventory, selectedSeedIndex).selectedSeed
+}
+
+function currentCarry() {
+  return seedCarryState(inventory, selectedSeedIndex)
 }
 
 function currentTuningParameter() {
@@ -56,6 +61,11 @@ function contractStatus(item) {
 
 function materialsText() {
   return Object.entries(save.materials).map(([key, value]) => `${key} ${value}`).join(', ')
+}
+
+function materialRewardText(materials = {}) {
+  const gathered = Object.entries(materials).filter(([, value]) => value > 0)
+  return gathered.map(([key, value]) => `${value} ${key}`).join(', ')
 }
 
 function log(message, type = 'info') {
@@ -210,11 +220,12 @@ function graft() {
   const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`)
   const next = report.seed
   inventory.push(next)
-  selectedSeedIndex = inventory.length - 1
+  const heldInReserve = inventory.indexOf(next) >= seedCarryLimit
+  selectedSeedIndex = seedCarryState(inventory, inventory.length - 1).selectedCarryIndex
   const newDiscoveries = report.discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
   save.unlockedGraftMechanics = [...save.unlockedGraftMechanics, ...newDiscoveries]
   log(report.text, 'success')
-  log(`Grafted ${next.name}. Selected graft has pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
+  log(`Grafted ${next.name}. ${heldInReserve ? 'Added to the library reserve because carried seeds are full' : 'Selected graft'}; pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
   if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
   audio.ui('success')
   persist()
@@ -233,9 +244,9 @@ function composeConservatory() {
 }
 
 function selectSeed(index) {
-  selectedSeedIndex = Math.min(Math.max(index, 0), inventory.length - 1)
+  selectedSeedIndex = seedCarryState(inventory, index).selectedCarryIndex
   audio.seed(currentSeed())
-  log(`Selected ${currentSeed().name}.`)
+  log(`Selected ${currentSeed().name}. ${seedCarryText(inventory, selectedSeedIndex)}`)
 }
 
 function setTuningParameter(parameter) {
@@ -267,6 +278,7 @@ function evaluate() {
   audio.ui('success')
   log(`${chamber.title} solved with ${rating} rating. Rewards now available in the atlas.`, 'success')
   if (firstSolve) log(`${chamber.system} system restored and online.`, 'success')
+  if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
@@ -284,7 +296,8 @@ function evaluateReport() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.resonance(lastResult, chamber)
   audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : 'All resonance checks are inside tolerance.'
+  const photosynthesis = lastResult.photosynthesis ? ` ${lastResult.photosynthesis.text}` : ''
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}`
   log(`Evaluate resonance: ${Math.round(lastResult.score * 100)} percent. ${details}`)
 }
 
@@ -351,7 +364,7 @@ function handleGameKey(event) {
   else if (event.key.toLowerCase() === 'z') cycleScanMode()
   else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
   else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. Resonance ${Math.round(lastResult.score * 100)} percent.`)
-  else if (event.key.toLowerCase() === 'i') log(`Inventory: ${inventory.map((seed) => seed.name).join(', ')}. Materials: ${materialsText()}.`)
+  else if (event.key.toLowerCase() === 'i') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
   else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
   else if (event.key.toLowerCase() === 'l') log(`Latest log: ${latestLogText()}`)
   else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
@@ -360,7 +373,8 @@ function handleGameKey(event) {
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
     event.preventDefault()
-    selectSeed((selectedSeedIndex + 1) % inventory.length)
+    const carry = currentCarry()
+    selectSeed(carry.carried.length ? (selectedSeedIndex + 1) % carry.carried.length : 0)
   } else if (/^[1-4]$/.test(event.key)) {
     selectSeed(Number(event.key) - 1)
   } else if (event.key === '-' || event.key === '[') tune(-1)
@@ -476,6 +490,7 @@ function splash() {
 }
 
 function game() {
+  const carry = currentCarry()
   shell(`
     <main class="game" aria-labelledby="chamber-title">
       <section class="hud" aria-live="polite">
@@ -517,8 +532,9 @@ function game() {
         </aside>
       </section>
       <section class="inventory" aria-label="Seed inventory">
-        <h2>Inventory</h2>
-        <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
+        <h2>Carried Seeds</h2>
+        <p>Carry limit ${carry.carried.length} of ${seedCarryLimit}. ${carry.reserveCount} seed voice(s) remain in the library reserve.</p>
+        <ol>${carry.carried.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
       </section>
       <section class="log" aria-label="Caption and event log" aria-live="polite">
         <h2>Caption Log</h2>

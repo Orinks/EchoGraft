@@ -27,12 +27,30 @@ function averageSeeds(seeds) {
   )
 }
 
+export function photosynthesisState(chamber, plantedSeeds) {
+  if (!chamber.photosynthesis) return undefined
+
+  const ecology = averageSeeds(plantedSeeds)
+  const threshold = chamber.photosynthesis.minBrightness
+  const active = ecology.brightness >= threshold
+
+  return {
+    active,
+    brightness: Number(ecology.brightness.toFixed(2)),
+    threshold,
+    text: active
+      ? `Photosynthetic canopy active at brightness ${ecology.brightness.toFixed(2)}; ${chamber.photosynthesis.text}.`
+      : `Photosynthetic canopy needs brightness ${threshold}; current brightness ${ecology.brightness.toFixed(2)}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
   }
 
   const ecology = averageSeeds(plantedSeeds)
+  const photosynthesis = photosynthesisState(chamber, plantedSeeds)
   const checks = [
     ['position', distance(ecology.position, chamber.target), chamber.tolerances.position, 'Move planted seed position closer to the heart.'],
     ['pitchRatio', Math.abs(ecology.pitchRatio - chamber.target.pitchRatio), chamber.tolerances.pitchRatio, 'Tune pitch ratio closer to the chamber heart.'],
@@ -44,6 +62,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   const missing = checks.filter(([, value, tolerance]) => value > tolerance).map(([, , , message]) => message)
 
   if (chamber.requiresGraft && !ecology.grafted) missing.push('Create and plant a grafted seed.')
+  if (photosynthesis && !photosynthesis.active) missing.push('Raise brightness until the photosynthetic canopy opens.')
   if (chamber.plantingPattern) {
     const coverage = plantingCoverage(chamber, plantedSeeds)
     if (!coverage.complete) {
@@ -62,6 +81,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     score: Number(score.toFixed(2)),
     missing,
     ecology,
+    photosynthesis,
     plantingCoverage: chamber.plantingPattern ? plantingCoverage(chamber, plantedSeeds) : undefined,
   }
 }

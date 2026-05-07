@@ -39,7 +39,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
-    rewards: { codex: ['first-breath'], materials: { biomass: 1 } },
+    rewards: { codex: ['first-breath'], materials: { biomass: 1, spores: 1 } },
   },
   {
     id: 'direction',
@@ -101,10 +101,11 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 2, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    photosynthesis: { minBrightness: 0.45, text: 'photosynthetic canopy lattice opens when seed brightness reaches the trellis threshold' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.2, brightness: 0.3, phase: 180 },
     requires: ['pitch'],
-    rewards: { codex: ['canopy-pulse'], materials: { biomass: 2 } },
+    rewards: { codex: ['canopy-pulse'], materials: { biomass: 2, spores: 1 } },
   },
   {
     id: 'timbre',
@@ -193,7 +194,7 @@ export const chambers = [
     tolerances: { position: 1.5, pitchRatio: 0.12, pulseRate: 0.4, brightness: 0.2, phase: 120 },
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     requires: ['phase'],
-    rewards: { codex: ['mold-pressure'], materials: { biomass: 1, memory: 1 }, seeds: ['spire'] },
+    rewards: { codex: ['mold-pressure'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
   {
     id: 'finale',
@@ -262,7 +263,7 @@ export const chambers = [
     tolerances: { position: 1.3, pitchRatio: 0.1, pulseRate: 0.3, brightness: 0.14, phase: 55 },
     hazards: [{ pitchRatio: 0.67, radius: 0.18, message: 'Fungus relays buckle around the sour mold band.' }],
     requires: ['root-choir'],
-    rewards: { codex: ['fungus-relays'], materials: { biomass: 1, memory: 2 } },
+    rewards: { codex: ['fungus-relays'], materials: { biomass: 1, memory: 2, spores: 3 } },
   },
   {
     id: 'optional-root-echo',
