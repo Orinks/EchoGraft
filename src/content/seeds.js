@@ -179,6 +179,22 @@ export function seedDiscoveredOriginState(seed) {
   }
 }
 
+export function seedGraftAncestryState(seed) {
+  const parents = Array.isArray(seed.graftAncestry) ? seed.graftAncestry.filter(Boolean) : []
+  const grafted = Boolean(seed.grafted || parents.length)
+  const parentText = parents.length ? parents.join(' plus ') : 'none'
+  const record = seed.discoveryId ?? 'no graft discovery record'
+
+  return {
+    grafted,
+    parents,
+    record,
+    text: grafted
+      ? `Graft ancestry: ${parentText}; archive record ${record}; hybrid traits inherited from parent seed lines.`
+      : 'Graft ancestry: none; base seed line.',
+  }
+}
+
 export function seedPitchRatioState(seed, targetPitchRatio) {
   const pitchRatio = clamp(Number(seed.pitchRatio ?? 1), 0.5, 3)
   const targetDelta = targetPitchRatio === undefined ? undefined : Number((pitchRatio - targetPitchRatio).toFixed(2))

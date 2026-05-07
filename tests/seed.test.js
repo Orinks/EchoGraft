@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -280,6 +280,20 @@ describe('seed DNA', () => {
     expect(graft.lineageHistory.length).toBeGreaterThan(2)
     expect(seedLineageText(graft)).toContain('Graft ancestry')
     expect(graftDiscoveries(graft)).toContain('hybrid resonance planting')
+  })
+
+  it('reports graft ancestry as parent seed lines and archive record', () => {
+    const graft = graftSeeds(createSeedDNA('sol'), createSeedDNA('lumen'))
+    const state = seedGraftAncestryState(graft)
+
+    expect(state).toMatchObject({
+      grafted: true,
+      parents: ['Sol', 'Lumen'],
+      record: 'sol-lumen',
+    })
+    expect(state.text).toContain('Graft ancestry: Sol plus Lumen')
+    expect(state.text).toContain('hybrid traits inherited from parent seed lines')
+    expect(seedGraftAncestryState(createSeedDNA('sol')).text).toBe('Graft ancestry: none; base seed line.')
   })
 
   it('reports the first graft as inherited traits plus discovery unlocks', () => {
