@@ -54,5 +54,6 @@ describe('planting', () => {
     expect(timing.text).toContain('No reflex timing required')
     expect(planted.seed.growthTiming.text).toContain('listen for 6 pulse')
     expect(planted.assessment.text).toContain('Growth timing: twining growth')
+    expect(growthTiming({ growthBehavior: 'feral', pulseRate: 1 }, chamber)).toMatchObject({ behavior: 'steady', pulses: 3 })
   })
 })

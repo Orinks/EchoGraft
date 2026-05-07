@@ -52,7 +52,7 @@ export function growthTiming(seed = {}, chamber = {}) {
     steady: { pulses: 3, feel: 'settles evenly before joining resonance' },
     twining: { pulses: 6, feel: 'braids with nearby planted voices over a longer cycle' },
   }
-  const behavior = seed.growthBehavior ?? 'steady'
+  const behavior = profiles[seed.growthBehavior] ? seed.growthBehavior : 'steady'
   const profile = profiles[behavior] ?? profiles.steady
   const pulseRate = Math.max(Number(seed.pulseRate ?? chamber.target?.pulseRate ?? 1), 0.25)
   const seconds = Number(((profile.pulses / pulseRate) * 4).toFixed(1))

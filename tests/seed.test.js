@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -141,6 +141,21 @@ describe('seed DNA', () => {
       synthRoute: 'additive or modulated Syngen voice with harmonic noise color',
       texture: 'dense masking bed',
     })
+  })
+
+  it('reports growth behavior as non-reflex timing guidance', () => {
+    const seed = createSeedDNA('growth-report', { growthBehavior: 'twining', pulseRate: 2 })
+    const state = seedGrowthBehaviorState(seed)
+
+    expect(state).toMatchObject({
+      behavior: 'twining',
+      pulses: 6,
+      role: 'braids with nearby planted voices over a longer cycle',
+      seconds: 12,
+    })
+    expect(state.text).toContain('no reflex timing required')
+    expect(createSeedDNA('bad-growth', { growthBehavior: 'feral' }).growthBehavior).toBe('steady')
+    expect(seedGrowthBehaviorState({ growthBehavior: 'feral', pulseRate: 1 }).behavior).toBe('steady')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {

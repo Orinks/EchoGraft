@@ -119,6 +119,7 @@ export function normalizeSeed(seed) {
     noiseAmount: clamp(Number(seed.noiseAmount ?? 0), 0, 1),
     pulseRate: clamp(Number(seed.pulseRate ?? 1), 0.25, 6),
     phase: ((Number(seed.phase ?? 0) % 360) + 360) % 360,
+    growthBehavior: growthBehaviors.includes(seed.growthBehavior) ? seed.growthBehavior : 'steady',
   }
 }
 
@@ -289,6 +290,27 @@ export function seedNoiseProfileState(seed) {
     synthRoute,
     text: `Noise profile: ${noiseAmount}; ${texture}; ${tuningParameterDetails.noiseAmount.role}; routes through ${synthRoute}.`,
     texture,
+  }
+}
+
+export function seedGrowthBehaviorState(seed, chamber = {}) {
+  const profiles = {
+    breathing: { pulses: 4, role: 'expands and rests between pulses' },
+    climbing: { pulses: 5, role: 'steps upward through the chamber over several pulses' },
+    steady: { pulses: 3, role: 'settles evenly before joining resonance' },
+    twining: { pulses: 6, role: 'braids with nearby planted voices over a longer cycle' },
+  }
+  const behavior = growthBehaviors.includes(seed.growthBehavior) ? seed.growthBehavior : 'steady'
+  const profile = profiles[behavior]
+  const pulseRate = Math.max(Number(seed.pulseRate ?? chamber.target?.pulseRate ?? 1), 0.25)
+  const seconds = Number(((profile.pulses / pulseRate) * 4).toFixed(1))
+
+  return {
+    behavior,
+    pulses: profile.pulses,
+    role: profile.role,
+    seconds,
+    text: `Growth behavior: ${behavior}; ${profile.role}; ${profile.pulses} pulse growth window, about ${seconds} seconds; no reflex timing required.`,
   }
 }
 
