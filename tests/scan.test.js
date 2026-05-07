@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -53,6 +53,7 @@ describe('scan pulse', () => {
     const seedScan = seedScanState([
       {
         brightness: 0.45,
+        amAmount: 0.4,
         ecologicalAffinity: 'oxygen and stable pitch',
         discoveredOrigin: 'Intake lung',
         envelope: { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 },
@@ -71,6 +72,7 @@ describe('scan pulse', () => {
     expect(seedScan.count).toBe(1)
     expect(seedScan.seeds[0]).toMatchObject({
       family: 'Sol',
+      amDepthState: { amDepth: 0.4, band: 'medium AM sway', carrier: 'secondary amplitude layer' },
       brightnessFilterState: { brightness: 0.45, cutoffHz: 3120, delta: 0, withinTolerance: undefined },
       envelopeShapeState: { bloom: 'quick bloom', body: 'balanced body', tail: 'medium tail' },
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
@@ -92,6 +94,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
     expect(seedScan.text).toContain('Envelope shape: attack 0.02, decay 0.12, sustain 0.5, release 0.25; quick bloom, balanced body, medium tail.')
     expect(seedScan.text).toContain('FM depth: 0.2; light FM shimmer; primary FM synth route.')
+    expect(seedScan.text).toContain('AM depth: 0.4; medium AM sway; secondary amplitude layer.')
     expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
@@ -170,6 +173,17 @@ describe('scan pulse', () => {
       fmDepth: 0.72,
     })
     expect(fm.text).toBe('FM depth: 0.72; deep FM grit; secondary modulation layer.')
+  })
+
+  it('reports a reusable AM depth scan state', () => {
+    const am = seedAmDepthScanState({ amAmount: 0.72, oscillatorType: 'am' })
+
+    expect(am).toMatchObject({
+      amDepth: 0.72,
+      band: 'deep AM current',
+      carrier: 'primary AM synth route',
+    })
+    expect(am.text).toBe('AM depth: 0.72; deep AM current; primary AM synth route.')
   })
 
   it('reports chamber substrate and mutation pressure for planted seeds', () => {

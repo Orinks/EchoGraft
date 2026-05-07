@@ -223,6 +223,19 @@ export function seedFmDepthScanState(seed = {}) {
   }
 }
 
+export function seedAmDepthScanState(seed = {}) {
+  const amDepth = clamp(Number(seed.amAmount ?? 0), 0, 1)
+  const band = amDepth >= 0.67 ? 'deep AM current' : amDepth >= 0.34 ? 'medium AM sway' : amDepth > 0 ? 'light AM tremble' : 'no AM depth'
+  const carrier = seed.oscillatorType === 'am' ? 'primary AM synth route' : 'secondary amplitude layer'
+
+  return {
+    amDepth,
+    band,
+    carrier,
+    text: `AM depth: ${amDepth}; ${band}; ${carrier}.`,
+  }
+}
+
 export function seedSubstrateScanState(seed = {}, chamber = {}) {
   const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
   const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
@@ -259,6 +272,7 @@ export function seedNearbyInteractionState(seed = {}, plantedSeeds = []) {
 
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
+    amDepthState: seedAmDepthScanState(seed),
     brightnessFilterState: seedBrightnessFilterScanState(seed, chamber),
     envelopeShapeState: seedEnvelopeShapeScanState(seed),
     family: seed.family ?? 'unknown family',
@@ -276,7 +290,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
