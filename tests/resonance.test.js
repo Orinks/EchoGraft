@@ -87,6 +87,25 @@ describe('resonance evaluation', () => {
     expect(campaign.totalContracts).toBeGreaterThanOrEqual(50)
   })
 
+  it('keeps each campaign season in the 7 to 10 required contract band', () => {
+    for (const season of campaignScope.seasons) {
+      expect(season.requiredContracts, season.name).toBeGreaterThanOrEqual(7)
+      expect(season.requiredContracts, season.name).toBeLessThanOrEqual(10)
+    }
+  })
+
+  it('keeps the authored chamber contract set in the 40 to 50 band', () => {
+    expect(chambers.length).toBeGreaterThanOrEqual(40)
+    expect(chambers.length).toBeLessThanOrEqual(50)
+  })
+
+  it('keeps optional challenge contracts in the 15 to 25 band', () => {
+    const optionalContracts = chambers.filter((chamber) => chamber.optional)
+    expect(optionalContracts.length).toBeGreaterThanOrEqual(15)
+    expect(optionalContracts.length).toBeLessThanOrEqual(25)
+    expect(optionalContracts.every((chamber) => chamber.contractType !== 'restoration')).toBe(true)
+  })
+
   it('appraises the seed collection as restoration support instead of museum commerce', () => {
     const save = createDefaultSave()
     save.materials.biomass = 2

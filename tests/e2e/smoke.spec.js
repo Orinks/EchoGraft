@@ -62,7 +62,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Systems online: Intake/)).toBeVisible()
   await expect(page.getByText(/Environmental changes: Intake: Training Contract: First Breath stabilized with Resonant resonance/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
-  await expect(page.getByText(/1 of 11 contracts restored/)).toBeVisible()
+  await expect(page.getByText(/1 of 4\d contracts restored/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Decision Point' })).toBeVisible()
   await expect(page.getByText(/Recommended next work: Contract 1: Intake Lung/)).toBeVisible()
   await expect(page.getByText(/Post-restore options: improve the active chamber, take another work order, research grafts, or advance the Ark clock/)).toBeVisible()
