@@ -5,7 +5,9 @@ const audioPaths = [
   join(process.cwd(), 'src', 'engine', 'audio.js'),
   join(process.cwd(), 'src', 'js', 'engine.js'),
   join(process.cwd(), 'src', 'js', 'content', 'cues.js'),
+  join(process.cwd(), 'src', 'js', 'content', 'game.js'),
   join(process.cwd(), 'src', 'js', 'content', 'music.js'),
+  join(process.cwd(), 'src', 'js', 'app', 'input.js'),
   join(process.cwd(), 'src', 'js', 'app', 'screen', 'splash.js'),
   join(process.cwd(), 'src', 'js', 'main.js'),
 ]
@@ -27,6 +29,13 @@ const required = [
   'engine.loop.start().pause()',
   'engine.loop.resume()',
   'engine.loop.on',
+  'engine.input.keyboard',
+  'engine.position.setVector',
+  'engine.position.setEuler',
+  'engine.sound.extend',
+  'engine.state.on',
+  'engine.seed.set',
+  'engine.effect.',
   'content.music',
   'content.cues',
 ]

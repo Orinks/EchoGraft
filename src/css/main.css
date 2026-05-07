@@ -136,9 +136,7 @@ button[aria-current="true"] {
   text-transform: uppercase;
 }
 
-.a-game--status,
-.a-game--log,
-.a-game--inventory {
+.a-game--log {
   background: #0d211d;
   border: 1px solid #4f8f7d;
   border-radius: 8px;

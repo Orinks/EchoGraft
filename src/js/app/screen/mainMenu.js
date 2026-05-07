@@ -20,10 +20,10 @@ app.screen.mainMenu = app.screenManager.invent({
   state: {
     index: 0,
     items: [
-      {action: 'newGame', description: 'Start from the first Verdancy Ark chamber.', label: 'New game'},
-      {action: 'continue', description: 'Continue the current EchoGraft run.', label: 'Continue'},
+      {action: 'newGame', description: 'Start the mission to restart the Verdancy Ark before its air runs out.', label: 'New game'},
+      {action: 'continue', description: 'Return to the current Ark restoration mission.', label: 'Continue'},
       {action: 'options', description: 'Adjust audio preferences.', label: 'Options'},
-      {action: 'help', description: 'Review controls and listening goals.', label: 'Help'},
+      {action: 'help', description: 'Review controls, chamber goals, and no-vision feedback.', label: 'Help'},
     ],
   },
   onReady: function () {
@@ -47,6 +47,7 @@ app.screen.mainMenu = app.screenManager.invent({
     this.render()
   },
   render: function () {
+    const gameState = content.game.get()
     this.itemsElement.innerHTML = ''
     this.state.items.forEach((item, index) => {
       const button = document.createElement('button')
@@ -61,7 +62,7 @@ app.screen.mainMenu = app.screenManager.invent({
       }
       this.itemsElement.appendChild(button)
     })
-    this.summaryElement.innerText = `${this.state.items[this.state.index].description} Use arrows and Enter.`
+    this.summaryElement.innerText = `${gameState.mission.premise} ${this.state.items[this.state.index].description} Ark restoration ${gameState.progress.percent} percent. Use arrows and Enter.`
   },
   select: function () {
     const item = this.state.items[this.state.index]
