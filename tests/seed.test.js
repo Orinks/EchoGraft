@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, seedFamilies, tuneSeed } from '../src/content/seeds.js'
+import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedFamilies, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -34,11 +34,32 @@ describe('seed DNA', () => {
     expect(tuneSeed(seed, 'growthBehavior', 1).growthBehavior).toBe('climbing')
   })
 
+  it('reports single-seed tuning as before and after audio roles', () => {
+    const seed = createSeedDNA('single-tune', { pitchRatio: 1, brightness: 0.45 })
+    const report = tuneSeedWithReport(seed, 'pitchRatio', 1)
+
+    expect(report.before).toBe(1)
+    expect(report.after).toBe(1.05)
+    expect(report.label).toBe('pitch ratio')
+    expect(report.role).toBe(tuningParameterDetails.pitchRatio.role)
+    expect(report.text).toContain('Single-seed tuning role')
+  })
+
   it('creates a grafted hybrid', () => {
     const graft = graftSeeds(createSeedDNA('a', { pitchRatio: 1 }), createSeedDNA('b', { pitchRatio: 2 }))
     expect(graft.grafted).toBe(true)
     expect(graft.pitchRatio).toBe(1.5)
     expect(graftDiscoveries(graft)).toContain('hybrid resonance planting')
+  })
+
+  it('reports the first graft as inherited traits plus discovery unlocks', () => {
+    const report = graftSeedsWithReport(createSeedDNA('sol'), createSeedDNA('lumen'), 'first-graft')
+
+    expect(report.seed.grafted).toBe(true)
+    expect(report.discoveries).toContain('hybrid resonance planting')
+    expect(report.inheritedTraits).toEqual(expect.arrayContaining([expect.stringContaining('waveform')]))
+    expect(report.text).toContain('First graft')
+    expect(report.text).toContain('unlocked hybrid resonance planting')
   })
 
   it('catalogs 80 or more graft discoveries from family pairings', () => {

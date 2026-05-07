@@ -5,6 +5,19 @@ export const oscillatorTypes = ['pure', 'fm', 'am', 'noise-kissed']
 export const growthBehaviors = ['steady', 'climbing', 'breathing', 'twining']
 export const tuningParameters = ['pitchRatio', 'pulseRate', 'brightness', 'phase', 'envelope.attack', 'envelope.release', 'fmAmount', 'amAmount', 'noiseAmount', 'growthBehavior']
 
+export const tuningParameterDetails = {
+  amAmount: { label: 'AM modulation', role: 'current sway and rhythmic amplitude motion' },
+  brightness: { label: 'brightness/filter', role: 'filter opening and canopy light color' },
+  'envelope.attack': { label: 'envelope attack', role: 'how quickly the seed voice blooms' },
+  'envelope.release': { label: 'envelope release', role: 'how long the seed voice lingers' },
+  fmAmount: { label: 'FM modulation', role: 'pressure, root grit, and harmonic edge' },
+  growthBehavior: { label: 'growth behavior', role: 'how the planted voice behaves over time' },
+  noiseAmount: { label: 'noise amount', role: 'breath, compost, and masking texture' },
+  phase: { label: 'phase', role: 'alignment, cancellation, and hidden echo behavior' },
+  pitchRatio: { label: 'pitch ratio', role: 'root interval against the chamber heart' },
+  pulseRate: { label: 'pulse rate', role: 'rhythmic growth and system timing' },
+}
+
 export const seedFamilies = [
   { id: 'sol', name: 'Sol', affinity: 'oxygen and stable pitch', origin: 'Intake lung' },
   { id: 'lumen', name: 'Lumen', affinity: 'canopy light and brightness', origin: 'Glass leaves' },
@@ -124,6 +137,33 @@ export function tuneSeed(seed, parameter, direction, step = 1) {
   return normalizeSeed(tuned)
 }
 
+export function tuningLabel(parameter) {
+  return tuningParameterDetails[parameter]?.label ?? parameter
+}
+
+export function tuningValue(seed, parameter) {
+  if (parameter === 'envelope.attack') return seed.envelope?.attack
+  if (parameter === 'envelope.release') return seed.envelope?.release
+  return seed[parameter]
+}
+
+export function tuneSeedWithReport(seed, parameter, direction, step = 1) {
+  const before = tuningValue(seed, parameter)
+  const tuned = tuneSeed(seed, parameter, direction, step)
+  const after = tuningValue(tuned, parameter)
+  const label = tuningLabel(parameter)
+  const role = tuningParameterDetails[parameter]?.role ?? 'seed voice behavior'
+
+  return {
+    after,
+    before,
+    label,
+    role,
+    seed: tuned,
+    text: `Tuned ${tuned.name}: ${parameter} is ${after} (was ${before}; ${label}). Single-seed tuning role: ${role}.`,
+  }
+}
+
 export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   const discovery = graftDiscoveryForFamilies(seedA, seedB)
   return normalizeSeed({
@@ -148,6 +188,24 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
     growthBehavior: seedB.growthBehavior,
     grafted: true,
   })
+}
+
+export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
+  const seed = graftSeeds(seedA, seedB, id)
+  const discoveries = graftDiscoveries(seed)
+  const inheritedTraits = [
+    `waveform ${seed.waveform} from ${seedA.name}`,
+    `synth ${seed.oscillatorType} from ${seedB.name}`,
+    `growth ${seed.growthBehavior} from ${seedB.name}`,
+    `envelope attack ${seed.envelope.attack} from ${seedA.name}`,
+  ]
+
+  return {
+    discoveries,
+    inheritedTraits,
+    seed,
+    text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}.`,
+  }
 }
 
 export function graftDiscoveries(seed) {

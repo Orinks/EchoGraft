@@ -3,11 +3,11 @@ import { campaignScope, chambers, chamberSeeds, codexRecords, majorArkSystems, s
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
-import { createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
+import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftDiscoveries, graftDiscoveryCatalog, graftSeeds, seedFamilies, tuneSeed, tuningParameters } from '../content/seeds.js'
+import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -34,23 +34,6 @@ function currentSeed() {
 
 function currentTuningParameter() {
   return tuningParameters[tuningIndex]
-}
-
-function tuningLabel(parameter) {
-  return ({
-    amAmount: 'AM modulation',
-    'envelope.attack': 'envelope attack',
-    'envelope.release': 'envelope release',
-    fmAmount: 'FM modulation',
-    growthBehavior: 'growth behavior',
-    noiseAmount: 'noise amount',
-  })[parameter] ?? parameter
-}
-
-function tuningValue(seed, parameter) {
-  if (parameter === 'envelope.attack') return seed.envelope?.attack
-  if (parameter === 'envelope.release') return seed.envelope?.release
-  return seed[parameter]
 }
 
 function seedDnaText(seed) {
@@ -160,6 +143,26 @@ function hazardsText() {
   return chamber.hazards?.length ? chamber.hazards.map((hazard) => hazard.message).join(' ') : 'No active hazards detected.'
 }
 
+function latestLogText() {
+  return eventLog.entries[0]?.message ?? 'No log entries yet.'
+}
+
+function recentLogText() {
+  const recent = eventLog.entries.slice(0, 6).map((entry) => entry.message)
+  return recent.length ? recent.join(' | ') : 'No log entries yet.'
+}
+
+function boundaryInfoText() {
+  const bounds = chamberMovementBounds(chamber)
+  return `Boundaries: west ${bounds.west}, east ${bounds.east}, south ${bounds.south}, north ${bounds.north}. Return point ${chamber.start.x}, ${chamber.start.y}. Current position ${player.x}, ${player.y}.`
+}
+
+function plantedVoicesText() {
+  return plantedSeeds.length
+    ? `Planted voices: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; family ${seed.family}; tuning pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}`).join('; ')}.`
+    : 'Planted voices: none in this chamber.'
+}
+
 function positionMeaningText(position) {
   return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
@@ -195,21 +198,23 @@ function tune(direction) {
   const seed = currentSeed()
   if (!seed) return
   const parameter = currentTuningParameter()
-  inventory[selectedSeedIndex] = tuneSeed(seed, parameter, direction)
-  log(`Tuned ${inventory[selectedSeedIndex].name}: ${tuningLabel(parameter)} is ${tuningValue(inventory[selectedSeedIndex], parameter)}.`)
+  const report = tuneSeedWithReport(seed, parameter, direction)
+  inventory[selectedSeedIndex] = report.seed
+  log(report.text)
   audio.seed(inventory[selectedSeedIndex])
   persist()
 }
 
 function graft() {
   if (inventory.length < 2) return
-  const next = graftSeeds(inventory[0], inventory[1], `graft-${Date.now()}`)
+  const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`)
+  const next = report.seed
   inventory.push(next)
   selectedSeedIndex = inventory.length - 1
-  const discoveries = graftDiscoveries(next)
-  const newDiscoveries = discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
+  const newDiscoveries = report.discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
   save.unlockedGraftMechanics = [...save.unlockedGraftMechanics, ...newDiscoveries]
-  log(`Grafted ${next.name}. Inherited waveform ${next.waveform}, synth ${next.oscillatorType}, envelope attack ${next.envelope.attack}, growth ${next.growthBehavior}. Selected graft has pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
+  log(report.text, 'success')
+  log(`Grafted ${next.name}. Selected graft has pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
   if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
   audio.ui('success')
   persist()
@@ -347,6 +352,10 @@ function handleGameKey(event) {
   else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
   else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. Resonance ${Math.round(lastResult.score * 100)} percent.`)
   else if (event.key.toLowerCase() === 'i') log(`Inventory: ${inventory.map((seed) => seed.name).join(', ')}. Materials: ${materialsText()}.`)
+  else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
+  else if (event.key.toLowerCase() === 'l') log(`Latest log: ${latestLogText()}`)
+  else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
+  else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
   else if (event.key.toLowerCase() === 'c') log(save.codexIds.length ? `Codex: ${save.codexIds.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.` : 'Codex: no records recovered yet.')
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
@@ -472,7 +481,7 @@ function game() {
       <section class="hud" aria-live="polite">
         <h1 id="chamber-title">${chamber.title}</h1>
         <p><strong>Contract:</strong> ${chamber.contractType}; ${chamber.system}; ${contractStatus(chamber)}; ${solveTimeText(chamber)}; scan ${scanMode}.</p>
-        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; resonance ${Math.round(lastResult.score * 100)} percent. Press O, P, I, or C for details.</p>
+        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; resonance ${Math.round(lastResult.score * 100)} percent. Press O, P, I, L, X, V, or C for details.</p>
       </section>
       <section class="layout">
         <div class="radar" role="img" aria-label="Abstract chamber radar. Player and planted seeds are also described in text.">
@@ -689,7 +698,7 @@ function help() {
   shell(`
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
-      <p>WASD or arrow keys move. Q and E rotate. Space scans. Z cycles scan mode. Enter plants or picks up. Tab cycles seeds. 1 through 4 select seeds. Minus and equals tune. Shift cycles the tuning parameter. G grafts. O gives objective, P position, I inventory, C codex, R resets, H opens help, Escape pauses.</p>
+      <p>WASD or arrow keys move. Q and E rotate. Space scans. Z cycles scan mode. Enter plants or picks up. Tab cycles seeds. 1 through 4 select seeds. Minus and equals tune. Shift cycles the tuning parameter. G grafts. O gives objective, P position, I inventory, L latest log, Shift+L recent log, X boundaries, V planted voices, C codex, R resets, H opens help, Escape pauses.</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
       <button data-action="game">Back to game</button>
     </main>
