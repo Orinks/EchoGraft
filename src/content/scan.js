@@ -236,6 +236,19 @@ export function seedAmDepthScanState(seed = {}) {
   }
 }
 
+export function seedNoiseAmountScanState(seed = {}) {
+  const noiseAmount = clamp(Number(seed.noiseAmount ?? 0), 0, 1)
+  const texture = noiseAmount >= 0.67 ? 'dense noise veil' : noiseAmount >= 0.34 ? 'textured breath layer' : noiseAmount > 0 ? 'light breath grain' : 'clean tone'
+  const carrier = seed.oscillatorType === 'noise-kissed' ? 'primary noise-kissed synth route' : 'secondary masking layer'
+
+  return {
+    carrier,
+    noiseAmount,
+    texture,
+    text: `Noise amount: ${noiseAmount}; ${texture}; ${carrier}.`,
+  }
+}
+
 export function seedSubstrateScanState(seed = {}, chamber = {}) {
   const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
   const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
@@ -280,6 +293,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     fmDepthState: seedFmDepthScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
+    noiseAmountState: seedNoiseAmountScanState(seed),
     position: seed.position ?? { x: 0, y: 0 },
     positionState: seedPositionState(seed, chamber),
     substrateState: seedSubstrateScanState(seed, chamber),
@@ -290,7 +304,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
