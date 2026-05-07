@@ -1,5 +1,5 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, launchGardenSummary, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -8,7 +8,7 @@ import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rota
 import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -252,7 +252,7 @@ function previewSelectedSeed() {
   const seed = currentSeed()
   if (!seed) return
   audio.seed(seed)
-  log(`Previewing ${seed.name}. Pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}.`)
+  log(seedAudioPreview(seed).text)
 }
 
 function composeConservatory() {
@@ -675,7 +675,8 @@ function atlas() {
           const disabled = available.has(item.id) ? '' : ' disabled'
           return `<li>
             <h2>${item.title}</h2>
-            <p>${item.system}; ${item.contractType}; ${item.optional ? 'optional' : 'required'}; ${contractStatus(item)}; ${solveTimeText(item)}; difficulty ${estimatedDifficulty(item)}.</p>
+            <p>${item.system}; ${item.contractType}; ${contractRequirementStatus(item).status}; ${contractStatus(item)}; ${solveTimeText(item)}; difficulty ${estimatedDifficulty(item)}.</p>
+            <p>${contractRequirementStatus(item).text}</p>
             ${restorationContractSummary(item) ? `<p>${restorationContractSummary(item).text}</p>` : ''}
             ${stabilizationContractSummary(item) ? `<p>${stabilizationContractSummary(item).text}</p>` : ''}
             ${researchContractSummary(item) ? `<p>${researchContractSummary(item).text}</p>` : ''}

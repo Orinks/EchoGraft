@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -44,6 +44,16 @@ describe('seed DNA', () => {
     expect(report.label).toBe('pitch ratio')
     expect(report.role).toBe(tuningParameterDetails.pitchRatio.role)
     expect(report.text).toContain('Single-seed tuning role')
+  })
+
+  it('summarizes seed audio previews for no-vision playback', () => {
+    const seed = createSeedDNA('preview-seed', { name: 'Preview seed', waveform: 'triangle', oscillatorType: 'fm', pitchRatio: 1.5, pulseRate: 2, brightness: 0.7, phase: 90 })
+    const preview = seedAudioPreview(seed)
+
+    expect(preview.parts).toContain('waveform triangle')
+    expect(preview.parts).toContain('synth fm')
+    expect(preview.text).toContain('Audio preview')
+    expect(preview.text).toContain('growth')
   })
 
   it('creates a grafted hybrid', () => {

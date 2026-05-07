@@ -165,6 +165,27 @@ export function tuneSeedWithReport(seed, parameter, direction, step = 1) {
   }
 }
 
+export function seedAudioPreview(seed) {
+  const envelope = seed.envelope ?? {}
+  const parts = [
+    `pitch ${seed.pitchRatio}`,
+    `pulse ${seed.pulseRate}`,
+    `brightness ${seed.brightness}`,
+    `phase ${seed.phase}`,
+    `waveform ${seed.waveform}`,
+    `synth ${seed.oscillatorType}`,
+    `envelope attack ${envelope.attack}`,
+    `release ${envelope.release}`,
+    `growth ${seed.growthBehavior}`,
+  ]
+
+  return {
+    parts,
+    seed,
+    text: `Previewing ${seed.name}. Audio preview: ${parts.join(', ')}.`,
+  }
+}
+
 export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   const discovery = graftDiscoveryForFamilies(seedA, seedB)
   return normalizeSeed({

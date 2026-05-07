@@ -13,6 +13,17 @@ export function estimatedDifficulty(chamber) {
   return 'standard'
 }
 
+export function contractRequirementStatus(chamber) {
+  const status = chamber.optional ? 'optional' : 'required'
+
+  return {
+    status,
+    required: !chamber.optional,
+    optional: Boolean(chamber.optional),
+    text: `Requirement status: ${status}.`,
+  }
+}
+
 export function knownHazardsSummary(chamber) {
   const hazards = chamber.hazards ?? []
   return {

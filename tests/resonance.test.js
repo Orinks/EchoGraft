@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -36,6 +36,13 @@ describe('resonance evaluation', () => {
     expect(next.codexIds).toContain('first-breath')
     expect(next.materials.biomass).toBe(1)
     expect(next.materials.spores).toBe(1)
+  })
+
+  it('maps resonance scores to restoration ratings', () => {
+    expect(restorationRating({ solved: false, score: 1 })).toBe('Dormant')
+    expect(restorationRating({ solved: true, score: 0.84 })).toBe('Restored')
+    expect(restorationRating({ solved: true, score: 0.85 })).toBe('Stable')
+    expect(restorationRating({ solved: true, score: 0.96 })).toBe('Resonant')
   })
 
   it('collects spores as crafting resources from authored contracts', () => {
@@ -190,6 +197,19 @@ describe('resonance evaluation', () => {
     expect(estimatedDifficulty(chambers.find((chamber) => chamber.contractType === 'training'))).toBe('introductory')
     expect(estimatedDifficulty(chambers.find((chamber) => chamber.contractType === 'finale'))).toBe('endgame')
     expect(estimatedDifficulty(chambers.find((chamber) => chamber.optional))).toBe('advanced')
+  })
+
+  it('summarizes required or optional status for every chamber contract', () => {
+    for (const chamber of chambers) {
+      const summary = contractRequirementStatus(chamber)
+      expect(['required', 'optional']).toContain(summary.status)
+      expect(summary.required, chamber.id).toBe(!chamber.optional)
+      expect(summary.optional, chamber.id).toBe(Boolean(chamber.optional))
+      expect(summary.text, chamber.id).toContain(summary.status)
+    }
+
+    expect(contractRequirementStatus(chambers.find((chamber) => chamber.optional)).text).toContain('optional')
+    expect(contractRequirementStatus(chambers.find((chamber) => !chamber.optional)).text).toContain('required')
   })
 
   it('summarizes known hazards for every chamber contract', () => {
