@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -324,6 +324,27 @@ describe('seed DNA', () => {
       'growth twining from Parent B',
     ]))
     expect(report.text).toContain('modulation FM 0.15, AM 0.25, noise 0.35 from Parent B')
+  })
+
+  it('unlocks new inherited graft traits from restored systems', () => {
+    const unlocked = restoredSystemInheritedTraits(['Water pumps', 'Canopy lights', 'Memory Orchard'])
+    const report = graftSeedsWithReport(createSeedDNA('sol'), createSeedDNA('lumen'), 'system-trait-graft', {
+      restoredSystems: ['Water pumps', 'Canopy lights', 'Memory Orchard'],
+    })
+
+    expect(unlocked.map((item) => item.trait)).toEqual([
+      'current-carried AM sway',
+      'photosynthetic brightness bloom',
+      'archive ancestry echo',
+    ])
+    expect(report.unlockedInheritedTraits).toHaveLength(3)
+    expect(report.seed.unlockedInheritedTraits.map((item) => item.system)).toEqual(['Water', 'Canopy', 'Memory'])
+    expect(report.inheritedTraits).toEqual(expect.arrayContaining([
+      'restored Water unlocked current-carried AM sway',
+      'restored Canopy unlocked photosynthetic brightness bloom',
+      'restored Memory unlocked archive ancestry echo',
+    ]))
+    expect(report.text).toContain('restored Water unlocked current-carried AM sway')
   })
 
   it('reports graft ancestry as parent seed lines and archive record', () => {

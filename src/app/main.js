@@ -247,7 +247,7 @@ function tune(direction) {
 
 function graft() {
   if (inventory.length < 2) return
-  const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`)
+  const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`, { restoredSystems: save.restoredSystems })
   const next = report.seed
   inventory.push(next)
   const heldInReserve = inventory.indexOf(next) >= seedCarryLimit

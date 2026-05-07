@@ -474,10 +474,26 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   })
 }
 
-export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
+export function restoredSystemInheritedTraits(restoredSystems = []) {
+  const restored = new Set(restoredSystems)
+  const systemTraits = [
+    { system: 'Intake', trait: 'breath-root sustain', text: 'Intake unlocks breath-root sustain inheritance for oxygen-stable seed lines.' },
+    { system: 'Navigation', trait: 'compass phase tag', text: 'Navigation unlocks compass phase tags for orientation-aware grafts.' },
+    { system: 'Water', trait: 'current-carried AM sway', text: 'Water unlocks current-carried AM sway inheritance.' },
+    { system: 'Canopy', trait: 'photosynthetic brightness bloom', text: 'Canopy unlocks photosynthetic brightness bloom inheritance.' },
+    { system: 'Memory', trait: 'archive ancestry echo', text: 'Memory unlocks archive ancestry echo inheritance.' },
+    { system: 'Heart', trait: 'network resonance braid', text: 'Heart unlocks network resonance braid inheritance.' },
+  ]
+
+  return systemTraits.filter(({ system }) =>
+    restored.has(system) || Array.from(restored).some((item) => item.toLowerCase().includes(system.toLowerCase())))
+}
+
+export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`, options = {}) {
   const seed = graftSeeds(seedA, seedB, id)
   const discoveries = graftDiscoveries(seed)
   const record = graftRecordForSeed(seed)
+  const unlockedInheritedTraits = restoredSystemInheritedTraits(options.restoredSystems ?? [])
   const inheritedTraits = [
     `root pitch ${seed.pitchRatio} from ${seedA.name}`,
     `waveform ${seed.waveform} from ${seedA.name}`,
@@ -485,13 +501,18 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
     `modulation FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount} from ${seedB.name}`,
     `growth ${seed.growthBehavior} from ${seedB.name}`,
     `envelope attack ${seed.envelope.attack} from ${seedA.name}`,
+    ...unlockedInheritedTraits.map(({ system, trait }) => `restored ${system} unlocked ${trait}`),
   ]
 
   return {
     discoveries,
     inheritedTraits,
     record,
-    seed,
+    seed: {
+      ...seed,
+      unlockedInheritedTraits,
+    },
+    unlockedInheritedTraits,
     text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}${record ? `; recovered record ${record.title}` : ''}.`,
   }
 }
