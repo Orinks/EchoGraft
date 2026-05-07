@@ -42,6 +42,31 @@ export function scanRangeState(save = {}) {
   }
 }
 
+export function navigationScanState(save = {}) {
+  const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
+
+  return {
+    navigationOnline,
+    text: navigationOnline
+      ? 'Navigation scan unlocked: objective scans include chamber compass cues and atlas comparison bearings.'
+      : 'Navigation offline: objective scans use local heart cues until Navigation Grove comes online.',
+  }
+}
+
+export function chamberCompassCue(player, target = {}) {
+  const dx = (target.x ?? 0) - player.x
+  const dy = (target.y ?? 0) - player.y
+  const bearing = Math.abs(dx) >= Math.abs(dy)
+    ? dx < 0 ? 'west' : dx > 0 ? 'east' : 'center'
+    : dy < 0 ? 'south' : 'north'
+
+  return {
+    bearing,
+    offset: { dx, dy },
+    text: `Navigation compass cue: chamber heart bears ${bearing}; offset ${dx}, ${dy}.`,
+  }
+}
+
 export function windCarriedEcho(windEcho, distance = 0) {
   const horizontal = windEcho.dx < 0 ? 'west' : windEcho.dx > 0 ? 'east' : 'center'
   const vertical = windEcho.dy < 0 ? 'south' : windEcho.dy > 0 ? 'north' : 'level'

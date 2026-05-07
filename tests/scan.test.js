@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
+import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -30,6 +30,19 @@ describe('scan pulse', () => {
     expect(intake.text).toContain('Intake scan range unlocked')
     expect(farPulse.inRange).toBe(true)
     expect(farPulse.text).toContain('range 12')
+  })
+
+  it('unlocks objective scan compass cues after Navigation comes online', () => {
+    const base = navigationScanState({ restoredSystems: [] })
+    const navigation = navigationScanState({ restoredSystems: ['Navigation'] })
+    const cue = chamberCompassCue({ x: 3, y: 0 }, { x: -2, y: 0 })
+
+    expect(base.navigationOnline).toBe(false)
+    expect(base.text).toContain('Navigation offline')
+    expect(navigation.navigationOnline).toBe(true)
+    expect(navigation.text).toContain('objective scans include chamber compass cues')
+    expect(cue.bearing).toBe('west')
+    expect(cue.text).toContain('offset -5, 0')
   })
 
   it('adds wind-carried echo text when a chamber declares a draft', () => {

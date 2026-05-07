@@ -371,6 +371,31 @@ export function restorationPlanningSession(chambers, solvedIds, target = { min: 
   return { contracts, min, max, target }
 }
 
+export function navigationAtlasState(chambers, save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const restoredSystems = save.restoredSystems ?? []
+  const navigationOnline = restoredSystems.includes('Navigation') || restoredSystems.includes('Navigation grove')
+  const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))
+  const candidates = chambers.filter((chamber) => !solved.has(chamber.id) && (navigationOnline || ready.has(chamber.id)))
+  const previews = candidates.slice(0, navigationOnline ? 6 : 3).map((chamber) => ({
+    id: chamber.id,
+    objective: chamber.objective,
+    ready: ready.has(chamber.id),
+    solveTimeMinutes: chamber.solveTimeMinutes,
+    system: chamber.system,
+    text: `${chamber.title}: ${chamber.system}, ${chamber.solveTimeMinutes.min} to ${chamber.solveTimeMinutes.max} minutes, ${ready.has(chamber.id) ? 'ready now' : 'locked by atlas dependencies'}. Objective preview: ${chamber.objective}`,
+    title: chamber.title,
+  }))
+
+  return {
+    navigationOnline,
+    previews,
+    text: navigationOnline
+      ? `Navigation atlas previews unlocked: ${previews.length} chamber preview(s) include objectives, readiness, solve-time comparison, and compass planning cues.`
+      : `Navigation atlas previews limited: restore Navigation Grove to compare queued chamber objectives, timings, and compass cues.`,
+  }
+}
+
 export function firstFullCampaignEstimate(scope) {
   const requiredContracts = scope.seasons.reduce((total, season) => total + season.requiredContracts, 0)
   const optionalContracts = scope.seasons.reduce((total, season) => total + season.optionalContracts, 0)

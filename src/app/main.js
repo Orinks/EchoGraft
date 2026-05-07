@@ -5,8 +5,8 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
-import { scanPulse, scanRangeState } from '../content/scan.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
+import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
@@ -201,10 +201,12 @@ function positionMeaningText(position) {
 
 function scan() {
   const range = scanRangeState(save)
+  const navigation = navigationScanState(save)
+  const compass = chamberCompassCue(player, chamber.target)
   const pulse = scanPulse(player, chamber.target, { ...chamber, scanRange: range.range })
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
-    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${range.text} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
   if (scanMode === 'boundaries') log(`Boundary scan: safe work zone extends from ${chamber.start.x - 5}, ${chamber.start.y - 5} to ${chamber.start.x + 5}, ${chamber.start.y + 5}. Current position ${player.x}, ${player.y}.`)
   if (scanMode === 'seeds') log(plantedSeeds.length ? `Seed scan: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}`).join('; ')}.` : 'Seed scan: no planted seed objects in this chamber.')
@@ -626,6 +628,7 @@ function atlas() {
   const crewWakeCycle = crewWakeCycleSummary(save)
   const launchGarden = launchGardenSummary(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
+  const navigationAtlas = navigationAtlasState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
@@ -651,6 +654,13 @@ function atlas() {
         <h2 id="stewardship-title">Stewardship Review</h2>
         <p>${stewardship.restoredCount} of ${stewardship.totalCount} contracts restored. Materials: ${stewardship.materialSummary}.</p>
         <p>${stewardship.nextAction}</p>
+      </section>
+      <section aria-labelledby="navigation-atlas-title">
+        <h2 id="navigation-atlas-title">Navigation Atlas</h2>
+        <p>${navigationAtlas.text}</p>
+        <ol>
+          ${navigationAtlas.previews.map((item) => `<li>${item.text}</li>`).join('')}
+        </ol>
       </section>
       <section aria-labelledby="return-contracts-title">
         <h2 id="return-contracts-title">Optional Return Contracts</h2>
