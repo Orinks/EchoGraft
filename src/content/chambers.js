@@ -5,6 +5,42 @@ export function solveTimeText(chamber) {
   return min === max ? `${min} minute solve` : `${min} to ${max} minute solve`
 }
 
+export function estimatedDifficulty(chamber) {
+  if (chamber.difficulty) return chamber.difficulty
+  if (chamber.contractType === 'training') return 'introductory'
+  if (chamber.contractType === 'finale' || chamber.contractType === 'conservatory') return 'endgame'
+  if (chamber.requiresGraft || chamber.optional || chamber.solveTimeMinutes.max >= 10) return 'advanced'
+  return 'standard'
+}
+
+export function knownHazardsSummary(chamber) {
+  const hazards = chamber.hazards ?? []
+  return {
+    count: hazards.length,
+    hazards,
+    text: hazards.length
+      ? `Known hazards: ${hazards.map((hazard) => hazard.message).join('; ')}`
+      : 'Known hazards: none recorded for this contract.',
+  }
+}
+
+export function rewardSummary(chamber) {
+  const rewards = chamber.rewards ?? {}
+  const parts = []
+  const materials = Object.entries(rewards.materials ?? {})
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${key} ${value}`)
+
+  if (materials.length) parts.push(`materials ${materials.join(', ')}`)
+  if (rewards.codex?.length) parts.push(`records ${rewards.codex.join(', ')}`)
+  if (rewards.seeds?.length) parts.push(`seeds ${rewards.seeds.join(', ')}`)
+
+  return {
+    parts,
+    text: parts.length ? `Reward: ${parts.join('; ')}.` : 'Reward: no immediate reward recorded.',
+  }
+}
+
 export function chamberCycleState(chamber, arkClock = 0) {
   if (!chamber.cycle?.states?.length) return undefined
 

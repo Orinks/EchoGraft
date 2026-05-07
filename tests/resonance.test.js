@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, finaleContractSummary, majorArkSystems, researchContractSummary, restorationContractSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -152,6 +152,64 @@ describe('resonance evaluation', () => {
   it('keeps the authored chamber contract set in the 40 to 50 band', () => {
     expect(chambers.length).toBeGreaterThanOrEqual(40)
     expect(chambers.length).toBeLessThanOrEqual(50)
+  })
+
+  it('authors a readable chamber name for every contract', () => {
+    const names = new Set()
+
+    for (const chamber of chambers) {
+      expect(chamber.title, chamber.id).toMatch(/\S/)
+      expect(names.has(chamber.title), chamber.id).toBe(false)
+      names.add(chamber.title)
+    }
+  })
+
+  it('authors the affected Ark system for every contract', () => {
+    const allowedSystems = new Set([...majorArkSystems.map((system) => system.name), 'Rootworks', 'Glass Weather', 'Memory Orchard', 'Verdancy Heart', 'Research'])
+
+    for (const chamber of chambers) {
+      expect(chamber.system, chamber.id).toMatch(/\S/)
+      expect(allowedSystems.has(chamber.system), chamber.id).toBe(true)
+    }
+  })
+
+  it('uses the authored contract type taxonomy for every chamber', () => {
+    const contractTypes = new Set(['training', 'restoration', 'stabilization', 'research', 'emergency', 'survey', 'challenge', 'finale', 'conservatory'])
+
+    for (const chamber of chambers) {
+      expect(contractTypes.has(chamber.contractType), chamber.id).toBe(true)
+    }
+  })
+
+  it('estimates difficulty for every chamber contract', () => {
+    const difficultyBands = new Set(['introductory', 'standard', 'advanced', 'endgame'])
+
+    for (const chamber of chambers) {
+      expect(difficultyBands.has(estimatedDifficulty(chamber)), chamber.id).toBe(true)
+    }
+    expect(estimatedDifficulty(chambers.find((chamber) => chamber.contractType === 'training'))).toBe('introductory')
+    expect(estimatedDifficulty(chambers.find((chamber) => chamber.contractType === 'finale'))).toBe('endgame')
+    expect(estimatedDifficulty(chambers.find((chamber) => chamber.optional))).toBe('advanced')
+  })
+
+  it('summarizes known hazards for every chamber contract', () => {
+    for (const chamber of chambers) {
+      const summary = knownHazardsSummary(chamber)
+      expect(summary.count, chamber.id).toBe(chamber.hazards?.length ?? 0)
+      expect(summary.text, chamber.id).toContain('Known hazards:')
+    }
+    expect(knownHazardsSummary(chambers.find((chamber) => chamber.contractType === 'training')).text).toContain('none recorded')
+    expect(knownHazardsSummary(chambers.find((chamber) => chamber.contractType === 'emergency')).count).toBeGreaterThan(0)
+  })
+
+  it('summarizes rewards for every chamber contract', () => {
+    for (const chamber of chambers) {
+      const summary = rewardSummary(chamber)
+      expect(summary.text, chamber.id).toContain('Reward:')
+      expect(summary.parts.length, chamber.id).toBeGreaterThan(0)
+    }
+    expect(rewardSummary(chambers.find((chamber) => chamber.id === 'mold')).text).toContain('seeds spire')
+    expect(rewardSummary(chambers.find((chamber) => chamber.id === 'tutorial')).text).toContain('records first-breath')
   })
 
   it('keeps optional challenge contracts in the 15 to 25 band', () => {

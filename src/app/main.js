@@ -1,5 +1,5 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, finaleContractSummary, majorArkSystems, researchContractSummary, restorationContractSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, launchGardenSummary, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -675,13 +675,15 @@ function atlas() {
           const disabled = available.has(item.id) ? '' : ' disabled'
           return `<li>
             <h2>${item.title}</h2>
-            <p>${item.system}; ${item.contractType}; ${item.optional ? 'optional' : 'required'}; ${contractStatus(item)}; ${solveTimeText(item)}.</p>
+            <p>${item.system}; ${item.contractType}; ${item.optional ? 'optional' : 'required'}; ${contractStatus(item)}; ${solveTimeText(item)}; difficulty ${estimatedDifficulty(item)}.</p>
             ${restorationContractSummary(item) ? `<p>${restorationContractSummary(item).text}</p>` : ''}
             ${stabilizationContractSummary(item) ? `<p>${stabilizationContractSummary(item).text}</p>` : ''}
             ${researchContractSummary(item) ? `<p>${researchContractSummary(item).text}</p>` : ''}
             ${emergencyContractSummary(item) ? `<p>${emergencyContractSummary(item).text}</p>` : ''}
             ${conservatoryContractSummary(item) ? `<p>${conservatoryContractSummary(item).text}</p>` : ''}
             ${finaleContractSummary(item) ? `<p>${finaleContractSummary(item).text}</p>` : ''}
+            <p>${knownHazardsSummary(item).text}</p>
+            <p>${rewardSummary(item).text}</p>
             <p>${item.objective}</p>
             <button data-action="contract" data-contract="${item.id}"${disabled}>Accept work order</button>
           </li>`
