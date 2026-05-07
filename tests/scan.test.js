@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedFamilyScanState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -69,6 +69,7 @@ describe('scan pulse', () => {
     expect(seedScan.seeds[0]).toMatchObject({
       family: 'Sol',
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
+      nearbyState: { nearby: [] },
       position: { x: 0, y: 1 },
       positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
       substrateState: { substrate: 'breathable intake soil' },
@@ -81,6 +82,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Position: 0, 1; heart offset 0, 1; distance 1 step(s); inside position tolerance 1.5')
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
+    expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
     expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
@@ -118,6 +120,19 @@ describe('scan pulse', () => {
     expect(substrate.mutationChance).toMatchObject({ band: 'high', percent: 18, pressure: 'memory-rich ancestry drift' })
     expect(substrate.text).toContain('Chamber substrate: archive loam')
     expect(substrate.text).toContain('Mutation chance: 18% (high)')
+  })
+
+  it('reports nearby seed interactions within the scan radius', () => {
+    const sol = { family: 'Sol', name: 'Sol phonoseed', position: { x: 0, y: 0 } }
+    const lumen = { family: 'Lumen', name: 'Lumen phonoseed', position: { x: 1, y: 1 } }
+    const far = { family: 'Spire', name: 'Spire phonoseed', position: { x: 5, y: 0 } }
+    const interactions = seedNearbyInteractionState(sol, [sol, lumen, far])
+
+    expect(interactions.radius).toBe(2)
+    expect(interactions.nearby).toEqual([
+      expect.objectContaining({ distance: 1.414, family: 'Lumen', name: 'Lumen phonoseed' }),
+    ])
+    expect(interactions.text).toContain('Lumen phonoseed (Lumen) 1.414 step(s) away')
   })
 
   it('reports a reusable seed position state relative to the chamber heart', () => {

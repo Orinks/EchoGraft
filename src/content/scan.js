@@ -144,11 +144,35 @@ export function seedSubstrateScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedNearbyInteractionState(seed = {}, plantedSeeds = []) {
+  const position = seed.position ?? { x: 0, y: 0 }
+  const nearby = plantedSeeds
+    .filter((other) => other !== seed)
+    .map((other) => {
+      const otherPosition = other.position ?? { x: 0, y: 0 }
+      return {
+        distance: Number(Math.hypot(otherPosition.x - position.x, otherPosition.y - position.y).toFixed(3)),
+        family: other.family ?? 'unknown family',
+        name: other.name ?? other.id ?? 'unknown seed',
+        position: otherPosition,
+      }
+    })
+    .filter((other) => other.distance <= 2)
+    .sort((a, b) => a.distance - b.distance)
+
+  return {
+    nearby,
+    radius: 2,
+    text: `Nearby seed interactions: ${nearby.length ? nearby.map((other) => `${other.name} (${other.family}) ${other.distance} step(s) away`).join(', ') : 'none within 2 steps'}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     family: seed.family ?? 'unknown family',
     familyState: seedFamilyScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
+    nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     position: seed.position ?? { x: 0, y: 0 },
     positionState: seedPositionState(seed, chamber),
     substrateState: seedSubstrateScanState(seed, chamber),
@@ -159,7 +183,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
