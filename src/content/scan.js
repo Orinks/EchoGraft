@@ -453,6 +453,38 @@ export function seedHarmonicRelationshipScanState(seed = {}, plantedSeeds = []) 
   }
 }
 
+export function seedHazardAvoidanceScanState(seed = {}, chamber = {}) {
+  const risks = (chamber.hazards ?? []).map((hazard) => {
+    const axis = hazardAxis(hazard)
+    const radius = hazard.radius ?? 0
+    const value = seed[axis.key]
+    const delta = Number.isFinite(value) ? Number((value - axis.value).toFixed(3)) : undefined
+    const clearance = Number.isFinite(delta) ? Number((Math.abs(delta) - radius).toFixed(3)) : undefined
+    const breached = Number.isFinite(clearance) ? clearance <= 0 : false
+    const band = breached ? 'unsafe' : Number.isFinite(clearance) && clearance <= Math.max(radius * 0.5, 0.05) ? 'near edge' : 'safe'
+
+    return {
+      axis,
+      band,
+      breached,
+      clearance,
+      delta,
+      message: hazard.message ?? 'Unstable ecology detected.',
+      radius,
+      value,
+    }
+  })
+  const breached = risks.filter((risk) => risk.breached)
+  const edge = risks.filter((risk) => risk.band === 'near edge')
+  const band = risks.length === 0 ? 'clear' : breached.length ? 'unsafe' : edge.length ? 'near edge' : 'safe'
+
+  return {
+    band,
+    risks,
+    text: `Hazard avoidance: ${band}; ${risks.length ? risks.map((risk) => `${risk.axis.label} ${Number.isFinite(risk.value) ? risk.value : 'unvoiced'} vs forbidden ${risk.axis.value} radius ${risk.radius}, ${risk.band}${Number.isFinite(risk.clearance) ? `, clearance ${risk.clearance}` : ''}`).join('; ') : 'no chamber hazards to avoid'}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     amDepthState: seedAmDepthScanState(seed),
@@ -462,6 +494,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     familyState: seedFamilyScanState(seed),
     fmDepthState: seedFmDepthScanState(seed),
     harmonicRelationshipState: seedHarmonicRelationshipScanState(seed, plantedSeeds),
+    hazardAvoidanceState: seedHazardAvoidanceScanState(seed, chamber),
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     noiseAmountState: seedNoiseAmountScanState(seed),
@@ -481,7 +514,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.harmonicRelationshipState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.harmonicRelationshipState.text} ${seed.hazardAvoidanceState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.phaseMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

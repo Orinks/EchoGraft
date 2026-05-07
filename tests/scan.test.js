@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -79,6 +79,7 @@ describe('scan pulse', () => {
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
       fmDepthState: { band: 'light FM shimmer', carrier: 'primary FM synth route', fmDepth: 0.2 },
       harmonicRelationshipState: { pitchRatio: 1, relationships: [] },
+      hazardAvoidanceState: { band: 'clear', risks: [] },
       nearbyState: { nearby: [] },
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
       phaseMatchState: { band: 'matched', delta: 0, phase: 0, score: 1, target: 0, tolerance: 45, withinTolerance: true },
@@ -103,6 +104,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
     expect(seedScan.text).toContain('Harmonic relationship: no other planted voices to compare.')
+    expect(seedScan.text).toContain('Hazard avoidance: clear; no chamber hazards to avoid.')
     expect(seedScan.text).toContain('Pitch match: matched; pitch 1 vs target 1, delta 0, score 1; tolerance 0.25.')
     expect(seedScan.text).toContain('Rhythm match: matched; pulse 1 vs target 1, delta 0, score 1; tolerance 0.5.')
     expect(seedScan.text).toContain('Timbre match: matched; waveform sine; required any chamber-compatible waveform.')
@@ -318,6 +320,28 @@ describe('scan pulse', () => {
     ])
     expect(relationships.text).toContain('Lumen phonoseed (Lumen) perfect fifth, ratio 1.5, 1.414 step(s) away')
     expect(relationships.text).toContain('Umbra phonoseed (Umbra) major third, ratio 1.26, 3 step(s) away')
+  })
+
+  it('reports reusable hazard avoidance for planted seeds', () => {
+    const avoidance = seedHazardAvoidanceScanState(
+      { brightness: 0.6, name: 'Mold mask', pitchRatio: 0.72, pulseRate: 2 },
+      {
+        hazards: [
+          { pitchRatio: 0.75, radius: 0.08, message: 'Mold rejects the sour band.' },
+          { pulseRate: 2.2, radius: 0.12, message: 'Pulse eddy buckles.' },
+          { brightness: 0.1, radius: 0.05, message: 'Dim pockets stall.' },
+        ],
+      },
+    )
+
+    expect(avoidance.band).toBe('unsafe')
+    expect(avoidance.risks).toEqual([
+      expect.objectContaining({ band: 'unsafe', breached: true, clearance: -0.05, delta: -0.03 }),
+      expect.objectContaining({ band: 'safe', breached: false, clearance: 0.08, delta: -0.2 }),
+      expect.objectContaining({ band: 'safe', breached: false, clearance: 0.45, delta: 0.5 }),
+    ])
+    expect(avoidance.text).toContain('pitch 0.72 vs forbidden 0.75 radius 0.08, unsafe, clearance -0.05')
+    expect(avoidance.text).toContain('pulse 2 vs forbidden 2.2 radius 0.12, safe, clearance 0.08')
   })
 
   it('reports a reusable seed position state relative to the chamber heart', () => {
