@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -104,6 +104,24 @@ describe('seed DNA', () => {
       dominantLayer: 'FM',
       fmAmount: 1,
       noiseAmount: 0,
+    })
+  })
+
+  it('reports envelope as a complete ADSR shape', () => {
+    const seed = createSeedDNA('envelope-report', {
+      envelope: { attack: 0.03, decay: 0.11, sustain: 0.6, release: 0.4 },
+    })
+    const state = seedEnvelopeState(seed)
+
+    expect(state.envelope).toEqual({ attack: 0.03, decay: 0.11, sustain: 0.6, release: 0.4 })
+    expect(state.text).toContain('how quickly the seed voice blooms')
+    expect(state.text).toContain('how long the seed voice lingers')
+    expect(state.text).toContain('ADSR shape controls bloom, body, and lingering tail')
+    expect(seedEnvelopeState({ envelope: { attack: 2, decay: -1, sustain: 3, release: undefined } }).envelope).toEqual({
+      attack: 0.25,
+      decay: 0.04,
+      sustain: 1,
+      release: 0.25,
     })
   })
 

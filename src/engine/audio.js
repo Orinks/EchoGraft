@@ -67,12 +67,18 @@ function seedHarmonics(seed) {
   ]
 }
 
-function scheduleEnvelope(synth, { attack = 0.02, duration = 0.2, gain = 0.1, release = 0.08 }) {
+function scheduleEnvelope(synth, { attack = 0.02, decay = 0.08, duration = 0.2, gain = 0.1, release = 0.08, sustain = 0.6 }) {
   const now = syngen.audio.time()
+  const peakTime = now + Math.max(attack, 0.001)
+  const decayTime = Math.min(now + duration, peakTime + Math.max(decay, 0))
+  const releaseStart = Math.max(decayTime, now + duration)
+  const stopTime = releaseStart + Math.max(release, 0.001)
+  const sustainGain = Math.max(syngen.const.zeroGain, gain * clamp(sustain, 0.1, 1))
   synth.param.gain.setValueAtTime(syngen.const.zeroGain, now)
-  synth.param.gain.exponentialRampToValueAtTime(Math.max(syngen.const.zeroGain, gain), now + attack)
-  synth.param.gain.exponentialRampToValueAtTime(syngen.const.zeroGain, now + Math.max(attack + release, duration))
-  synth.stop(now + duration + release)
+  synth.param.gain.exponentialRampToValueAtTime(Math.max(syngen.const.zeroGain, gain), peakTime)
+  synth.param.gain.exponentialRampToValueAtTime(sustainGain, decayTime)
+  synth.param.gain.exponentialRampToValueAtTime(syngen.const.zeroGain, stopTime)
+  synth.stop(stopTime)
 }
 
 function connectVoice(synth, bus) {
@@ -101,9 +107,11 @@ function createSpatialVoicePrototype() {
 
       scheduleEnvelope(this.synth, {
         attack: seed?.envelope?.attack ?? tone.attack,
+        decay: seed?.envelope?.decay ?? tone.decay,
         duration,
         gain,
         release: seed?.envelope?.release ?? tone.release,
+        sustain: seed?.envelope?.sustain ?? tone.sustain,
       })
     },
     onDestroy() {
@@ -299,9 +307,11 @@ export class AudioEngine {
       connectVoice(synth, bus)
       scheduleEnvelope(synth, {
         attack: seed?.envelope?.attack ?? tone.attack,
+        decay: seed?.envelope?.decay ?? tone.decay,
         duration,
         gain,
         release: seed?.envelope?.release ?? tone.release,
+        sustain: seed?.envelope?.sustain ?? tone.sustain,
       })
       return
     }

@@ -8,7 +8,7 @@ import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rota
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedLineageText, seedModulationProfileState, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -43,7 +43,7 @@ function currentTuningParameter() {
 }
 
 function seedDnaText(seed) {
-  return `${seedNameState(seed).text} ${seedFamilyState(seed).text} ${seedPitchRatioState(seed, chamber.target.pitchRatio).text} ${seedPulseRateState(seed, chamber.target.pulseRate).text} ${seedBrightnessState(seed, chamber.target.brightness).text} ${seedPhaseState(seed, chamber.target.phase).text} ${seedWaveformState(seed, chamber.timbrePuzzle?.waveforms).text} ${seedSynthTypeState(seed).text} ${seedModulationProfileState(seed).text} Envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, growth ${seed.growthBehavior}. ${seedLineageText(seed)} ${historicalSeedTraitState(seed, save).text}`
+  return `${seedNameState(seed).text} ${seedFamilyState(seed).text} ${seedPitchRatioState(seed, chamber.target.pitchRatio).text} ${seedPulseRateState(seed, chamber.target.pulseRate).text} ${seedBrightnessState(seed, chamber.target.brightness).text} ${seedPhaseState(seed, chamber.target.phase).text} ${seedWaveformState(seed, chamber.timbrePuzzle?.waveforms).text} ${seedSynthTypeState(seed).text} ${seedModulationProfileState(seed).text} ${seedEnvelopeState(seed).text} Growth ${seed.growthBehavior}. ${seedLineageText(seed)} ${historicalSeedTraitState(seed, save).text}`
 }
 
 function loadPlanted(chamberId) {

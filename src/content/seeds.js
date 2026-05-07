@@ -257,6 +257,20 @@ export function seedModulationProfileState(seed) {
   }
 }
 
+export function seedEnvelopeState(seed) {
+  const envelope = {
+    attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
+    decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
+    sustain: clamp(Number(seed.envelope?.sustain ?? 0.5), 0.1, 1),
+    release: clamp(Number(seed.envelope?.release ?? 0.25), 0.05, 1),
+  }
+
+  return {
+    envelope,
+    text: `Envelope: attack ${envelope.attack} (${tuningParameterDetails['envelope.attack'].role}), decay ${envelope.decay}, sustain ${envelope.sustain}, release ${envelope.release} (${tuningParameterDetails['envelope.release'].role}); ADSR shape controls bloom, body, and lingering tail.`,
+  }
+}
+
 export function tuneSeed(seed, parameter, direction, step = 1) {
   const tuned = structuredClone(seed)
   tuned.envelope = tuned.envelope ?? { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 }
