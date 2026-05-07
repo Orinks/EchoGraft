@@ -230,12 +230,20 @@ export function spatialVoiceRoleForCategory(category = 'ui') {
   return 'chamber'
 }
 
+export function seedSynthFactoryName(seed = {}, tone = {}) {
+  if (seed?.oscillatorType === 'fm' || tone.mode === 'fm') return 'fm'
+  if (seed?.oscillatorType === 'am' || tone.mode === 'am') return 'am'
+  if (seed?.oscillatorType === 'noise-kissed' || tone.mode === 'noise') return 'amBuffer'
+  return 'additive'
+}
+
 function createSynthForTone(tone, seed) {
   const frequency = tone.frequency
   const gain = syngen.const.zeroGain
+  const factory = seedSynthFactoryName(seed, tone)
 
-  if (seed?.oscillatorType === 'fm' || tone.mode === 'fm') {
-    return syngen.audio.synth.createFm({
+  if (factory === 'fm') {
+    return syngen.synth.fm({
       carrierFrequency: frequency,
       carrierType: seed?.waveform ?? tone.type,
       gain,
@@ -244,8 +252,8 @@ function createSynthForTone(tone, seed) {
     })
   }
 
-  if (seed?.oscillatorType === 'am' || tone.mode === 'am') {
-    return syngen.audio.synth.createAm({
+  if (factory === 'am') {
+    return syngen.synth.am({
       carrierFrequency: frequency,
       carrierGain: 0.8,
       carrierType: seed?.waveform ?? tone.type,
@@ -255,8 +263,8 @@ function createSynthForTone(tone, seed) {
     })
   }
 
-  if (seed?.oscillatorType === 'noise-kissed' || tone.mode === 'noise') {
-    return syngen.audio.synth.createAmBuffer({
+  if (factory === 'amBuffer') {
+    return syngen.synth.amBuffer({
       buffer: syngen.audio.buffer.noise.pink(),
       gain,
       modDepth: clamp(seed?.noiseAmount ?? 0.2, 0.05, 0.8),
@@ -266,7 +274,7 @@ function createSynthForTone(tone, seed) {
   }
 
   if (tone.mode === 'additive') {
-    return syngen.audio.synth.createAdditive({
+    return syngen.synth.additive({
       detune: tone.detune ?? 0,
       frequency,
       gain,
@@ -274,7 +282,7 @@ function createSynthForTone(tone, seed) {
     })
   }
 
-  return syngen.audio.synth.createAdditive({
+  return syngen.synth.additive({
     detune: tone.detune ?? 0,
     frequency,
     gain,
@@ -289,7 +297,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.audio?.synth && syngen?.audio?.mixer && syngen?.sound?.extend && syngen?.sound?.instantiate)
+    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.music = {
       chamber: null,
