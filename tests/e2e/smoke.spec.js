@@ -74,7 +74,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('z')
   await page.keyboard.press('z')
   await page.keyboard.press('Space')
-  await expect(eventLog.getByText(/Seed scan: Sol phonoseed at .* traits pitch .* pulse .* brightness .* phase .* waveform/)).toBeVisible()
+  await expect(eventLog.getByText(/Seed scan: Sol phonoseed at .* Tuning state: pitch .* pulse .* brightness .* phase .* waveform/)).toBeVisible()
   await expect(eventLog.getByText(/solved with Resonant rating/)).toBeVisible()
   await expect(eventLog.getByText(/Intake system restored and online/)).toBeVisible()
   await expect(eventLog.getByText(/Seed moves used 1; efficient/)).toBeVisible()

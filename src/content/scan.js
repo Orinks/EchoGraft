@@ -102,6 +102,36 @@ export function seedFamilyScanState(seed = {}) {
   }
 }
 
+function tuningDelta(value, target) {
+  if (!Number.isFinite(value) || !Number.isFinite(target)) return undefined
+  return Number((value - target).toFixed(3))
+}
+
+export function seedTuningScanState(seed = {}, chamber = {}) {
+  const target = chamber.target ?? {}
+  const traits = {
+    brightness: seed.brightness ?? 0,
+    phase: seed.phase ?? 0,
+    pitchRatio: seed.pitchRatio ?? 1,
+    pulseRate: seed.pulseRate ?? 1,
+    waveform: seed.waveform ?? 'sine',
+  }
+  const deltas = {
+    brightness: tuningDelta(traits.brightness, target.brightness),
+    phase: tuningDelta(traits.phase, target.phase),
+    pitchRatio: tuningDelta(traits.pitchRatio, target.pitchRatio),
+    pulseRate: tuningDelta(traits.pulseRate, target.pulseRate),
+  }
+  const lockedTraits = seed.lockedTraits ?? []
+
+  return {
+    deltas,
+    lockedTraits,
+    traits,
+    text: `Tuning state: pitch ${traits.pitchRatio}${Number.isFinite(deltas.pitchRatio) ? ` (delta ${deltas.pitchRatio})` : ''}, pulse ${traits.pulseRate}${Number.isFinite(deltas.pulseRate) ? ` (delta ${deltas.pulseRate})` : ''}, brightness ${traits.brightness}${Number.isFinite(deltas.brightness) ? ` (delta ${deltas.brightness})` : ''}, phase ${traits.phase}${Number.isFinite(deltas.phase) ? ` (delta ${deltas.phase})` : ''}, waveform ${traits.waveform}; locked traits ${lockedTraits.length ? lockedTraits.join(', ') : 'none'}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     family: seed.family ?? 'unknown family',
@@ -109,20 +139,14 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     name: seed.name ?? seed.id ?? 'unknown seed',
     position: seed.position ?? { x: 0, y: 0 },
     positionState: seedPositionState(seed, chamber),
-    traits: {
-      brightness: seed.brightness ?? 0,
-      phase: seed.phase ?? 0,
-      pitchRatio: seed.pitchRatio ?? 1,
-      pulseRate: seed.pulseRate ?? 1,
-      waveform: seed.waveform ?? 'sine',
-    },
+    tuningState: seedTuningScanState(seed, chamber),
   }))
 
   return {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

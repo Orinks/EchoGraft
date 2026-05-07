@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedFamilyScanState, seedPositionState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedFamilyScanState, seedPositionState, seedScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -63,7 +63,7 @@ describe('scan pulse', () => {
         pulseRate: 1,
         waveform: 'sine',
       },
-    ], { target: { x: 0, y: 0 }, tolerances: { position: 1.5 } })
+    ], { target: { x: 0, y: 0, brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1 }, tolerances: { position: 1.5 } })
 
     expect(seedScan.count).toBe(1)
     expect(seedScan.seeds[0]).toMatchObject({
@@ -71,12 +71,15 @@ describe('scan pulse', () => {
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
       position: { x: 0, y: 1 },
       positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
-      traits: { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, waveform: 'sine' },
+      tuningState: {
+        deltas: { brightness: 0, phase: 0, pitchRatio: 0, pulseRate: 0 },
+        traits: { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, waveform: 'sine' },
+      },
     })
     expect(seedScan.text).toContain('Seed scan: Sol phonoseed at 0, 1')
     expect(seedScan.text).toContain('Position: 0, 1; heart offset 0, 1; distance 1 step(s); inside position tolerance 1.5')
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
-    expect(seedScan.text).toContain('traits pitch 1, pulse 1, brightness 0.45, phase 0, waveform sine')
+    expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
   it('reports a reusable seed family scan state', () => {
@@ -92,6 +95,18 @@ describe('scan pulse', () => {
       origin: 'Quiet mirror',
     })
     expect(family.text).toBe('Seed family: Umbra; affinity phase cancellation and hidden records; discovered origin Quiet mirror.')
+  })
+
+  it('reports a reusable tuning state with target deltas and locks', () => {
+    const tuning = seedTuningScanState(
+      { brightness: 0.6, lockedTraits: ['pitchRatio'], phase: 90, pitchRatio: 1.25, pulseRate: 2, waveform: 'triangle' },
+      { target: { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 2 } },
+    )
+
+    expect(tuning.traits).toMatchObject({ brightness: 0.6, phase: 90, pitchRatio: 1.25, pulseRate: 2, waveform: 'triangle' })
+    expect(tuning.deltas).toMatchObject({ brightness: 0.15, phase: 90, pitchRatio: 0.25, pulseRate: 0 })
+    expect(tuning.lockedTraits).toEqual(['pitchRatio'])
+    expect(tuning.text).toContain('locked traits pitchRatio')
   })
 
   it('reports a reusable seed position state relative to the chamber heart', () => {
