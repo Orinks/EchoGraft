@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -191,6 +191,23 @@ describe('seed DNA', () => {
     expect(seedEcologicalAffinityState({ family: 'Unknown' })).toMatchObject({
       affinity: 'unmapped ecology',
       role: 'restoration role not mapped yet',
+    })
+  })
+
+  it('reports discovered origin as a dedicated lore record hook', () => {
+    const seed = createSeedDNA('archive-seed')
+    const state = seedDiscoveredOriginState(seed)
+
+    expect(state).toMatchObject({
+      family: 'Archive',
+      origin: 'Memory pond',
+      recordRole: 'origin record for Archive lineage and Memory codex echoes',
+    })
+    expect(state.text).toBe('Discovered origin: Memory pond; origin record for Archive lineage and Memory codex echoes.')
+    expect(createSeedDNA('origin-fallback', { discoveredOrigin: undefined }).discoveredOrigin).toBeTruthy()
+    expect(seedDiscoveredOriginState({ family: 'Unknown' })).toMatchObject({
+      origin: 'unknown origin',
+      recordRole: 'origin record not recovered yet',
     })
   })
 
