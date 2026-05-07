@@ -23,6 +23,7 @@ export function createDefaultSave() {
     wildChamberIds: [],
     wildMutationIds: [],
     seedMovesByChamber: {},
+    resourcesSpentByChamber: {},
     ratings: {},
     restoredSystems: [],
     restorationPhilosophy: 'preservation',
@@ -56,6 +57,7 @@ export function loadSave(storage = globalThis.localStorage) {
       wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,
       wildMutationIds: parsed.wildMutationIds ?? defaults.wildMutationIds,
       seedMovesByChamber: parsed.seedMovesByChamber ?? defaults.seedMovesByChamber,
+      resourcesSpentByChamber: parsed.resourcesSpentByChamber ?? defaults.resourcesSpentByChamber,
     }
   } catch {
     return createDefaultSave()

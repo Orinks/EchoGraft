@@ -24,6 +24,7 @@ describe('save system', () => {
     save.wildChamberIds.push('pitch')
     save.wildMutationIds.push('pitch-wild-mutation')
     save.seedMovesByChamber.tutorial = 1
+    save.resourcesSpentByChamber.tutorial = { biomass: 1 }
     save.ratings.tutorial = 'Resonant'
     save.restoredSystems.push('Intake')
     save.codexIds.push('first-breath')
@@ -40,6 +41,7 @@ describe('save system', () => {
     expect(loadSave(storage).wildChamberIds).toEqual(['pitch'])
     expect(loadSave(storage).wildMutationIds).toEqual(['pitch-wild-mutation'])
     expect(loadSave(storage).seedMovesByChamber.tutorial).toBe(1)
+    expect(loadSave(storage).resourcesSpentByChamber.tutorial).toEqual({ biomass: 1 })
     expect(loadSave(storage).ratings.tutorial).toBe('Resonant')
     expect(loadSave(storage).restoredSystems).toEqual(['Intake'])
     expect(loadSave(storage).codexIds).toEqual(['first-breath'])
@@ -62,6 +64,7 @@ describe('save system', () => {
     expect(loaded.wildChamberIds).toEqual([])
     expect(loaded.wildMutationIds).toEqual([])
     expect(loaded.seedMovesByChamber).toEqual({})
+    expect(loaded.resourcesSpentByChamber).toEqual({})
     expect(loaded.ratings).toEqual({})
     expect(loaded.restoredSystems).toEqual([])
     expect(loaded.restorationPhilosophy).toBe('preservation')

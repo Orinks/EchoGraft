@@ -202,6 +202,32 @@ export function hazardContainmentSummary(chamber, plantedSeeds = []) {
   }
 }
 
+function materialTotal(materials = {}) {
+  return Object.values(materials).reduce((total, value) => total + value, 0)
+}
+
+export function resourceEfficiencySummary(chamber, save = {}) {
+  const spent = save.resourcesSpentByChamber?.[chamber.id] ?? {}
+  const spentTotal = materialTotal(spent)
+  const rewardTotal = materialTotal(chamber.rewards?.materials)
+  const band = spentTotal === 0 ? 'conserved' : rewardTotal && spentTotal <= rewardTotal ? 'balanced' : 'costly'
+  const ratingContribution = band === 'conserved'
+    ? 'supports stronger restoration ratings'
+    : band === 'balanced'
+      ? 'keeps resource use sustainable'
+      : 'weakens resource-efficiency stewardship'
+
+  return {
+    band,
+    dimension: 'Resource efficiency',
+    ratingContribution,
+    rewardTotal,
+    spent,
+    spentTotal,
+    text: `Resource efficiency ${band}; spent ${spentTotal} material unit(s) against ${rewardTotal} reward unit(s); ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), hazardContainment: hazardContainmentSummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
