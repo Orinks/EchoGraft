@@ -670,6 +670,20 @@ describe('resonance evaluation', () => {
     expect(diagnosticTree.records.map((record) => record.title)).toContain('System Diagnostic 01')
   })
 
+  it('rewards every authored seed ancestry record through campaign chamber solves', () => {
+    const expectedAncestries = Array.from({ length: 10 }, (_, index) => `seed-ancestry-${String(index + 1).padStart(2, '0')}`)
+    const rewardedAncestries = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).filter((id) => id.startsWith('seed-ancestry'))
+    const rewardedAncestrySet = new Set(rewardedAncestries)
+    const tutorialSave = mergeRewards(createDefaultSave(), chambers.find((chamber) => chamber.id === 'tutorial'), 'Stable')
+    const tutorialTrees = codexRecordTrees(codexRecords, tutorialSave.codexIds)
+    const ancestryTree = tutorialTrees.find((tree) => tree.id === 'seed-ancestry')
+
+    expect(rewardedAncestries).toHaveLength(expectedAncestries.length)
+    expect([...rewardedAncestrySet].sort()).toEqual(expectedAncestries)
+    expect(expectedAncestries.every((id) => codexRecords[id])).toBe(true)
+    expect(ancestryTree.records.map((record) => record.title)).toContain('Seed Ancestry 01')
+  })
+
   it('authors Intake Lung as an intake restoration contract', () => {
     const intake = chambers.find((chamber) => chamber.id === 'direction')
     expect(intake.title).toBe('Contract 1: Intake Lung')

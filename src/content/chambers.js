@@ -201,7 +201,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
-    rewards: { codex: ['first-breath', 'gardener-note-01', 'crew-message-12', 'plant-memory-01'], materials: { biomass: 1, spores: 1 } },
+    rewards: { codex: ['first-breath', 'gardener-note-01', 'crew-message-12', 'plant-memory-01', 'seed-ancestry-01'], materials: { biomass: 1, spores: 1 } },
   },
   {
     id: 'direction',
@@ -250,7 +250,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.08, pulseRate: 0.6, brightness: 0.3, phase: 180 },
     requires: ['binaural'],
-    rewards: { codex: ['water-pumps', 'crew-message-03', 'plant-memory-08', 'system-diagnostic-03'], materials: { biomass: 1, crystal: 1 } },
+    rewards: { codex: ['water-pumps', 'crew-message-03', 'plant-memory-08', 'system-diagnostic-03', 'seed-ancestry-08'], materials: { biomass: 1, crystal: 1 } },
   },
   {
     id: 'rhythm',
@@ -267,7 +267,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.2, brightness: 0.3, phase: 180 },
     requires: ['pitch'],
-    rewards: { codex: ['canopy-pulse', 'crew-message-04', 'plant-memory-05', 'system-diagnostic-04'], materials: { biomass: 2, spores: 1 } },
+    rewards: { codex: ['canopy-pulse', 'crew-message-04', 'plant-memory-05', 'system-diagnostic-04', 'seed-ancestry-05'], materials: { biomass: 2, spores: 1 } },
   },
   {
     id: 'timbre',
@@ -285,7 +285,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.08, phase: 180 },
     requires: ['rhythm'],
-    rewards: { codex: ['glass-leaves', 'gardener-note-07', 'plant-memory-02', 'system-diagnostic-12'], materials: { crystal: 2 } },
+    rewards: { codex: ['glass-leaves', 'gardener-note-07', 'plant-memory-02', 'system-diagnostic-12', 'seed-ancestry-02'], materials: { crystal: 2 } },
   },
   {
     id: 'harmony',
@@ -324,7 +324,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.3, phase: 20 },
     requires: ['timbre'],
-    rewards: { codex: ['quiet-mirror', 'crew-message-05', 'plant-memory-03', 'system-diagnostic-05'], materials: { memory: 2 } },
+    rewards: { codex: ['quiet-mirror', 'crew-message-05', 'plant-memory-03', 'system-diagnostic-05', 'seed-ancestry-03'], materials: { memory: 2 } },
   },
   {
     id: 'graft',
@@ -361,7 +361,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'mold pressure spreads if the low interval is not contained before the planning window closes' },
     requires: ['phase'],
-    rewards: { codex: ['mold-pressure', 'gardener-note-08', 'crew-message-11', 'plant-memory-04'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
+    rewards: { codex: ['mold-pressure', 'gardener-note-08', 'crew-message-11', 'plant-memory-04', 'seed-ancestry-04'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
   {
     id: 'finale',
@@ -435,7 +435,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.67, radius: 0.18, message: 'Fungus relays buckle around the sour mold band.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'sour mold keeps relays unstable until routed around the forbidden band' },
     requires: ['root-choir'],
-    rewards: { codex: ['fungus-relays', 'plant-memory-06'], materials: { biomass: 1, memory: 2, mycelium: 1, spores: 3 } },
+    rewards: { codex: ['fungus-relays', 'plant-memory-06', 'seed-ancestry-06'], materials: { biomass: 1, memory: 2, mycelium: 1, spores: 3 } },
   },
   {
     id: 'optional-root-echo',
@@ -552,7 +552,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.12, phase: 50 },
     requires: ['nutrient-lattice'],
-    rewards: { codex: ['gardener-note-03', 'plant-memory-07', 'system-diagnostic-08'], materials: { crystal: 2 } },
+    rewards: { codex: ['gardener-note-03', 'plant-memory-07', 'system-diagnostic-08', 'seed-ancestry-07'], materials: { crystal: 2 } },
   },
   {
     id: 'sun-prism',
@@ -570,7 +570,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.28, brightness: 0.08, phase: 50 },
     requires: ['glass-rain'],
-    rewards: { codex: ['plant-memory-09'], materials: { crystal: 2, biomass: 1 } },
+    rewards: { codex: ['plant-memory-09', 'seed-ancestry-09'], materials: { crystal: 2, biomass: 1 } },
   },
   {
     id: 'fog-harp',
