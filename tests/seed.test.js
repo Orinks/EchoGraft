@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -53,6 +53,16 @@ describe('seed DNA', () => {
     expect(state.targetDelta).toBe(0.25)
     expect(state.role).toBe(tuningParameterDetails.brightness.role)
     expect(state.text).toContain('filter opening and canopy light color')
+  })
+
+  it('reports phase as cancellation alignment with shortest target offset', () => {
+    const seed = createSeedDNA('phase-report', { phase: 345 })
+    const state = seedPhaseState(seed, 0)
+
+    expect(state.phase).toBe(345)
+    expect(state.targetDelta).toBe(-15)
+    expect(state.role).toBe(tuningParameterDetails.phase.role)
+    expect(state.text).toContain('alignment, cancellation, and hidden echo behavior')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {

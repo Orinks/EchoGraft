@@ -116,7 +116,7 @@ export function normalizeSeed(seed) {
     amAmount: clamp(Number(seed.amAmount ?? 0), 0, 1),
     noiseAmount: clamp(Number(seed.noiseAmount ?? 0), 0, 1),
     pulseRate: clamp(Number(seed.pulseRate ?? 1), 0.25, 6),
-    phase: ((Number(seed.phase) % 360) + 360) % 360,
+    phase: ((Number(seed.phase ?? 0) % 360) + 360) % 360,
   }
 }
 
@@ -186,6 +186,21 @@ export function seedBrightnessState(seed, targetBrightness) {
     text: targetDelta === undefined
       ? `Brightness/filter: ${brightness}; ${role}.`
       : `Brightness/filter: ${brightness}; target delta ${targetDelta}; ${role}.`,
+  }
+}
+
+export function seedPhaseState(seed, targetPhase) {
+  const phase = ((Number(seed.phase ?? 0) % 360) + 360) % 360
+  const targetDelta = targetPhase === undefined ? undefined : Number((((phase - targetPhase + 540) % 360) - 180).toFixed(0))
+  const role = tuningParameterDetails.phase.role
+
+  return {
+    phase,
+    role,
+    targetDelta,
+    text: targetDelta === undefined
+      ? `Phase: ${phase} degrees; ${role}.`
+      : `Phase: ${phase} degrees; target offset ${targetDelta} degrees; ${role}.`,
   }
 }
 

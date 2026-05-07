@@ -107,6 +107,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Pitch ratio: 1; target delta 0; root interval against the chamber heart/ })).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Pulse rate: 1; target delta 0; rhythmic growth and system timing/ })).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Brightness\/filter: 0.45; target delta 0; filter opening and canopy light color/ })).toBeVisible()
+  await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Phase: 0 degrees; target offset 0 degrees; alignment, cancellation, and hidden echo behavior/ })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Seed Collection Appraisal' })).toBeVisible()
   await expect(page.getByText(/Exchange remains restoration support/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Seed Family Catalog' })).toBeVisible()
