@@ -12,6 +12,7 @@ const audioPaths = [
   join(process.cwd(), 'src', 'js', 'main.js'),
 ]
 const source = audioPaths.map((path) => readFileSync(path, 'utf8')).join('\n')
+const appAudioSource = readFileSync(join(process.cwd(), 'src', 'engine', 'audio.js'), 'utf8')
 
 const forbidden = [
   'new AudioContext',
@@ -42,10 +43,24 @@ const required = [
 
 const violations = forbidden.filter((needle) => source.includes(needle))
 const missing = required.filter((needle) => !source.includes(needle))
+const modernRequired = [
+  'syngen.loop.on',
+  'syngen.position.setVector',
+  'syngen.position.setEuler',
+  'syngen.audio.mixer.createBus',
+  'syngen.audio.synth.create',
+  'syngen.audio.buffer.noise',
+  'syngen.audio.buffer.impulse',
+  'syngen.prop.base.invent',
+  'syngen.props.create',
+  'syngen.props.destroy',
+]
+const modernMissing = modernRequired.filter((needle) => !appAudioSource.includes(needle))
 
-if (violations.length || missing.length) {
+if (violations.length || missing.length || modernMissing.length) {
   if (violations.length) console.error(`Direct Web Audio usage found in audio engine:\n${violations.join('\n')}`)
   if (missing.length) console.error(`Expected Syngen API usage missing from audio engine:\n${missing.join('\n')}`)
+  if (modernMissing.length) console.error(`Expected active app Syngen toolkit usage missing from src/engine/audio.js:\n${modernMissing.join('\n')}`)
   process.exit(1)
 }
 

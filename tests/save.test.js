@@ -16,12 +16,14 @@ describe('save system', () => {
     const save = createDefaultSave()
     save.solvedChambers.push('tutorial')
     save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
+    save.postgameUnlocked = true
     save.ratings.tutorial = 'Resonant'
     save.codexIds.push('first-breath')
     save.materials.biomass = 2
     saveGame(save, storage)
     expect(loadSave(storage).solvedChambers).toEqual(['tutorial'])
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
+    expect(loadSave(storage).postgameUnlocked).toBe(true)
     expect(loadSave(storage).ratings.tutorial).toBe('Resonant')
     expect(loadSave(storage).codexIds).toEqual(['first-breath'])
     expect(loadSave(storage).materials.biomass).toBe(2)
@@ -33,6 +35,7 @@ describe('save system', () => {
     const loaded = loadSave(storage)
     expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, memory: 0 })
     expect(loaded.plantedByChamber).toEqual({})
+    expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.ratings).toEqual({})
   })
 })

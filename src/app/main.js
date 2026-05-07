@@ -1,8 +1,8 @@
 import { AudioEngine } from '../engine/audio.js'
-import { chambers, chamberSeeds, codexRecords } from '../content/chambers.js'
+import { campaignScope, chambers, chamberSeeds, codexRecords, solveTimeText } from '../content/chambers.js'
 import { createEventLog } from '../content/log.js'
 import { createPlayer, movePlayer, rotatePlayer } from '../content/player.js'
-import { availableChambers, evaluateResonance, mergeRewards, restorationRating } from '../content/resonance.js'
+import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftSeeds, tuneSeed, tuningParameters } from '../content/seeds.js'
 
@@ -97,9 +97,17 @@ function continueGame() {
 }
 
 function movement(dx, dy) {
+  const previous = player
   player = movePlayer(player, dx, dy)
-  audio.updateListener(player)
-  log(`Moved to ${player.x}, ${player.y}. Facing ${player.facing} degrees.`)
+  audio.movement(player, previous, chamber)
+  const safeRadius = 5
+  const westWall = chamber.start.x - safeRadius
+  const eastWall = chamber.start.x + safeRadius
+  const southWall = chamber.start.y - safeRadius
+  const northWall = chamber.start.y + safeRadius
+  const nearestWall = Math.min(player.x - westWall, eastWall - player.x, player.y - southWall, northWall - player.y).toFixed(1)
+  const heartDistance = Math.hypot(chamber.target.x - player.x, chamber.target.y - player.y).toFixed(1)
+  log(`Moved to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall} steps away, current between start and heart, landmark heart ${heartDistance} steps away.`)
 }
 
 function rotate(degrees) {
@@ -108,16 +116,47 @@ function rotate(degrees) {
   log(`Rotated to ${player.facing} degrees.`)
 }
 
+function listen() {
+  audio.chamber(chamber, plantedSeeds)
+  const planted = plantedSeeds.length ? `${plantedSeeds.length} planted seed voice(s)` : 'no planted seed voices'
+  const status = lastResult.solved ? 'restored' : `resonance ${Math.round(lastResult.score * 100)} percent`
+  log(`Listen: ${chamber.title} is ${status}; ${planted}; heart pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}.`)
+}
+
+function locate() {
+  const dx = chamber.target.x - player.x
+  const dy = chamber.target.y - player.y
+  const distance = Math.hypot(dx, dy).toFixed(1)
+  const horizontal = dx < 0 ? 'west' : dx > 0 ? 'east' : 'center'
+  const vertical = dy < 0 ? 'south' : dy > 0 ? 'north' : 'level'
+  audio.scan(player, chamber.target)
+  log(`Locate: chamber heart is ${distance} steps away, ${horizontal}, ${vertical}.`)
+}
+
+function heartShapeText(target) {
+  if (Math.abs(target.x) > Math.abs(target.y)) return 'wide lateral heart'
+  if (Math.abs(target.y) > Math.abs(target.x)) return 'tall vertical heart'
+  return target.x === 0 && target.y === 0 ? 'centered round heart' : 'balanced diagonal heart'
+}
+
+function requiredChangesText() {
+  return lastResult.missing.length ? lastResult.missing.join(' ') : 'No required changes; resonance is ready for restoration.'
+}
+
+function hazardsText() {
+  return chamber.hazards?.length ? chamber.hazards.map((hazard) => hazard.message).join(' ') : 'No active hazards detected.'
+}
+
 function scan() {
   const distance = Math.hypot(chamber.target.x - player.x, chamber.target.y - player.y).toFixed(1)
   const side = chamber.target.x < player.x ? 'left' : chamber.target.x > player.x ? 'right' : 'centered'
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
-    log(`Objective scan: heart is ${distance} steps away, ${side}. Target pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}.`)
+    log(`Objective scan: heart is ${distance} steps away, ${side}; shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
   if (scanMode === 'boundaries') log(`Boundary scan: safe work zone extends from ${chamber.start.x - 5}, ${chamber.start.y - 5} to ${chamber.start.x + 5}, ${chamber.start.y + 5}. Current position ${player.x}, ${player.y}.`)
   if (scanMode === 'seeds') log(plantedSeeds.length ? `Seed scan: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}`).join('; ')}.` : 'Seed scan: no planted seed objects in this chamber.')
-  if (scanMode === 'hazards') log(chamber.hazards?.length ? `Hazard scan: ${chamber.hazards.map((hazard) => hazard.message).join(' ')}` : 'Hazard scan: no active hazards detected.')
+  if (scanMode === 'hazards') log(`Hazard scan: ${hazardsText()}`)
 }
 
 function plantOrPickUp() {
@@ -155,6 +194,18 @@ function graft() {
   persist()
 }
 
+function previewSelectedSeed() {
+  const seed = currentSeed()
+  if (!seed) return
+  audio.seed(seed)
+  log(`Previewing ${seed.name}. Pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}.`)
+}
+
+function composeConservatory() {
+  audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory)
+  log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord.`)
+}
+
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
@@ -174,10 +225,26 @@ function evaluate() {
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
   if (chamber.ending) {
+    save.postgameUnlocked = true
+    persist()
     audio.ending(chambers, inventory)
     screen = 'ending'
     render()
   }
+}
+
+function restoreChamber() {
+  lastResult = evaluateResonance(chamber, plantedSeeds)
+  if (!lastResult.solved) {
+    audio.ui('error')
+    log(`Restore: ${chamber.title} is not ready. ${lastResult.missing[0] ?? 'Keep listening.'}`)
+    return
+  }
+  if (save.solvedChambers.includes(chamber.id)) {
+    log(`Restore: ${chamber.title} is already restored with ${save.ratings[chamber.id] ?? 'Restored'} rating.`)
+    return
+  }
+  evaluate()
 }
 
 function resetChamber() {
@@ -268,9 +335,12 @@ app.addEventListener('click', async (event) => {
   if (action === 'atlas') setScreen('atlas')
   if (action === 'library') setScreen('library')
   if (action === 'codex') setScreen('codex')
+  if (action === 'conservatory') setScreen('conservatory')
   if (action === 'menu') setScreen('menu')
   if (action === 'game') setScreen('game')
   if (action === 'scan') scan()
+  if (action === 'listen') listen()
+  if (action === 'locate') locate()
   if (action === 'scanMode') {
     scanMode = event.target.dataset.mode
     log(`Scan mode: ${scanMode}.`)
@@ -279,6 +349,9 @@ app.addEventListener('click', async (event) => {
   if (action === 'tuneDown') tune(-1)
   if (action === 'tuneUp') tune(1)
   if (action === 'graft') graft()
+  if (action === 'previewSeed') previewSelectedSeed()
+  if (action === 'compose') composeConservatory()
+  if (action === 'restore') restoreChamber()
   if (action === 'reset') resetChamber()
   if (action === 'next') setScreen('atlas')
   if (action === 'contract') {
@@ -310,6 +383,7 @@ function menu() {
         <button data-action="atlas">Restoration atlas</button>
         <button data-action="library">Seed library</button>
         <button data-action="codex">Codex</button>
+        ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
         <button data-action="settings">Settings</button>
         <button data-action="help">Help</button>
         <button data-action="credits">Credits</button>
@@ -337,7 +411,7 @@ function game() {
     <main class="game" aria-labelledby="chamber-title">
       <section class="hud" aria-live="polite">
         <h1 id="chamber-title">${chamber.title}</h1>
-        <p><strong>Contract:</strong> ${chamber.contractType}; ${chamber.system}; ${contractStatus(chamber)}; scan ${scanMode}.</p>
+        <p><strong>Contract:</strong> ${chamber.contractType}; ${chamber.system}; ${contractStatus(chamber)}; ${solveTimeText(chamber)}; scan ${scanMode}.</p>
         <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; resonance ${Math.round(lastResult.score * 100)} percent. Press O, P, I, or C for details.</p>
       </section>
       <section class="layout">
@@ -348,6 +422,8 @@ function game() {
         </div>
         <aside>
           <h2>Actions</h2>
+          <button data-action="listen">Listen</button>
+          <button data-action="locate">Locate heart</button>
           <button data-action="scan">Scan pulse</button>
           <button data-action="scanMode" data-mode="objective">Objective scan</button>
           <button data-action="scanMode" data-mode="boundaries">Boundary scan</button>
@@ -357,6 +433,7 @@ function game() {
           <button data-action="tuneDown">Tune down</button>
           <button data-action="tuneUp">Tune up</button>
           <button data-action="graft">Graft first two seeds</button>
+          <button data-action="restore">Restore chamber</button>
           <button data-action="reset">Reset chamber</button>
           <button data-action="atlas">Atlas</button>
           <button data-action="library">Seed library</button>
@@ -380,23 +457,48 @@ function game() {
 function atlas() {
   audio.setMusicScene('menu')
   const available = new Set(unlockedContracts().map((item) => item.id))
+  const plan = restorationPlanningSession(chambers, save.solvedChambers)
+  const campaign = firstFullCampaignEstimate(campaignScope)
+  const stewardship = stewardshipSummary(chambers, save)
+  const decision = decisionSummary(chambers, save.solvedChambers)
   shell(`
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
       <p>Season 1 contracts: ${save.solvedChambers.length} restored. Materials: ${materialsText()}.</p>
+      <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
+      <section aria-labelledby="stewardship-title">
+        <h2 id="stewardship-title">Stewardship Review</h2>
+        <p>${stewardship.restoredCount} of ${stewardship.totalCount} contracts restored. Materials: ${stewardship.materialSummary}.</p>
+        <p>${stewardship.nextAction}</p>
+      </section>
+      <section aria-labelledby="decision-title">
+        <h2 id="decision-title">Decision Point</h2>
+        <p>Recommended next work: ${decision.recommendation}.</p>
+        <p>Required choices: ${decision.requiredChoices.join(', ') || 'none ready'}.</p>
+        <p>Optional choices: ${decision.optionalChoices.join(', ') || 'none ready'}.</p>
+      </section>
+      <section aria-labelledby="planning-title">
+        <h2 id="planning-title">Suggested Planning Session</h2>
+        <p>${plan.min} to ${plan.max} minutes across ${plan.contracts.length} upcoming contracts.</p>
+        <ol>
+          ${plan.contracts.map((item) => `<li>${item.title}: ${solveTimeText(item)}, ${item.ready ? 'ready now' : 'queued by atlas dependencies'}.</li>`).join('')}
+        </ol>
+      </section>
       <ol class="contract-list">
         ${chambers.map((item) => {
           const disabled = available.has(item.id) ? '' : ' disabled'
           return `<li>
             <h2>${item.title}</h2>
-            <p>${item.system}; ${item.contractType}; ${item.optional ? 'optional' : 'required'}; ${contractStatus(item)}.</p>
+            <p>${item.system}; ${item.contractType}; ${item.optional ? 'optional' : 'required'}; ${contractStatus(item)}; ${solveTimeText(item)}.</p>
             <p>${item.objective}</p>
-            <button data-action="contract" data-contract="${item.id}"${disabled}>Enter contract</button>
+            <button data-action="contract" data-contract="${item.id}"${disabled}>Accept work order</button>
           </li>`
         }).join('')}
       </ol>
+      <button data-action="game">Enter active chamber</button>
       <button data-action="library">Seed library</button>
       <button data-action="codex">Codex</button>
+      ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
       <button data-action="menu">Main menu</button>
     </main>
   `)
@@ -404,14 +506,26 @@ function atlas() {
 
 function library() {
   audio.setMusicScene('menu')
+  const appraisal = seedCollectionAppraisal(inventory, save, currentSeed())
   shell(`
     <main class="screen" aria-labelledby="library-title">
       <h1 id="library-title">Seed Library</h1>
       <p>Selected tuning: ${currentTuningParameter()}. Materials: ${materialsText()}.</p>
+      <section aria-labelledby="appraisal-title">
+        <h2 id="appraisal-title">Seed Collection Appraisal</h2>
+        <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
+        <p>Curated seed: ${appraisal.curatedSeed}. Playable voices: ${appraisal.playableVoices.join(', ')}.</p>
+        <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
+      </section>
       <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
+      <button data-action="previewSeed">Preview selected seed</button>
       <button data-action="graft">Graft first two seeds</button>
       <button data-action="atlas">Atlas</button>
       <button data-action="game">Back to chamber</button>
+      <section class="log" aria-label="Caption and event log" aria-live="polite">
+        <h2>Caption Log</h2>
+        <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>
+      </section>
     </main>
   `)
 }
@@ -424,6 +538,33 @@ function codex() {
       ${save.codexIds.length ? `<ol>${save.codexIds.map((id) => `<li><h2>${codexRecords[id]?.title ?? id}</h2><p>${codexRecords[id]?.text ?? 'Recovered record.'}</p></li>`).join('')}</ol>` : '<p>No perceptions recovered yet.</p>'}
       <button data-action="atlas">Atlas</button>
       <button data-action="game">Back to chamber</button>
+    </main>
+  `)
+}
+
+function conservatory() {
+  audio.setMusicScene('ending', { inventory })
+  shell(`
+    <main class="screen" aria-labelledby="conservatory-title">
+      <h1 id="conservatory-title">Conservatory</h1>
+      <p>Postgame restoration is open. Revisit restored contracts, collect remaining records, and compose with recovered seed voices.</p>
+      <section aria-labelledby="restored-title">
+        <h2 id="restored-title">Restoration Collection</h2>
+        <p>${save.solvedChambers.length} contracts restored. ${save.codexIds.length} codex records recovered.</p>
+      </section>
+      <section aria-labelledby="composition-title">
+        <h2 id="composition-title">Composition Palette</h2>
+        <p>${inventory.map((seed) => seed.name).join(', ')}.</p>
+      </section>
+      <button data-action="compose">Compose conservatory chord</button>
+      <button data-action="atlas">Atlas</button>
+      <button data-action="library">Seed library</button>
+      <button data-action="codex">Codex</button>
+      <button data-action="menu">Main menu</button>
+      <section class="log" aria-label="Caption and event log" aria-live="polite">
+        <h2>Caption Log</h2>
+        <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>
+      </section>
     </main>
   `)
 }
@@ -452,7 +593,7 @@ function help() {
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
       <p>WASD or arrow keys move. Q and E rotate. Space scans. Z cycles scan mode. Enter plants or picks up. Tab cycles seeds. 1 through 4 select seeds. Minus and equals tune. Shift cycles the tuning parameter. G grafts. O gives objective, P position, I inventory, C codex, R resets, H opens help, Escape pauses.</p>
-      <p>Listen to scan pitch and panning, then match the objective text. Every important cue appears in the caption log.</p>
+      <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
       <button data-action="game">Back to game</button>
     </main>
   `)
@@ -502,6 +643,7 @@ function render() {
   if (screen === 'atlas') atlas()
   if (screen === 'library') library()
   if (screen === 'codex') codex()
+  if (screen === 'conservatory') conservatory()
   if (screen === 'settings') settings()
   if (screen === 'help') help()
   if (screen === 'credits') credits()

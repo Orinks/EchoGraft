@@ -537,6 +537,89 @@ export class AudioEngine {
     })
   }
 
+  movement(player, previous, chamber = {}) {
+    this.updateListener(player)
+    const movedDistance = Math.hypot(player.x - previous.x, player.y - previous.y)
+    const safeRadius = 5
+    const westWall = (chamber.start?.x ?? 0) - safeRadius
+    const eastWall = (chamber.start?.x ?? 0) + safeRadius
+    const southWall = (chamber.start?.y ?? 0) - safeRadius
+    const northWall = (chamber.start?.y ?? 0) + safeRadius
+    const nearestWall = Math.min(player.x - westWall, eastWall - player.x, player.y - southWall, northWall - player.y)
+    const currentPosition = {
+      x: (chamber.start?.x ?? 0) + ((chamber.target?.x ?? 0) - (chamber.start?.x ?? 0)) / 2,
+      y: (chamber.start?.y ?? 0) + ((chamber.target?.y ?? 0) - (chamber.start?.y ?? 0)) / 2,
+    }
+    const wallPosition = {
+      x: player.x <= westWall + 1 ? westWall : player.x >= eastWall - 1 ? eastWall : player.x,
+      y: player.y <= southWall + 1 ? southWall : player.y >= northWall - 1 ? northWall : player.y,
+    }
+
+    this.voice({
+      category: 'ui',
+      duration: 0.11 + movedDistance * 0.04,
+      gain: dbGain(-13),
+      spatial: false,
+      tone: {
+        brightness: 0.35,
+        frequency: ratioToFrequency(1 + ((Math.abs(player.x) + Math.abs(player.y)) % 4) * 0.05, 41),
+        harmonic: [{ coefficient: 1, gain: 1, type: 'triangle' }],
+        mode: 'additive',
+        pulseRate: 1,
+        type: 'triangle',
+      },
+    })
+
+    this.voice({
+      category: 'ambience',
+      duration: 0.35,
+      gain: dbGain(-23),
+      position: currentPosition,
+      tone: {
+        brightness: chamber.target?.brightness ?? 0.45,
+        frequency: ratioToFrequency(chamber.target?.pulseRate ?? 1, 36),
+        mode: 'am',
+        pulseRate: chamber.target?.pulseRate ?? 1,
+        type: 'sine',
+      },
+    })
+
+    this.voice({
+      category: 'scan',
+      duration: 0.2,
+      gain: dbGain(-20),
+      position: chamber.target,
+      tone: {
+        brightness: chamber.target?.brightness ?? 0.45,
+        frequency: ratioToFrequency(chamber.target?.pitchRatio ?? 1, 54),
+        harmonic: [
+          { coefficient: 1, gain: 1, type: 'sine' },
+          { coefficient: 2, gain: 0.25, type: 'triangle' },
+        ],
+        mode: 'additive',
+        pulseRate: chamber.target?.pulseRate ?? 1,
+        type: 'sine',
+      },
+    })
+
+    if (nearestWall <= 1.5) {
+      this.voice({
+        category: 'hazard',
+        duration: 0.22,
+        gain: dbGain(-16),
+        position: wallPosition,
+        tone: {
+          brightness: 0.22,
+          frequency: ratioToFrequency(0.75, 38),
+          mode: 'fm',
+          modAmount: 0.45,
+          pulseRate: 0.8,
+          type: 'square',
+        },
+      })
+    }
+  }
+
   seed(seed) {
     const pulses = Math.max(1, Math.min(6, Math.ceil(seed.pulseRate)))
     const baseDuration = durationFromPulse(seed.pulseRate)

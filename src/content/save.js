@@ -11,6 +11,7 @@ export function createDefaultSave() {
       memory: 0,
     },
     plantedByChamber: {},
+    postgameUnlocked: false,
     ratings: {},
     solvedChambers: [],
     inventoryIds: ['sol', 'lumen', 'umbra'],

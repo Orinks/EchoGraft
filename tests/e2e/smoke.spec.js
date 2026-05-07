@@ -11,6 +11,16 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.locator('.a-game--inventory')).toHaveCount(0)
 
   const eventLog = page.getByLabel('Caption and event log')
+  await page.getByRole('button', { name: 'Listen' }).click()
+  await expect(eventLog.getByText(/Listen: Training Contract: First Breath/)).toBeVisible()
+  await page.getByRole('button', { name: 'Locate heart' }).click()
+  await expect(eventLog.getByText(/Locate: chamber heart is/)).toBeVisible()
+  await page.getByRole('button', { name: 'Tune up' }).click()
+  await expect(eventLog.getByText(/Tuned Sol phonoseed: pitchRatio is 1.05/)).toBeVisible()
+  await page.getByRole('button', { name: 'Tune down' }).click()
+  await expect(eventLog.getByText('Tuned Sol phonoseed: pitchRatio is 1.', { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Restore chamber' }).click()
+  await expect(eventLog.getByText(/Restore: Training Contract: First Breath is not ready/)).toBeVisible()
   await page.keyboard.press('o')
   await expect(eventLog.getByText(/Objective:/)).toBeVisible()
   await page.keyboard.press('p')
@@ -22,6 +32,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
+  await expect(eventLog.getByText(/shape .* Target traits: .* Hazards: .* Required changes:/)).toBeVisible()
   await page.keyboard.press('z')
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Boundary scan:/)).toBeVisible()
@@ -33,16 +44,33 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Hazard scan:/)).toBeVisible()
 
   await page.keyboard.press('ArrowUp')
+  await expect(eventLog.getByText(/Movement audio: spatial footstep, wall .* current .* landmark heart/)).toBeVisible()
   await page.keyboard.press('ArrowUp')
   await page.keyboard.press('Enter')
   await expect(eventLog.getByText(/solved with Resonant rating/)).toBeVisible()
+  await page.getByRole('button', { name: 'Restore chamber' }).click()
+  await expect(eventLog.getByText(/already restored with Resonant rating/)).toBeVisible()
   await expect(eventLog.getByText(/Codex updated: First Breath/)).toBeVisible()
 
   await page.getByRole('button', { name: 'Choose next contract' }).click()
   await expect(page.getByRole('heading', { name: 'Restoration Atlas' })).toBeVisible()
-  await expect(page.getByText(/biomass 1/)).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Enter contract' }).nth(1)).toBeEnabled()
-  await expect(page.getByRole('button', { name: 'Enter contract' }).nth(2)).toBeDisabled()
+  await expect(page.getByText(/Season 1 contracts: 1 restored. Materials: biomass 1/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
+  await expect(page.getByText(/1 of 11 contracts restored/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Decision Point' })).toBeVisible()
+  await expect(page.getByText(/Recommended next work: Contract 1: Intake Lung/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Accept work order' }).nth(1)).toBeEnabled()
+  await expect(page.getByRole('button', { name: 'Accept work order' }).nth(2)).toBeDisabled()
+  await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeVisible()
+
+  await page.getByRole('button', { name: 'Seed library' }).click()
+  await expect(page.getByRole('heading', { name: 'Seed Collection Appraisal' })).toBeVisible()
+  await expect(page.getByText(/Exchange remains restoration support/)).toBeVisible()
+  await page.getByRole('button', { name: 'Graft first two seeds' }).click()
+  await expect(page.getByText(/Grafted Sol-Lumen graft/)).toBeVisible()
+  await page.getByRole('button', { name: 'Preview selected seed' }).click()
+  await expect(page.getByText(/Previewing/)).toBeVisible()
+  await page.getByRole('button', { name: 'Atlas' }).click()
 
   await page.getByRole('button', { name: 'Codex' }).click()
   await expect(page.getByRole('heading', { name: 'First Breath' })).toBeVisible()
@@ -55,4 +83,30 @@ test('does not request external audio files', async ({ page }) => {
   await page.getByRole('button', { name: 'Interact to Begin' }).click()
   await page.getByRole('button', { name: 'New game' }).click()
   expect(requests.filter((url) => /\.(mp3|wav|ogg|flac|m4a)(\?|$)/i.test(url))).toEqual([])
+})
+
+test('opens the postgame conservatory when unlocked', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('echograft-save-v1', JSON.stringify({
+      version: 1,
+      currentChamberId: 'finale',
+      codexIds: ['first-breath'],
+      materials: { biomass: 3, crystal: 2, memory: 2 },
+      plantedByChamber: {},
+      postgameUnlocked: true,
+      ratings: { finale: 'Resonant' },
+      solvedChambers: ['tutorial', 'finale'],
+      inventoryIds: ['sol', 'lumen', 'umbra', 'spire'],
+      customSeeds: [],
+      settings: {},
+    }))
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'Conservatory' }).click()
+  await expect(page.getByRole('heading', { name: 'Conservatory' })).toBeVisible()
+  await expect(page.getByText(/Postgame restoration is open/)).toBeVisible()
+  await expect(page.getByText(/Composition Palette/)).toBeVisible()
+  await page.getByRole('button', { name: 'Compose conservatory chord' }).click()
+  await expect(page.getByText(/Compose: playing 4 recovered seed voice/)).toBeVisible()
 })

@@ -71,6 +71,78 @@ export function availableChambers(chambers, solvedIds) {
   })
 }
 
+export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }) {
+  const solved = new Set(solvedIds)
+  const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
+  const contracts = []
+  let min = 0
+  let max = 0
+
+  for (const chamber of chambers) {
+    if (solved.has(chamber.id)) continue
+    const nextMin = min + chamber.solveTimeMinutes.min
+    const nextMax = max + chamber.solveTimeMinutes.max
+    if (contracts.length && min >= target.min && nextMax > target.max) break
+    contracts.push({ ...chamber, ready: ready.has(chamber.id) })
+    min = nextMin
+    max = nextMax
+    if (min >= target.min) break
+  }
+
+  return { contracts, min, max, target }
+}
+
+export function firstFullCampaignEstimate(scope) {
+  const requiredContracts = scope.seasons.reduce((total, season) => total + season.requiredContracts, 0)
+  const optionalContracts = scope.seasons.reduce((total, season) => total + season.optionalContracts, 0)
+  return {
+    ...scope.firstFullCampaignHours,
+    seasons: scope.seasons.length,
+    requiredContracts,
+    optionalContracts,
+    totalContracts: requiredContracts + optionalContracts,
+  }
+}
+
+export function seedCollectionAppraisal(inventory, save, selectedSeed = inventory[0]) {
+  const families = Array.from(new Set(inventory.map((seed) => seed.family ?? 'unknown')))
+  const materials = Object.entries(save.materials ?? {}).filter(([, value]) => value > 0)
+  return {
+    gathered: inventory.length,
+    identifiedFamilies: families,
+    curatedSeed: selectedSeed?.name ?? 'No seed selected',
+    playableVoices: inventory.map((seed) => seed.name),
+    restorationUse: materials.length
+      ? `Exchange ${materials.map(([key, value]) => `${value} ${key}`).join(', ')} for tuning and restoration work.`
+      : 'Restore contracts to gather tuning exchange materials.',
+    commerceBoundary: 'Exchange remains restoration support, not museum commerce.',
+  }
+}
+
+export function stewardshipSummary(chambers, save) {
+  const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
+  const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))
+  const availableMaterials = Object.entries(save.materials ?? {}).filter(([, value]) => value > 0)
+  return {
+    restoredCount: restored.length,
+    totalCount: chambers.length,
+    lowRatedTitles: lowRated.map((chamber) => chamber.title),
+    materialSummary: availableMaterials.length ? availableMaterials.map(([key, value]) => `${key} ${value}`).join(', ') : 'no stewardship materials yet',
+    nextAction: lowRated.length ? `Revisit ${lowRated[0].title} for a stronger restoration.` : 'Choose the next available work order.',
+  }
+}
+
+export function decisionSummary(chambers, solvedIds) {
+  const available = availableChambers(chambers, solvedIds).filter((chamber) => !solvedIds.includes(chamber.id))
+  const required = available.filter((chamber) => !chamber.optional)
+  const optional = available.filter((chamber) => chamber.optional)
+  return {
+    requiredChoices: required.map((chamber) => chamber.title),
+    optionalChoices: optional.map((chamber) => chamber.title),
+    recommendation: required[0]?.title ?? optional[0]?.title ?? 'Review restored chambers or compose in the Conservatory.',
+  }
+}
+
 export function restorationRating(result) {
   if (!result.solved) return 'Dormant'
   if (result.score >= 0.96) return 'Resonant'

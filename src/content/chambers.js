@@ -1,5 +1,21 @@
 import { createSeedDNA } from './seeds.js'
 
+export function solveTimeText(chamber) {
+  const { min, max } = chamber.solveTimeMinutes
+  return min === max ? `${min} minute solve` : `${min} to ${max} minute solve`
+}
+
+export const campaignScope = {
+  firstFullCampaignHours: { min: 6, max: 10 },
+  seasons: [
+    { id: 1, name: 'Intake and Orientation', requiredContracts: 8, optionalContracts: 2 },
+    { id: 2, name: 'Rootworks', requiredContracts: 8, optionalContracts: 4 },
+    { id: 3, name: 'Glass Weather', requiredContracts: 8, optionalContracts: 4 },
+    { id: 4, name: 'Memory Orchard', requiredContracts: 8, optionalContracts: 4 },
+    { id: 5, name: 'Verdancy Heart', requiredContracts: 8, optionalContracts: 4 },
+  ],
+}
+
 export const chambers = [
   {
     id: 'tutorial',
@@ -12,6 +28,7 @@ export const chambers = [
     start: { x: 0, y: -2, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
     rewards: { codex: ['first-breath'], materials: { biomass: 1 } },
   },
@@ -26,6 +43,7 @@ export const chambers = [
     start: { x: -3, y: -3, facing: 45 },
     target: { x: 1, y: 1, pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 5, max: 7 },
     tolerances: { position: 1.2, pitchRatio: 0.2, pulseRate: 0.5, brightness: 0.25, phase: 180 },
     requires: ['tutorial'],
     rewards: { codex: ['intake-lung'], materials: { biomass: 2 } },
@@ -41,6 +59,7 @@ export const chambers = [
     start: { x: 3, y: 0, facing: 270 },
     target: { x: -2, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.2, pitchRatio: 0.2, pulseRate: 0.5, brightness: 0.25, phase: 180 },
     requires: ['direction'],
     rewards: { codex: ['navigation-grove'], materials: { crystal: 1 } },
@@ -56,6 +75,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 1, pitchRatio: 1.5, pulseRate: 1, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.08, pulseRate: 0.6, brightness: 0.3, phase: 180 },
     requires: ['binaural'],
     rewards: { codex: ['water-pumps'], materials: { biomass: 1, crystal: 1 } },
@@ -71,6 +91,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 2, brightness: 0.45, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.2, brightness: 0.3, phase: 180 },
     requires: ['pitch'],
     rewards: { codex: ['canopy-pulse'], materials: { biomass: 2 } },
@@ -86,6 +107,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.8, phase: 0 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.08, phase: 180 },
     requires: ['rhythm'],
     rewards: { codex: ['glass-leaves'], materials: { crystal: 2 } },
@@ -101,6 +123,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1.25, pulseRate: 1.5, brightness: 0.58, phase: 45 },
     requiredSeeds: 2,
+    solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 2, pitchRatio: 0.3, pulseRate: 0.6, brightness: 0.25, phase: 180 },
     harmonic: true,
     optional: true,
@@ -118,6 +141,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 180 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.3, phase: 20 },
     requires: ['timbre'],
     rewards: { codex: ['quiet-mirror'], materials: { memory: 2 } },
@@ -133,6 +157,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 0, y: 0, pitchRatio: 1.25, pulseRate: 1.5, brightness: 0.58, phase: 45 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.35, brightness: 0.2, phase: 100 },
     requiresGraft: true,
     optional: true,
@@ -150,6 +175,7 @@ export const chambers = [
     start: { x: 0, y: -3, facing: 0 },
     target: { x: 1, y: 0, pitchRatio: 2, pulseRate: 2, brightness: 0.7, phase: 90 },
     requiredSeeds: 1,
+    solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.12, pulseRate: 0.4, brightness: 0.2, phase: 120 },
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     requires: ['phase'],
@@ -166,6 +192,7 @@ export const chambers = [
     start: { x: 0, y: -4, facing: 0 },
     target: { x: 2, y: 1, pitchRatio: 1.5, pulseRate: 2.5, brightness: 0.75, phase: 90 },
     requiredSeeds: 2,
+    solveTimeMinutes: { min: 9, max: 10 },
     tolerances: { position: 1.2, pitchRatio: 0.16, pulseRate: 0.3, brightness: 0.12, phase: 45 },
     harmonic: true,
     requiresGraft: true,
