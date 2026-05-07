@@ -190,6 +190,26 @@ export function seedBrightnessFilterScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedEnvelopeShapeScanState(seed = {}) {
+  const envelope = {
+    attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
+    decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
+    sustain: clamp(Number(seed.envelope?.sustain ?? 0.5), 0.1, 1),
+    release: clamp(Number(seed.envelope?.release ?? 0.25), 0.05, 1),
+  }
+  const bloom = envelope.attack <= 0.03 ? 'quick bloom' : envelope.attack >= 0.12 ? 'slow bloom' : 'medium bloom'
+  const body = envelope.sustain >= 0.7 ? 'full body' : envelope.sustain <= 0.35 ? 'thin body' : 'balanced body'
+  const tail = envelope.release >= 0.35 ? 'long tail' : envelope.release <= 0.12 ? 'short tail' : 'medium tail'
+
+  return {
+    body,
+    bloom,
+    envelope,
+    tail,
+    text: `Envelope shape: attack ${envelope.attack}, decay ${envelope.decay}, sustain ${envelope.sustain}, release ${envelope.release}; ${bloom}, ${body}, ${tail}.`,
+  }
+}
+
 export function seedSubstrateScanState(seed = {}, chamber = {}) {
   const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
   const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
@@ -227,6 +247,7 @@ export function seedNearbyInteractionState(seed = {}, plantedSeeds = []) {
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     brightnessFilterState: seedBrightnessFilterScanState(seed, chamber),
+    envelopeShapeState: seedEnvelopeShapeScanState(seed),
     family: seed.family ?? 'unknown family',
     familyState: seedFamilyScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
@@ -241,7 +262,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

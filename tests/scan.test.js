@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -55,6 +55,7 @@ describe('scan pulse', () => {
         brightness: 0.45,
         ecologicalAffinity: 'oxygen and stable pitch',
         discoveredOrigin: 'Intake lung',
+        envelope: { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 },
         family: 'Sol',
         name: 'Sol phonoseed',
         phase: 0,
@@ -69,6 +70,7 @@ describe('scan pulse', () => {
     expect(seedScan.seeds[0]).toMatchObject({
       family: 'Sol',
       brightnessFilterState: { brightness: 0.45, cutoffHz: 3120, delta: 0, withinTolerance: undefined },
+      envelopeShapeState: { bloom: 'quick bloom', body: 'balanced body', tail: 'medium tail' },
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
       nearbyState: { nearby: [] },
       position: { x: 0, y: 1 },
@@ -85,6 +87,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
     expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
+    expect(seedScan.text).toContain('Envelope shape: attack 0.02, decay 0.12, sustain 0.5, release 0.25; quick bloom, balanced body, medium tail.')
     expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
@@ -137,6 +140,21 @@ describe('scan pulse', () => {
     ])
     expect(filter.text).toContain('inside filter tolerance 0.08')
     expect(filter.text).toContain('brightness/timbre needs 0.72 with triangle or sawtooth timbre, open')
+  })
+
+  it('reports a reusable envelope shape scan state', () => {
+    const envelope = seedEnvelopeShapeScanState({
+      envelope: { attack: 0.16, decay: 0.2, sustain: 0.8, release: 0.08 },
+    })
+
+    expect(envelope).toMatchObject({
+      bloom: 'slow bloom',
+      body: 'full body',
+      envelope: { attack: 0.16, decay: 0.2, sustain: 0.8, release: 0.08 },
+      tail: 'short tail',
+    })
+    expect(envelope.text).toContain('Envelope shape: attack 0.16, decay 0.2, sustain 0.8, release 0.08')
+    expect(envelope.text).toContain('slow bloom, full body, short tail')
   })
 
   it('reports chamber substrate and mutation pressure for planted seeds', () => {
