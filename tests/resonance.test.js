@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -70,6 +70,28 @@ describe('resonance evaluation', () => {
     expect(efficient.ratingContribution).toContain('stronger restoration ratings')
     expect(messy.band).toBe('messy')
     expect(messy.text).toContain('weakens high-rating stewardship')
+  })
+
+  it('summarizes graft stability from planted seed ancestry', () => {
+    const chamber = chambers.find((item) => item.requiresGraft)
+    const graft = createSeedDNA('catalogued-graft', {
+      discoveryId: 'sol-lumen',
+      graftAncestry: ['Sol', 'Lumen'],
+      grafted: true,
+      pitchRatio: chamber.target.pitchRatio,
+      pulseRate: chamber.target.pulseRate,
+      brightness: chamber.target.brightness,
+      phase: chamber.target.phase,
+      position: chamber.target,
+    })
+    const missing = graftStabilitySummary(chamber, [])
+    const result = evaluateResonance(chamber, [graft])
+
+    expect(missing.band).toBe('missing')
+    expect(missing.stable).toBe(false)
+    expect(result.graftStability.band).toBe('catalogued')
+    expect(result.graftStability.stable).toBe(true)
+    expect(result.graftStability.ratingContribution).toContain('stronger restoration ratings')
   })
 
   it('treats Stable required restorations as online campaign progression', () => {

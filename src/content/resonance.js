@@ -148,9 +148,37 @@ export function seedMoveSummary(chamber, moveCount = 0) {
   }
 }
 
+export function graftStabilitySummary(chamber, plantedSeeds = []) {
+  const grafts = plantedSeeds.filter((seed) => seed.grafted)
+  const requiresGraft = Boolean(chamber.requiresGraft)
+  const catalogued = grafts.filter((seed) => seed.discoveryId && seed.graftAncestry?.length >= 2)
+  const band = grafts.length
+    ? catalogued.length === grafts.length ? 'catalogued' : 'viable'
+    : requiresGraft ? 'missing' : 'not needed'
+  const stable = !requiresGraft || grafts.length > 0
+  const ratingContribution = band === 'catalogued'
+    ? 'supports stronger restoration ratings'
+    : band === 'viable'
+      ? 'keeps graft-dependent restoration stable'
+      : band === 'missing'
+        ? 'blocks graft-dependent restoration'
+        : 'neutral for this contract'
+
+  return {
+    band,
+    cataloguedGrafts: catalogued.length,
+    dimension: 'Graft stability',
+    grafts: grafts.length,
+    ratingContribution,
+    requiresGraft,
+    stable,
+    text: `Graft stability ${band}; ${grafts.length} grafted seed(s), ${catalogued.length} catalogued; ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
-    return { accuracy: resonanceAccuracySummary(0), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
+    return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
   }
 
   const ecology = averageSeeds(plantedSeeds)
@@ -191,6 +219,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     solved: missing.length === 0,
     score: roundedScore,
     accuracy: resonanceAccuracySummary(roundedScore),
+    graftStability: graftStabilitySummary(chamber, plantedSeeds),
     missing,
     ecology,
     photosynthesis,
