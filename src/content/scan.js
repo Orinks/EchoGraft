@@ -89,9 +89,23 @@ export function seedPositionState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedFamilyScanState(seed = {}) {
+  const family = seed.family ?? 'unknown family'
+  const affinity = seed.ecologicalAffinity ?? 'unmapped ecology'
+  const origin = seed.discoveredOrigin ?? 'unknown origin'
+
+  return {
+    affinity,
+    family,
+    origin,
+    text: `Seed family: ${family}; affinity ${affinity}; discovered origin ${origin}.`,
+  }
+}
+
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     family: seed.family ?? 'unknown family',
+    familyState: seedFamilyScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
     position: seed.position ?? { x: 0, y: 0 },
     positionState: seedPositionState(seed, chamber),
@@ -108,7 +122,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} family ${seed.family}; traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
