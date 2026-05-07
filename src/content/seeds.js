@@ -460,7 +460,7 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
     discoveryId: discovery?.id,
     waveform: seedA.waveform,
     oscillatorType: seedB.oscillatorType,
-    pitchRatio: Number(((seedA.pitchRatio + seedB.pitchRatio) / 2).toFixed(2)),
+    pitchRatio: seedA.pitchRatio,
     brightness: Number(((seedA.brightness + seedB.brightness) / 2).toFixed(2)),
     fmAmount: Math.max(seedA.fmAmount, seedB.fmAmount),
     amAmount: Math.max(seedA.amAmount, seedB.amAmount),
@@ -479,6 +479,7 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   const discoveries = graftDiscoveries(seed)
   const record = graftRecordForSeed(seed)
   const inheritedTraits = [
+    `root pitch ${seed.pitchRatio} from ${seedA.name}`,
     `waveform ${seed.waveform} from ${seedA.name}`,
     `synth ${seed.oscillatorType} from ${seedB.name}`,
     `growth ${seed.growthBehavior} from ${seedB.name}`,

@@ -276,10 +276,24 @@ describe('seed DNA', () => {
   it('creates a grafted hybrid', () => {
     const graft = graftSeeds(createSeedDNA('a', { pitchRatio: 1 }), createSeedDNA('b', { pitchRatio: 2 }))
     expect(graft.grafted).toBe(true)
-    expect(graft.pitchRatio).toBe(1.5)
+    expect(graft.pitchRatio).toBe(1)
     expect(graft.lineageHistory.length).toBeGreaterThan(2)
     expect(seedLineageText(graft)).toContain('Graft ancestry')
     expect(graftDiscoveries(graft)).toContain('hybrid resonance planting')
+  })
+
+  it('uses parent A for graft root pitch and waveform', () => {
+    const parentA = createSeedDNA('parent-a', { name: 'Parent A', pitchRatio: 0.75, waveform: 'square' })
+    const parentB = createSeedDNA('parent-b', { name: 'Parent B', pitchRatio: 2, waveform: 'triangle' })
+    const report = graftSeedsWithReport(parentA, parentB, 'pitch-waveform-graft')
+
+    expect(report.seed.pitchRatio).toBe(0.75)
+    expect(report.seed.waveform).toBe('square')
+    expect(report.inheritedTraits).toEqual(expect.arrayContaining([
+      'root pitch 0.75 from Parent A',
+      'waveform square from Parent A',
+    ]))
+    expect(report.text).toContain('root pitch 0.75 from Parent A')
   })
 
   it('reports graft ancestry as parent seed lines and archive record', () => {
