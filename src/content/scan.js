@@ -148,6 +148,13 @@ function tuningDelta(value, target) {
   return Number((value - target).toFixed(3))
 }
 
+function matchBand(delta, tolerance) {
+  const magnitude = Math.abs(delta)
+  if (magnitude <= tolerance * 0.25) return 'matched'
+  if (magnitude <= tolerance) return 'close'
+  return 'off target'
+}
+
 export function seedTuningScanState(seed = {}, chamber = {}) {
   const target = chamber.target ?? {}
   const traits = {
@@ -170,6 +177,26 @@ export function seedTuningScanState(seed = {}, chamber = {}) {
     lockedTraits,
     traits,
     text: `Tuning state: pitch ${traits.pitchRatio}${Number.isFinite(deltas.pitchRatio) ? ` (delta ${deltas.pitchRatio})` : ''}, pulse ${traits.pulseRate}${Number.isFinite(deltas.pulseRate) ? ` (delta ${deltas.pulseRate})` : ''}, brightness ${traits.brightness}${Number.isFinite(deltas.brightness) ? ` (delta ${deltas.brightness})` : ''}, phase ${traits.phase}${Number.isFinite(deltas.phase) ? ` (delta ${deltas.phase})` : ''}, waveform ${traits.waveform}; locked traits ${lockedTraits.length ? lockedTraits.join(', ') : 'none'}.`,
+  }
+}
+
+export function seedPitchMatchScanState(seed = {}, chamber = {}) {
+  const pitchRatio = Number(seed.pitchRatio ?? 1)
+  const target = chamber.target?.pitchRatio
+  const tolerance = chamber.tolerances?.pitchRatio ?? 0.25
+  const delta = tuningDelta(pitchRatio, target)
+  const score = Number.isFinite(delta) ? Number(clamp(1 - Math.abs(delta) / Math.max(tolerance, 0.001)).toFixed(3)) : undefined
+  const band = Number.isFinite(delta) ? matchBand(delta, tolerance) : 'unscored'
+
+  return {
+    band,
+    delta,
+    pitchRatio,
+    score,
+    target,
+    tolerance,
+    withinTolerance: Number.isFinite(delta) ? Math.abs(delta) <= tolerance : undefined,
+    text: `Pitch match: ${band}; pitch ${pitchRatio}${Number.isFinite(target) ? ` vs target ${target}, delta ${delta}, score ${score}` : ''}; tolerance ${tolerance}.`,
   }
 }
 
@@ -334,6 +361,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     name: seed.name ?? seed.id ?? 'unknown seed',
     nearbyState: seedNearbyInteractionState(seed, plantedSeeds),
     noiseAmountState: seedNoiseAmountScanState(seed),
+    pitchMatchState: seedPitchMatchScanState(seed, chamber),
     position: seed.position ?? { x: 0, y: 0 },
     positionMatchState: seedPositionMatchScanState(seed, chamber),
     positionState: seedPositionState(seed, chamber),
@@ -346,7 +374,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

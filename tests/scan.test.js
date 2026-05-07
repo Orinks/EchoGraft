@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPositionMatchScanState, seedPositionState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedNearbyInteractionState, seedNoiseAmountScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -80,6 +80,7 @@ describe('scan pulse', () => {
       fmDepthState: { band: 'light FM shimmer', carrier: 'primary FM synth route', fmDepth: 0.2 },
       nearbyState: { nearby: [] },
       noiseAmountState: { carrier: 'secondary masking layer', noiseAmount: 0.12, texture: 'light breath grain' },
+      pitchMatchState: { band: 'matched', delta: 0, pitchRatio: 1, score: 1, target: 1, tolerance: 0.25, withinTolerance: true },
       position: { x: 0, y: 1 },
       positionMatchState: { band: 'close', distance: 1, score: 0.333, tolerance: 1.5, withinTolerance: true },
       positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
@@ -97,6 +98,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
+    expect(seedScan.text).toContain('Pitch match: matched; pitch 1 vs target 1, delta 0, score 1; tolerance 0.25.')
     expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
     expect(seedScan.text).toContain('Envelope shape: attack 0.02, decay 0.12, sustain 0.5, release 0.25; quick bloom, balanced body, medium tail.')
     expect(seedScan.text).toContain('FM depth: 0.2; light FM shimmer; primary FM synth route.')
@@ -130,6 +132,24 @@ describe('scan pulse', () => {
     expect(tuning.deltas).toMatchObject({ brightness: 0.15, phase: 90, pitchRatio: 0.25, pulseRate: 0 })
     expect(tuning.lockedTraits).toEqual(['pitchRatio'])
     expect(tuning.text).toContain('locked traits pitchRatio')
+  })
+
+  it('reports a reusable pitch match score', () => {
+    const pitch = seedPitchMatchScanState(
+      { pitchRatio: 1.12 },
+      { target: { pitchRatio: 1 }, tolerances: { pitchRatio: 0.24 } },
+    )
+
+    expect(pitch).toMatchObject({
+      band: 'close',
+      delta: 0.12,
+      pitchRatio: 1.12,
+      score: 0.5,
+      target: 1,
+      tolerance: 0.24,
+      withinTolerance: true,
+    })
+    expect(pitch.text).toBe('Pitch match: close; pitch 1.12 vs target 1, delta 0.12, score 0.5; tolerance 0.24.')
   })
 
   it('reports a reusable brightness filter state with chamber gates', () => {
