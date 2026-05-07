@@ -1,11 +1,11 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText, weatherWindowState } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -447,6 +447,11 @@ app.addEventListener('click', async (event) => {
     const next = chambers.find((item) => item.id === event.target.dataset.contract)
     if (next && unlockedContracts().some((item) => item.id === next.id)) startChamber(next)
   }
+  if (action === 'returnContract') {
+    const returns = optionalReturnContracts(chambers, save)
+    const next = returns.find((item) => item.id === event.target.dataset.contract)
+    if (next) startChamber(chambers.find((item) => item.id === next.id))
+  }
 })
 
 app.addEventListener('input', (event) => {
@@ -557,6 +562,7 @@ function atlas() {
   const plan = restorationPlanningSession(chambers, save.solvedChambers, { min: 20, max: 40 }, save.arkClock)
   const campaign = firstFullCampaignEstimate(campaignScope)
   const stewardship = stewardshipSummary(chambers, save)
+  const returnContracts = optionalReturnContracts(chambers, save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -580,6 +586,10 @@ function atlas() {
         <h2 id="stewardship-title">Stewardship Review</h2>
         <p>${stewardship.restoredCount} of ${stewardship.totalCount} contracts restored. Materials: ${stewardship.materialSummary}.</p>
         <p>${stewardship.nextAction}</p>
+      </section>
+      <section aria-labelledby="return-contracts-title">
+        <h2 id="return-contracts-title">Optional Return Contracts</h2>
+        ${returnContracts.length ? `<ol>${returnContracts.map((item) => `<li>${item.text} <button data-action="returnContract" data-contract="${item.id}">Return to ${item.title}</button></li>`).join('')}</ol>` : '<p>No low-rated restored chambers need return work.</p>'}
       </section>
       <section aria-labelledby="decision-title">
         <h2 id="decision-title">Decision Point</h2>
@@ -625,6 +635,8 @@ function atlas() {
 function library() {
   audio.setMusicScene('menu')
   const appraisal = seedCollectionAppraisal(inventory, save, currentSeed())
+  const dreamCompost = dreamCompostSummary(save)
+  const pollinatorVault = pollinatorVaultSummary(save)
   shell(`
     <main class="screen" aria-labelledby="library-title">
       <h1 id="library-title">Seed Library</h1>
@@ -634,6 +646,8 @@ function library() {
         <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
         <p>Curated seed: ${appraisal.curatedSeed}. Playable voices: ${appraisal.playableVoices.join(', ')}.</p>
         <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
+        <p>${dreamCompost.text}</p>
+        <p>${pollinatorVault.text}</p>
       </section>
       <section aria-labelledby="tuning-title">
         <h2 id="tuning-title">Tuning DNA</h2>
@@ -665,10 +679,11 @@ function library() {
 
 function codex() {
   audio.setMusicScene('menu')
+  const trees = codexRecordTrees(codexRecords, save.codexIds)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
-      ${save.codexIds.length ? `<ol>${save.codexIds.map((id) => `<li><h2>${codexRecords[id]?.title ?? id}</h2><p>${codexRecords[id]?.text ?? 'Recovered record.'}</p></li>`).join('')}</ol>` : '<p>No perceptions recovered yet.</p>'}
+      ${trees.length ? trees.map((tree) => `<section aria-labelledby="codex-${tree.id}"><h2 id="codex-${tree.id}">${tree.title}</h2><ol>${tree.records.map((record) => `<li><h3>${record.title ?? record.id}</h3><p>${record.text ?? 'Recovered record.'}</p></li>`).join('')}</ol></section>`).join('') : '<p>No perceptions recovered yet.</p>'}
       <button data-action="atlas">Atlas</button>
       <button data-action="game">Back to chamber</button>
     </main>

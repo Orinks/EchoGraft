@@ -45,7 +45,7 @@ describe('save system', () => {
     const loaded = loadSave(storage)
     expect(loaded.arkClock).toBe(0)
     expect(loaded.endgameResolution).toBeNull()
-    expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, memory: 0, spores: 0 })
+    expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, dreamCompost: 0, glassPollen: 0, memory: 0, spores: 0 })
     expect(loaded.environmentalChanges).toEqual([])
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)

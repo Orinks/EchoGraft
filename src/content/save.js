@@ -11,6 +11,8 @@ export function createDefaultSave() {
     materials: {
       biomass: 0,
       crystal: 0,
+      dreamCompost: 0,
+      glassPollen: 0,
       memory: 0,
       spores: 0,
     },

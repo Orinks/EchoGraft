@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -45,6 +45,27 @@ describe('resonance evaluation', () => {
 
     expect(fungusRelays.rewards.materials.spores).toBeGreaterThan(0)
     expect(next.materials.spores).toBe(3)
+  })
+
+  it('turns Dream Compost into a specific research material', () => {
+    const save = createDefaultSave()
+    const dreamCompost = chambers.find((chamber) => chamber.id === 'dream-compost')
+    const next = mergeRewards(save, dreamCompost, 'Stable')
+
+    expect(dreamCompost.rewards.materials.dreamCompost).toBe(1)
+    expect(next.materials.dreamCompost).toBe(1)
+    expect(dreamCompostSummary(next).text).toContain('safer graft experiments')
+  })
+
+  it('authors Pollinator Vault as a glass pollen reward contract', () => {
+    const save = createDefaultSave()
+    const vault = chambers.find((chamber) => chamber.id === 'orchard-gate')
+    const next = mergeRewards(save, vault, 'Stable')
+
+    expect(vault.title).toBe('Contract 23: Pollinator Vault')
+    expect(vault.mechanic).toBe('pollinator vault alignment')
+    expect(next.materials.glassPollen).toBe(1)
+    expect(pollinatorVaultSummary(next).text).toContain('brightness and timbre')
   })
 
   it('gathers seed rewards once into the inventory', () => {
@@ -149,6 +170,13 @@ describe('resonance evaluation', () => {
     expect(records.length).toBeGreaterThanOrEqual(80)
     expect(records.length).toBeLessThanOrEqual(120)
     expect(records.every((record) => record.title && record.text)).toBe(true)
+  })
+
+  it('organizes recovered records into navigable record trees', () => {
+    const trees = codexRecordTrees(codexRecords, ['first-breath', 'gardener-note-01', 'crew-message-01', 'plant-memory-01'])
+
+    expect(trees.map((tree) => tree.id)).toEqual(['gardener-notes', 'crew-messages', 'plant-memory', 'restoration-records'])
+    expect(trees.find((tree) => tree.id === 'restoration-records').records[0].id).toBe('first-breath')
   })
 
   it('authors Intake Lung as an intake restoration contract', () => {
@@ -358,6 +386,17 @@ describe('resonance evaluation', () => {
     expect(summary.totalCount).toBe(chambers.length)
     expect(summary.materialSummary).toContain('biomass 1')
     expect(summary.nextAction).toContain('Revisit')
+  })
+
+  it('offers optional return contracts for earlier low-rated restorations', () => {
+    const save = createDefaultSave()
+    save.solvedChambers = ['tutorial', 'direction']
+    save.ratings = { tutorial: 'Restored', direction: 'Stable' }
+    const returns = optionalReturnContracts(chambers, save)
+
+    expect(returns).toHaveLength(1)
+    expect(returns[0]).toMatchObject({ id: 'tutorial', optional: true, returnContract: true, currentRating: 'Restored', targetRating: 'Stable' })
+    expect(returns[0].text).toContain('Optional return contract')
   })
 
   it('summarizes available decisions without hiding optional work', () => {

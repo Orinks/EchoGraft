@@ -218,6 +218,28 @@ export function seedCollectionAppraisal(inventory, save, selectedSeed = inventor
   }
 }
 
+export function dreamCompostSummary(save) {
+  const count = save.materials?.dreamCompost ?? 0
+  return {
+    count,
+    available: count > 0,
+    text: count > 0
+      ? `Dream compost ${count}: convert corrupted memory into safer graft experiments and ancestry research.`
+      : 'Dream compost: none recovered yet; restore Dream Compost to unlock this research material.',
+  }
+}
+
+export function pollinatorVaultSummary(save) {
+  const count = save.materials?.glassPollen ?? 0
+  return {
+    count,
+    available: count > 0,
+    text: count > 0
+      ? `Pollinator vault: ${count} glass pollen available for brightness and timbre trait work.`
+      : 'Pollinator vault: sealed until the Memory Orchard vault contract yields glass pollen.',
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))
@@ -229,6 +251,21 @@ export function stewardshipSummary(chambers, save) {
     materialSummary: availableMaterials.length ? availableMaterials.map(([key, value]) => `${key} ${value}`).join(', ') : 'no stewardship materials yet',
     nextAction: lowRated.length ? `Revisit ${lowRated[0].title} for a stronger restoration.` : 'Choose the next available work order.',
   }
+}
+
+export function optionalReturnContracts(chambers, save) {
+  const solved = new Set(save.solvedChambers)
+  return chambers
+    .filter((chamber) => solved.has(chamber.id))
+    .filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))
+    .map((chamber) => ({
+      ...chamber,
+      optional: true,
+      returnContract: true,
+      currentRating: save.ratings[chamber.id] ?? 'Restored',
+      targetRating: 'Stable',
+      text: `Optional return contract: improve ${chamber.title} from ${save.ratings[chamber.id] ?? 'Restored'} toward Stable or Resonant by refining placement, tuning, graft stability, or hazard containment.`,
+    }))
 }
 
 export function decisionSummary(chambers, solvedIds) {

@@ -647,7 +647,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 32 },
     requires: ['ancestor-filter'],
-    rewards: { materials: { biomass: 2, memory: 1 } },
+    rewards: { materials: { biomass: 2, dreamCompost: 1, memory: 1 } },
   },
   {
     id: 'optional-pastoral-loop',
@@ -669,19 +669,19 @@ export const chambers = [
   },
   {
     id: 'orchard-gate',
-    title: 'Contract 23: Orchard Gate',
+    title: 'Contract 23: Pollinator Vault',
     season: 4,
     system: 'Memory Orchard',
     contractType: 'restoration',
-    mechanic: 'gate phase alignment',
-    objective: 'Open the orchard gate by lining memory phase with a bright navigation tone.',
+    mechanic: 'pollinator vault alignment',
+    objective: 'Open the pollinator vault by lining memory phase with a bright navigation tone.',
     start: { x: 4, y: -3, facing: 300 },
     target: { x: -1, y: 1, pitchRatio: 1.5, pulseRate: 1.75, brightness: 0.7, phase: 180 },
     requiredSeeds: 1,
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.3, pitchRatio: 0.12, pulseRate: 0.22, brightness: 0.12, phase: 34 },
     requires: ['dream-compost'],
-    rewards: { materials: { crystal: 1, memory: 2 } },
+    rewards: { materials: { crystal: 1, glassPollen: 1, memory: 2 } },
   },
   {
     id: 'optional-mirror-return',
@@ -929,4 +929,34 @@ export const codexRecords = {
     text: 'The heart is not a final room. It is a mixer, asking what kind of greenhouse the player has composed.',
   },
   ...codexPerceptions,
+}
+
+export const codexRecordTreeBranches = [
+  { id: 'gardener-notes', title: 'Gardener Notes', prefix: 'gardener-note' },
+  { id: 'crew-messages', title: 'Crew Messages', prefix: 'crew-message' },
+  { id: 'plant-memory', title: 'Plant Memory', prefix: 'plant-memory' },
+  { id: 'system-diagnostics', title: 'System Diagnostics', prefix: 'system-diagnostic' },
+  { id: 'seed-ancestry', title: 'Seed Ancestry', prefix: 'seed-ancestry' },
+  { id: 'ending-reflections', title: 'Ending Reflections', prefix: 'ending-reflection' },
+  { id: 'perceptions', title: 'Perceptions', prefix: 'perception' },
+]
+
+export function codexRecordTrees(records = codexRecords, unlockedIds = Object.keys(records)) {
+  const unlocked = new Set(unlockedIds)
+  const branches = codexRecordTreeBranches.map((branch) => ({
+    ...branch,
+    records: Object.entries(records)
+      .filter(([id]) => unlocked.has(id) && id.startsWith(branch.prefix))
+      .map(([id, record]) => ({ id, ...record })),
+  }))
+
+  branches.push({
+    id: 'restoration-records',
+    title: 'Restoration Records',
+    records: Object.entries(records)
+      .filter(([id]) => unlocked.has(id) && !codexRecordTreeBranches.some((branch) => id.startsWith(branch.prefix)))
+      .map(([id, record]) => ({ id, ...record })),
+  })
+
+  return branches.filter((branch) => branch.records.length)
 }
