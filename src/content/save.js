@@ -1,9 +1,12 @@
+import { defaultProceduralSeed } from './rng.js'
+
 export const saveKey = 'echograft-save-v1'
 
 export function createDefaultSave() {
   return {
     version: 1,
     arkClock: 0,
+    proceduralSeed: defaultProceduralSeed,
     currentChamberId: 'tutorial',
     codexIds: [],
     endgameResolution: null,

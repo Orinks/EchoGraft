@@ -9,12 +9,14 @@ import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
+import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
 let save = loadSave()
+setProceduralSeed(save.proceduralSeed)
 let audio = new AudioEngine(save.settings)
 let screen = 'splash'
 let chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
@@ -128,6 +130,7 @@ function hydrateRuntimeSave(nextSave = {}) {
 
 function importRuntimeState(state = {}) {
   save = hydrateRuntimeSave(state.save)
+  setProceduralSeed(save.proceduralSeed)
   audio.setSettings(save.settings)
   chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
   player = state.player ?? createPlayer(chamber.start)
@@ -146,6 +149,7 @@ function importRuntimeState(state = {}) {
 function resetRuntimeState() {
   audio.clearSeedObjects()
   save = createDefaultSave()
+  setProceduralSeed(save.proceduralSeed)
   audio.setSettings(save.settings)
   chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
   player = createPlayer(chamber.start)
@@ -191,6 +195,7 @@ function newGame() {
   clearSave()
   audio.clearSeedObjects()
   save = createDefaultSave()
+  setProceduralSeed(save.proceduralSeed)
   audio.setSettings(save.settings)
   inventory = buildInventory()
   selectedSeedIndex = 0

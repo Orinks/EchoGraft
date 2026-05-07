@@ -710,7 +710,7 @@ export function graftDiscoveries(seed) {
   const discoveries = ['hybrid resonance planting']
   if (seed.fmAmount >= 0.4) discoveries.push('FM pressure grafting')
   if (seed.amAmount >= 0.4) discoveries.push('AM current shaping')
-  if (seed.noiseAmount >= 0.2) discoveries.push('noise-bed masking')
+  if (seed.noiseAmount >= 0.2 || seed.ecologicalAffinity?.toLowerCase().includes('noise')) discoveries.push('noise-bed masking')
   if (seed.growthBehavior === 'twining') discoveries.push('twined multi-position growth')
   return discoveries
 }

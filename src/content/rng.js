@@ -1,3 +1,14 @@
+import { syngen } from '../engine/syngen.js'
+
+export const defaultProceduralSeed = 'echograft-verdancy-ark'
+let proceduralSeed = defaultProceduralSeed
+
+export function setProceduralSeed(seed = defaultProceduralSeed) {
+  proceduralSeed = seed
+  syngen?.seed?.set?.(seed)
+  return proceduralSeed
+}
+
 export function hashSeed(input) {
   let hash = 2166136261
   for (const char of String(input)) {
@@ -8,7 +19,8 @@ export function hashSeed(input) {
 }
 
 export function createRng(seed = 'echograft') {
-  let state = hashSeed(seed) || 1
+  if (syngen?.fn?.srand) return syngen.fn.srand(seed)
+  let state = hashSeed(`${proceduralSeed}:${seed}`) || 1
   return () => {
     state += 0x6d2b79f5
     let next = state

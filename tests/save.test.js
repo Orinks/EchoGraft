@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { defaultProceduralSeed } from '../src/content/rng.js'
 import { createDefaultSave, loadSave, saveGame } from '../src/content/save.js'
 
 function memoryStorage() {
@@ -32,6 +33,7 @@ describe('save system', () => {
     save.codexIds.push('first-breath')
     save.graftRecords.push({ id: 'graft-record-sol-lumen', title: 'Sol-Lumen graft record', text: 'A remembered graft.' })
     save.materials.biomass = 2
+    save.proceduralSeed = 'ark-alpha'
     saveGame(save, storage)
     expect(loadSave(storage).solvedChambers).toEqual(['tutorial'])
     expect(loadSave(storage).arkClock).toBe(2)
@@ -51,6 +53,7 @@ describe('save system', () => {
     expect(loadSave(storage).codexIds).toEqual(['first-breath'])
     expect(loadSave(storage).graftRecords).toHaveLength(1)
     expect(loadSave(storage).materials.biomass).toBe(2)
+    expect(loadSave(storage).proceduralSeed).toBe('ark-alpha')
   })
 
   it('hydrates new campaign fields into older saves', () => {
@@ -74,5 +77,6 @@ describe('save system', () => {
     expect(loaded.ratings).toEqual({})
     expect(loaded.restoredSystems).toEqual([])
     expect(loaded.restorationPhilosophy).toBe('preservation')
+    expect(loaded.proceduralSeed).toBe(defaultProceduralSeed)
   })
 })
