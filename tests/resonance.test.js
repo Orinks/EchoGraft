@@ -642,6 +642,20 @@ describe('resonance evaluation', () => {
     expect(crewTree.records.map((record) => record.title)).toContain('Crew Message 01')
   })
 
+  it('rewards every authored plant memory through campaign chamber solves', () => {
+    const expectedMemories = Array.from({ length: 12 }, (_, index) => `plant-memory-${String(index + 1).padStart(2, '0')}`)
+    const rewardedMemories = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).filter((id) => id.startsWith('plant-memory'))
+    const rewardedMemorySet = new Set(rewardedMemories)
+    const tutorialSave = mergeRewards(createDefaultSave(), chambers.find((chamber) => chamber.id === 'tutorial'), 'Stable')
+    const tutorialTrees = codexRecordTrees(codexRecords, tutorialSave.codexIds)
+    const plantMemoryTree = tutorialTrees.find((tree) => tree.id === 'plant-memory')
+
+    expect(rewardedMemories).toHaveLength(expectedMemories.length)
+    expect([...rewardedMemorySet].sort()).toEqual(expectedMemories)
+    expect(expectedMemories.every((id) => codexRecords[id])).toBe(true)
+    expect(plantMemoryTree.records.map((record) => record.title)).toContain('Plant Memory 01')
+  })
+
   it('authors Intake Lung as an intake restoration contract', () => {
     const intake = chambers.find((chamber) => chamber.id === 'direction')
     expect(intake.title).toBe('Contract 1: Intake Lung')
