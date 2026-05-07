@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -23,6 +23,16 @@ describe('seed DNA', () => {
     const seed = createSeedDNA('tune', { pitchRatio: 1, pulseRate: 1, brightness: 0.5, phase: 0 })
     expect(tuneSeed(seed, 'pitchRatio', 1).pitchRatio).toBe(1.05)
     expect(tuneSeed(seed, 'phase', -1).phase).toBe(345)
+  })
+
+  it('reports pitch ratio as a root interval with optional target delta', () => {
+    const seed = createSeedDNA('pitch-report', { pitchRatio: 1.5 })
+    const state = seedPitchRatioState(seed, 1)
+
+    expect(state.pitchRatio).toBe(1.5)
+    expect(state.targetDelta).toBe(0.5)
+    expect(state.role).toBe(tuningParameterDetails.pitchRatio.role)
+    expect(state.text).toContain('target delta 0.5')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {

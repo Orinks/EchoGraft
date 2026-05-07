@@ -110,7 +110,7 @@ export function normalizeSeed(seed) {
       sustain: clamp(Number(seed.envelope?.sustain ?? 0.5), 0.1, 1),
       release: clamp(Number(seed.envelope?.release ?? 0.25), 0.05, 1),
     },
-    pitchRatio: clamp(Number(seed.pitchRatio), 0.5, 3),
+    pitchRatio: clamp(Number(seed.pitchRatio ?? 1), 0.5, 3),
     brightness: clamp(Number(seed.brightness), 0, 1),
     fmAmount: clamp(Number(seed.fmAmount ?? 0), 0, 1),
     amAmount: clamp(Number(seed.amAmount ?? 0), 0, 1),
@@ -141,6 +141,21 @@ export function seedFamilyState(seed) {
     family,
     origin,
     text: `Seed family: ${family}; affinity ${affinity}; discovered origin ${origin}.`,
+  }
+}
+
+export function seedPitchRatioState(seed, targetPitchRatio) {
+  const pitchRatio = clamp(Number(seed.pitchRatio ?? 1), 0.5, 3)
+  const targetDelta = targetPitchRatio === undefined ? undefined : Number((pitchRatio - targetPitchRatio).toFixed(2))
+  const role = tuningParameterDetails.pitchRatio.role
+
+  return {
+    pitchRatio,
+    role,
+    targetDelta,
+    text: targetDelta === undefined
+      ? `Pitch ratio: ${pitchRatio}; ${role}.`
+      : `Pitch ratio: ${pitchRatio}; target delta ${targetDelta}; ${role}.`,
   }
 }
 
