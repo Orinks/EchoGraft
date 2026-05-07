@@ -582,6 +582,26 @@ export function restoredSystemInheritedTraits(restoredSystems = []) {
     restored.has(system) || Array.from(restored).some((item) => item.toLowerCase().includes(system.toLowerCase())))
 }
 
+export function glassPollenUnlockedTraits(saveOrMaterials = {}) {
+  const materials = saveOrMaterials.materials ?? saveOrMaterials
+  const count = Math.max(0, materials.glassPollen ?? 0)
+  const traits = count > 0
+    ? [
+        { trait: 'brightness bloom tuning', text: 'Glass pollen unlocks brightness bloom tuning for light-reactive seed lines.' },
+        { trait: 'edged timbre inheritance', text: 'Glass pollen unlocks edged timbre inheritance for triangle, sawtooth, and square waveforms.' },
+      ]
+    : []
+
+  return {
+    count,
+    traits,
+    unlocked: traits.length > 0,
+    text: traits.length
+      ? `Glass pollen traits unlocked: ${traits.map((item) => item.trait).join(', ')}.`
+      : 'Glass pollen traits locked: recover glass pollen to unlock brightness and timbre traits.',
+  }
+}
+
 export function rareGraftRewards(seed, discoveries = graftDiscoveries(seed), record = graftRecordForSeed(seed)) {
   const rareSignals = discoveries.filter((discovery) => discovery !== 'hybrid resonance planting')
   const rare = Boolean(record) || rareSignals.length > 0 || (seed.unlockedInheritedTraits?.length ?? 0) > 0
@@ -627,8 +647,10 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   const discoveries = graftDiscoveries(seed)
   const record = graftRecordForSeed(seed)
   const unlockedInheritedTraits = restoredSystemInheritedTraits(options.restoredSystems ?? [])
+  const glassPollenTraits = glassPollenUnlockedTraits(options.materials ?? {}).traits
   const seedWithUnlocks = {
     ...seed,
+    glassPollenTraits,
     unlockedInheritedTraits,
   }
   const rareRewards = rareGraftRewards(seedWithUnlocks, discoveries, record)
@@ -640,6 +662,7 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
     `growth ${seed.growthBehavior} from ${seedB.name}`,
     `envelope attack ${seed.envelope.attack} from ${seedA.name}`,
     ...(seedLockedTraits(seed).length ? [`resin locked ${seedLockedTraits(seed).map(tuningLabel).join(', ')}`] : []),
+    ...glassPollenTraits.map(({ trait }) => `glass pollen unlocked ${trait}`),
     ...unlockedInheritedTraits.map(({ system, trait }) => `restored ${system} unlocked ${trait}`),
   ]
 
@@ -649,6 +672,7 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
     rareRewards,
     record,
     seed: seedWithUnlocks,
+    glassPollenTraits,
     unlockedInheritedTraits,
     text: `First graft: ${seedA.name} plus ${seedB.name} created ${seed.name}. Inherited ${inheritedTraits.join('; ')}. Discovery ${seed.discoveryId ?? 'uncatalogued'}; unlocked ${discoveries.join(', ')}${record ? `; recovered record ${record.title}` : ''}. ${rareRewards.text}`,
   }

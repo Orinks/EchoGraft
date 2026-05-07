@@ -8,7 +8,7 @@ import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rota
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -266,7 +266,7 @@ function lockSelectedTrait() {
 
 function graft() {
   if (inventory.length < 2) return
-  const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`, { restoredSystems: save.restoredSystems })
+  const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`, { materials: save.materials, restoredSystems: save.restoredSystems })
   if (report.status === 'failed') {
     inventory.push(report.noisyTool)
     save.materials.dreamCompost = (save.materials.dreamCompost ?? 0) + report.compostYield
@@ -822,6 +822,7 @@ function library() {
   audio.setMusicScene('menu')
   const appraisal = seedCollectionAppraisal(inventory, save, currentSeed())
   const dreamCompost = dreamCompostSummary(save)
+  const glassPollenTraits = glassPollenUnlockedTraits(save)
   const pollinatorVault = pollinatorVaultSummary(save)
   shell(`
     <main class="screen" aria-labelledby="library-title">
@@ -834,6 +835,7 @@ function library() {
         <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
         <p>${dreamCompost.text}</p>
         <p>${pollinatorVault.text}</p>
+        <p>${glassPollenTraits.text}</p>
       </section>
       <section aria-labelledby="tuning-title">
         <h2 id="tuning-title">Tuning DNA</h2>

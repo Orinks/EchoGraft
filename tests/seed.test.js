@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -280,6 +280,25 @@ describe('seed DNA', () => {
     expect(resinTraitLockState({ materials: { resin: 2 } }, locked, 'pitchRatio').alreadyLocked).toBe(true)
     expect(seedLockedTraits(graft.seed)).toEqual(['pitchRatio'])
     expect(graft.inheritedTraits).toContain('resin locked pitch ratio')
+  })
+
+  it('unlocks brightness and timbre traits from glass pollen', () => {
+    const locked = glassPollenUnlockedTraits({ materials: { glassPollen: 0 } })
+    const unlocked = glassPollenUnlockedTraits({ materials: { glassPollen: 1 } })
+    const report = graftSeedsWithReport(createSeedDNA('glass-parent'), createSeedDNA('pollen-parent'), 'glass-pollen-graft', {
+      materials: { glassPollen: 1 },
+    })
+
+    expect(locked.unlocked).toBe(false)
+    expect(locked.text).toContain('locked')
+    expect(unlocked.unlocked).toBe(true)
+    expect(unlocked.traits.map((item) => item.trait)).toEqual(['brightness bloom tuning', 'edged timbre inheritance'])
+    expect(report.glassPollenTraits).toHaveLength(2)
+    expect(report.inheritedTraits).toEqual(expect.arrayContaining([
+      'glass pollen unlocked brightness bloom tuning',
+      'glass pollen unlocked edged timbre inheritance',
+    ]))
+    expect(report.text).toContain('glass pollen unlocked brightness bloom tuning')
   })
 
   it('unlocks finer brightness tuning after Canopy comes online', () => {
