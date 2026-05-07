@@ -22,6 +22,7 @@ export function createDefaultSave() {
     unlockedGraftMechanics: [],
     ratings: {},
     restoredSystems: [],
+    restorationPhilosophy: 'preservation',
     solvedChambers: [],
     inventoryIds: ['sol', 'lumen', 'umbra'],
     customSeeds: [],

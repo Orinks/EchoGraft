@@ -259,6 +259,30 @@ export function codexRecoverySummary(chambers, save) {
   }
 }
 
+export function centralHeartSummary(chambers, save) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))
+  const heartContracts = chambers.filter((chamber) => chamber.system === 'Verdancy Heart')
+  const central = heartContracts.find((chamber) => chamber.id === 'heart-atria')
+  const finaleBranches = heartContracts.filter((chamber) => chamber.id !== central?.id)
+  const readyBranches = finaleBranches.filter((chamber) => ready.has(chamber.id) && !solved.has(chamber.id))
+  const restoredBranches = finaleBranches.filter((chamber) => solved.has(chamber.id))
+  const online = Boolean(central && solved.has(central.id))
+
+  return {
+    central,
+    finaleBranches,
+    online,
+    readyBranches,
+    restoredBranches,
+    text: online
+      ? `Central Heart online: ${restoredBranches.length} finale branch(es) tuned and ${readyBranches.length} ready for resolution shaping.`
+      : central && ready.has(central.id)
+        ? `Central Heart ready: restore ${central.title} to unlock network resonance and ending preparation.`
+        : `Central Heart dormant: restore Memory Orchard access before the Verdancy Heart can answer.`,
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))

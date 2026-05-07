@@ -55,5 +55,6 @@ describe('save system', () => {
     expect(loaded.unlockedGraftMechanics).toEqual([])
     expect(loaded.ratings).toEqual({})
     expect(loaded.restoredSystems).toEqual([])
+    expect(loaded.restorationPhilosophy).toBe('preservation')
   })
 })

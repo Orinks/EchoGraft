@@ -1,11 +1,11 @@
 import { AudioEngine } from '../engine/audio.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../content/chambers.js'
-import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
+import { chooseEndgameResolution, crewWakeCycleSummary, endgameResolutions, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
-import { availableChambers, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, pollinatorVaultSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -453,6 +453,11 @@ app.addEventListener('click', async (event) => {
   if (action === 'compose') composeConservatory()
   if (action === 'restore') restoreChamber()
   if (action === 'advanceClock') advanceArkClock()
+  if (action === 'philosophy') {
+    save.restorationPhilosophy = event.target.dataset.philosophy
+    persist()
+    log(`Restoration philosophy: ${restorationPhilosophies.find((item) => item.id === save.restorationPhilosophy)?.title}.`)
+  }
   if (action === 'reset') resetChamber()
   if (action === 'next') setScreen('atlas')
   if (action === 'contract') {
@@ -576,6 +581,8 @@ function atlas() {
   const stewardship = stewardshipSummary(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
   const codexRecovery = codexRecoverySummary(chambers, save)
+  const centralHeart = centralHeartSummary(chambers, save)
+  const crewWakeCycle = crewWakeCycleSummary(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -609,11 +616,24 @@ function atlas() {
         <p>${codexRecovery.text}</p>
         ${codexRecovery.availableRecords.length ? `<ol>${codexRecovery.availableRecords.map((record) => `<li>${codexRecords[record.id]?.title ?? record.id} in ${record.chamberTitle}.</li>`).join('')}</ol>` : ''}
       </section>
+      <section aria-labelledby="central-heart-title">
+        <h2 id="central-heart-title">Central Heart</h2>
+        <p>${centralHeart.text}</p>
+        <p>Core: ${centralHeart.central?.title ?? 'No central heart contract authored yet'}.</p>
+        <p>Ready finale branches: ${centralHeart.readyBranches.map((item) => item.title).join(', ') || 'none ready'}.</p>
+        <p>Restored finale branches: ${centralHeart.restoredBranches.map((item) => item.title).join(', ') || 'none restored'}.</p>
+      </section>
+      <section aria-labelledby="crew-wake-title">
+        <h2 id="crew-wake-title">Crew Wake Cycle</h2>
+        <p>${crewWakeCycle.text}</p>
+      </section>
       <section aria-labelledby="decision-title">
         <h2 id="decision-title">Decision Point</h2>
         <p>Recommended next work: ${decision.recommendation}.</p>
         <p>Required choices: ${decision.requiredChoices.join(', ') || 'none ready'}.</p>
         <p>Optional choices: ${decision.optionalChoices.join(', ') || 'none ready'}.</p>
+        <p>Restoration philosophy: ${restorationPhilosophies.find((item) => item.id === save.restorationPhilosophy)?.title ?? 'Undecided'}.</p>
+        ${restorationPhilosophies.map((item) => `<button data-action="philosophy" data-philosophy="${item.id}">${item.title}</button>`).join('')}
         <p>Post-restore options: improve the active chamber, take another work order, research grafts, or advance the Ark clock.</p>
         <button data-action="game">Improve active chamber</button>
         <button data-action="library">Research grafts</button>
@@ -793,10 +813,12 @@ function pause() {
 function ending() {
   audio.setMusicScene('ending', { inventory })
   const resolution = endgameResolutions.find((item) => item.id === save.endgameResolution) ?? chooseEndgameResolution(save)
+  const crewWakeCycle = crewWakeCycleSummary(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
       <p>Resolution: ${resolution.title}. ${resolution.text}</p>
+      <p>${crewWakeCycle.text}</p>
       <p>The repaired resonance gardens answer one another. Every grafted voice becomes part of a living orbital chord.</p>
       <button data-action="atlas">Return to atlas</button>
       <button data-action="menu">Main menu</button>

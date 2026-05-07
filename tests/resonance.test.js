@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, majorArkSystems, solveTimeText, weatherWindowState } from '../src/content/chambers.js'
-import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, restorationPhilosophies } from '../src/content/endings.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, optionalReturnContracts, photosynthesisState, pollinatorVaultSummary, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -169,9 +169,38 @@ describe('resonance evaluation', () => {
   it('defines four endgame resolutions from restoration patterns', () => {
     expect(endgameResolutions.map((resolution) => resolution.id)).toEqual(['preservation', 'adaptation', 'release', 'conservatory'])
     expect(chooseEndgameResolution(createDefaultSave()).id).toBe('preservation')
-    expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-graft'] }).id).toBe('adaptation')
+    expect(chooseEndgameResolution({ ...createDefaultSave(), restorationPhilosophy: 'adaptation' }).id).toBe('adaptation')
     expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-root'] }).id).toBe('release')
     expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-memory'] }).id).toBe('conservatory')
+    expect(restorationPhilosophies.map((philosophy) => philosophy.id)).toEqual(['preservation', 'adaptation'])
+  })
+
+  it('tracks the Central Heart as the season five network hub', () => {
+    const dormant = centralHeartSummary(chambers, createDefaultSave())
+    expect(dormant.central.id).toBe('heart-atria')
+    expect(dormant.online).toBe(false)
+    expect(dormant.text).toContain('dormant')
+
+    const readySave = createDefaultSave()
+    readySave.solvedChambers = ['orchard-gate']
+    const ready = centralHeartSummary(chambers, readySave)
+    expect(ready.text).toContain('Central Heart ready')
+
+    const onlineSave = createDefaultSave()
+    onlineSave.solvedChambers = ['orchard-gate', 'heart-atria', 'optional-heart-root']
+    const online = centralHeartSummary(chambers, onlineSave)
+    expect(online.online).toBe(true)
+    expect(online.restoredBranches.map((branch) => branch.id)).toContain('optional-heart-root')
+    expect(online.readyBranches.map((branch) => branch.id)).toContain('optional-heart-glass')
+  })
+
+  it('models the crew wake cycle from heart and memory restoration', () => {
+    expect(crewWakeCycleStages.map((stage) => stage.id)).toEqual(['stasis', 'circulation', 'consent-check', 'wake'])
+    expect(crewWakeCycleSummary(createDefaultSave()).stageId).toBe('stasis')
+    expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria'] }).stageId).toBe('circulation')
+    expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-memory'] }).stageId).toBe('consent-check')
+    expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['finale'], postgameUnlocked: true }).stageId).toBe('wake')
+    expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], postgameUnlocked: true }).text).toContain('deferred')
   })
 
   it('keeps codex records and perceptions in the 80 to 120 band', () => {
