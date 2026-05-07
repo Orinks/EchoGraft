@@ -200,6 +200,26 @@ export function seedPitchMatchScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedRhythmMatchScanState(seed = {}, chamber = {}) {
+  const pulseRate = Number(seed.pulseRate ?? 1)
+  const target = chamber.target?.pulseRate
+  const tolerance = chamber.tolerances?.pulseRate ?? 0.5
+  const delta = tuningDelta(pulseRate, target)
+  const score = Number.isFinite(delta) ? Number(clamp(1 - Math.abs(delta) / Math.max(tolerance, 0.001)).toFixed(3)) : undefined
+  const band = Number.isFinite(delta) ? matchBand(delta, tolerance) : 'unscored'
+
+  return {
+    band,
+    delta,
+    pulseRate,
+    score,
+    target,
+    tolerance,
+    withinTolerance: Number.isFinite(delta) ? Math.abs(delta) <= tolerance : undefined,
+    text: `Rhythm match: ${band}; pulse ${pulseRate}${Number.isFinite(target) ? ` vs target ${target}, delta ${delta}, score ${score}` : ''}; tolerance ${tolerance}.`,
+  }
+}
+
 export function seedBrightnessFilterScanState(seed = {}, chamber = {}) {
   const brightness = clamp(Number(seed.brightness ?? 0.5), 0, 1)
   const target = chamber.target?.brightness
@@ -365,6 +385,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     position: seed.position ?? { x: 0, y: 0 },
     positionMatchState: seedPositionMatchScanState(seed, chamber),
     positionState: seedPositionState(seed, chamber),
+    rhythmMatchState: seedRhythmMatchScanState(seed, chamber),
     substrateState: seedSubstrateScanState(seed, chamber),
     spatialRadiusState: seedSpatialRadiusScanState(seed, chamber),
     tuningState: seedTuningScanState(seed, chamber),
@@ -374,7 +395,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
