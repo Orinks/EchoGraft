@@ -115,7 +115,7 @@ export function normalizeSeed(seed) {
     fmAmount: clamp(Number(seed.fmAmount ?? 0), 0, 1),
     amAmount: clamp(Number(seed.amAmount ?? 0), 0, 1),
     noiseAmount: clamp(Number(seed.noiseAmount ?? 0), 0, 1),
-    pulseRate: clamp(Number(seed.pulseRate), 0.25, 6),
+    pulseRate: clamp(Number(seed.pulseRate ?? 1), 0.25, 6),
     phase: ((Number(seed.phase) % 360) + 360) % 360,
   }
 }
@@ -156,6 +156,21 @@ export function seedPitchRatioState(seed, targetPitchRatio) {
     text: targetDelta === undefined
       ? `Pitch ratio: ${pitchRatio}; ${role}.`
       : `Pitch ratio: ${pitchRatio}; target delta ${targetDelta}; ${role}.`,
+  }
+}
+
+export function seedPulseRateState(seed, targetPulseRate) {
+  const pulseRate = clamp(Number(seed.pulseRate ?? 1), 0.25, 6)
+  const targetDelta = targetPulseRate === undefined ? undefined : Number((pulseRate - targetPulseRate).toFixed(2))
+  const role = tuningParameterDetails.pulseRate.role
+
+  return {
+    pulseRate,
+    role,
+    targetDelta,
+    text: targetDelta === undefined
+      ? `Pulse rate: ${pulseRate}; ${role}.`
+      : `Pulse rate: ${pulseRate}; target delta ${targetDelta}; ${role}.`,
   }
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -33,6 +33,16 @@ describe('seed DNA', () => {
     expect(state.targetDelta).toBe(0.5)
     expect(state.role).toBe(tuningParameterDetails.pitchRatio.role)
     expect(state.text).toContain('target delta 0.5')
+  })
+
+  it('reports pulse rate as rhythmic growth timing with optional target delta', () => {
+    const seed = createSeedDNA('pulse-report', { pulseRate: 2.5 })
+    const state = seedPulseRateState(seed, 1)
+
+    expect(state.pulseRate).toBe(2.5)
+    expect(state.targetDelta).toBe(1.5)
+    expect(state.role).toBe(tuningParameterDetails.pulseRate.role)
+    expect(state.text).toContain('rhythmic growth and system timing')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {
