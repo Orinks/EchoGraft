@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -43,6 +43,16 @@ describe('seed DNA', () => {
     expect(state.targetDelta).toBe(1.5)
     expect(state.role).toBe(tuningParameterDetails.pulseRate.role)
     expect(state.text).toContain('rhythmic growth and system timing')
+  })
+
+  it('reports brightness as filter and canopy light metadata with optional target delta', () => {
+    const seed = createSeedDNA('brightness-report', { brightness: 0.7 })
+    const state = seedBrightnessState(seed, 0.45)
+
+    expect(state.brightness).toBe(0.7)
+    expect(state.targetDelta).toBe(0.25)
+    expect(state.role).toBe(tuningParameterDetails.brightness.role)
+    expect(state.text).toContain('filter opening and canopy light color')
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {

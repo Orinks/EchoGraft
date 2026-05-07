@@ -111,7 +111,7 @@ export function normalizeSeed(seed) {
       release: clamp(Number(seed.envelope?.release ?? 0.25), 0.05, 1),
     },
     pitchRatio: clamp(Number(seed.pitchRatio ?? 1), 0.5, 3),
-    brightness: clamp(Number(seed.brightness), 0, 1),
+    brightness: clamp(Number(seed.brightness ?? 0.5), 0, 1),
     fmAmount: clamp(Number(seed.fmAmount ?? 0), 0, 1),
     amAmount: clamp(Number(seed.amAmount ?? 0), 0, 1),
     noiseAmount: clamp(Number(seed.noiseAmount ?? 0), 0, 1),
@@ -171,6 +171,21 @@ export function seedPulseRateState(seed, targetPulseRate) {
     text: targetDelta === undefined
       ? `Pulse rate: ${pulseRate}; ${role}.`
       : `Pulse rate: ${pulseRate}; target delta ${targetDelta}; ${role}.`,
+  }
+}
+
+export function seedBrightnessState(seed, targetBrightness) {
+  const brightness = clamp(Number(seed.brightness ?? 0.5), 0, 1)
+  const targetDelta = targetBrightness === undefined ? undefined : Number((brightness - targetBrightness).toFixed(2))
+  const role = tuningParameterDetails.brightness.role
+
+  return {
+    brightness,
+    role,
+    targetDelta,
+    text: targetDelta === undefined
+      ? `Brightness/filter: ${brightness}; ${role}.`
+      : `Brightness/filter: ${brightness}; target delta ${targetDelta}; ${role}.`,
   }
 }
 
