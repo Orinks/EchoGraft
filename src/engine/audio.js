@@ -580,7 +580,8 @@ export class AudioEngine {
       category: 'ui',
       duration: 0.11 + movedDistance * 0.04,
       gain: dbGain(-13),
-      spatial: false,
+      position: feedback.footstepPosition,
+      spatial: true,
       tone: {
         brightness: 0.35,
         frequency: ratioToFrequency(1 + ((Math.abs(player.x) + Math.abs(player.y)) % 4) * 0.05, 41),

@@ -110,6 +110,10 @@ export function movementFeedback(player, previous, chamber = {}) {
       x: (chamber.start?.x ?? 0) + (target.x - (chamber.start?.x ?? 0)) / 2,
       y: (chamber.start?.y ?? 0) + (target.y - (chamber.start?.y ?? 0)) / 2,
     },
+    footstepPosition: {
+      x: player.x,
+      y: player.y,
+    },
     heartDistance,
     moved,
     nearestWall,
