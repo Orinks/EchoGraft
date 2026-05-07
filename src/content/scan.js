@@ -220,6 +220,22 @@ export function seedRhythmMatchScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedTimbreMatchScanState(seed = {}, chamber = {}) {
+  const waveform = seed.waveform ?? 'sine'
+  const requiredWaveforms = chamber.timbrePuzzle?.waveforms ?? chamber.requiredWaveforms ?? []
+  const required = requiredWaveforms.length ? requiredWaveforms.join(' or ') : 'any chamber-compatible waveform'
+  const matched = requiredWaveforms.length ? requiredWaveforms.includes(waveform) : true
+  const band = matched ? 'matched' : 'off target'
+
+  return {
+    band,
+    matched,
+    requiredWaveforms,
+    waveform,
+    text: `Timbre match: ${band}; waveform ${waveform}; required ${required}.`,
+  }
+}
+
 export function seedBrightnessFilterScanState(seed = {}, chamber = {}) {
   const brightness = clamp(Number(seed.brightness ?? 0.5), 0, 1)
   const target = chamber.target?.brightness
@@ -388,6 +404,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     rhythmMatchState: seedRhythmMatchScanState(seed, chamber),
     substrateState: seedSubstrateScanState(seed, chamber),
     spatialRadiusState: seedSpatialRadiusScanState(seed, chamber),
+    timbreMatchState: seedTimbreMatchScanState(seed, chamber),
     tuningState: seedTuningScanState(seed, chamber),
   }))
 
@@ -395,7 +412,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.positionMatchState.text} ${seed.spatialRadiusState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.pitchMatchState.text} ${seed.rhythmMatchState.text} ${seed.timbreMatchState.text} ${seed.brightnessFilterState.text} ${seed.envelopeShapeState.text} ${seed.fmDepthState.text} ${seed.amDepthState.text} ${seed.noiseAmountState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }
