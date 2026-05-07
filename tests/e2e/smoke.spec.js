@@ -78,7 +78,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Seed Collection Appraisal' })).toBeVisible()
   await expect(page.getByText(/Exchange remains restoration support/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Seed Family Catalog' })).toBeVisible()
-  await expect(page.getByText(/24 known families/)).toBeVisible()
+  await expect(page.getByText(/24 known families and 96 possible graft discoveries/)).toBeVisible()
   await page.getByRole('button', { name: 'Select Lumen phonoseed' }).click()
   await expect(page.getByText(/Selected Lumen phonoseed/)).toBeVisible()
   await page.getByRole('button', { name: 'FM modulation' }).click()

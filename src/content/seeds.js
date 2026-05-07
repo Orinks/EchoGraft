@@ -32,6 +32,21 @@ export const seedFamilies = [
   { id: 'hybrid', name: 'Hybrid', affinity: 'adaptation endings and inherited mechanics', origin: 'Heart graft' },
 ]
 
+export const graftDiscoveryCatalog = seedFamilies.flatMap((familyA, index) =>
+  seedFamilies.slice(index + 1).map((familyB) => ({
+    id: `${familyA.id}-${familyB.id}`,
+    title: `${familyA.name}-${familyB.name} graft`,
+    families: [familyA.name, familyB.name],
+    mechanic: `${familyA.affinity} braided with ${familyB.affinity}`,
+    record: `A ${familyA.name}-${familyB.name} graft can reveal how ${familyA.origin} and ${familyB.origin} respond to shared restoration pressure.`,
+  })),
+).slice(0, 96)
+
+export function graftDiscoveryForFamilies(seedA, seedB) {
+  const families = [seedA.family, seedB.family].filter(Boolean).sort()
+  return graftDiscoveryCatalog.find((discovery) => [...discovery.families].sort().join('|') === families.join('|'))
+}
+
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
@@ -110,9 +125,15 @@ export function tuneSeed(seed, parameter, direction, step = 1) {
 }
 
 export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
+  const discovery = graftDiscoveryForFamilies(seedA, seedB)
   return normalizeSeed({
     id,
     name: `${seedA.name.split(' ')[0]}-${seedB.name.split(' ')[0]} graft`,
+    family: discovery?.title ?? `${seedA.family ?? 'Unknown'}-${seedB.family ?? 'Unknown'}`,
+    ecologicalAffinity: discovery?.mechanic ?? 'hybrid restoration behavior',
+    discoveredOrigin: discovery?.record ?? 'Uncatalogued graft discovery.',
+    graftAncestry: [seedA.family ?? seedA.id, seedB.family ?? seedB.id],
+    discoveryId: discovery?.id,
     waveform: seedA.waveform,
     oscillatorType: seedB.oscillatorType,
     pitchRatio: Number(((seedA.pitchRatio + seedB.pitchRatio) / 2).toFixed(2)),

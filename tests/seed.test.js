@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createSeedDNA, graftDiscoveries, graftSeeds, seedFamilies, tuneSeed } from '../src/content/seeds.js'
+import { createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, seedFamilies, tuneSeed } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -39,5 +39,13 @@ describe('seed DNA', () => {
     expect(graft.grafted).toBe(true)
     expect(graft.pitchRatio).toBe(1.5)
     expect(graftDiscoveries(graft)).toContain('hybrid resonance planting')
+  })
+
+  it('catalogs 80 or more graft discoveries from family pairings', () => {
+    expect(graftDiscoveryCatalog.length).toBeGreaterThanOrEqual(80)
+    expect(graftDiscoveryCatalog.every((discovery) => discovery.title && discovery.mechanic && discovery.record)).toBe(true)
+    const solLumen = graftDiscoveryForFamilies(createSeedDNA('sol'), createSeedDNA('lumen'))
+    expect(solLumen.title).toBe('Sol-Lumen graft')
+    expect(graftSeeds(createSeedDNA('sol'), createSeedDNA('lumen')).discoveryId).toBe(solLumen.id)
   })
 })

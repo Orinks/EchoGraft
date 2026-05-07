@@ -5,7 +5,7 @@ import { createEventLog } from '../content/log.js'
 import { createPlayer, movePlayer, rotatePlayer } from '../content/player.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftDiscoveries, graftSeeds, seedFamilies, tuneSeed, tuningParameters } from '../content/seeds.js'
+import { graftDiscoveries, graftDiscoveryCatalog, graftSeeds, seedFamilies, tuneSeed, tuningParameters } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -625,7 +625,7 @@ function library() {
       </section>
       <section aria-labelledby="families-title">
         <h2 id="families-title">Seed Family Catalog</h2>
-        <p>${seedFamilies.length} known families. ${seedFamilies.map((family) => `${family.name}: ${family.affinity}`).join('; ')}.</p>
+        <p>${seedFamilies.length} known families and ${graftDiscoveryCatalog.length} possible graft discoveries. ${seedFamilies.map((family) => `${family.name}: ${family.affinity}`).join('; ')}.</p>
       </section>
       <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
       <button data-action="previewSeed">Preview selected seed</button>
