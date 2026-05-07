@@ -1,4 +1,6 @@
 import { createRng } from '../content/rng.js'
+import { movementFeedback } from '../content/player.js'
+import { scanPulse } from '../content/scan.js'
 import { syngen } from './syngen.js'
 
 const categoryDefaults = {
@@ -513,25 +515,22 @@ export class AudioEngine {
 
   scan(player, target) {
     this.updateListener(player)
-    const dx = target.x - player.x
-    const dy = target.y - player.y
-    const distance = Math.hypot(dx, dy)
-    const brightness = clamp(1 - distance / 8)
+    const pulse = scanPulse(player, target)
     this.voice({
       category: 'scan',
-      duration: clamp(0.16 + distance * 0.04, 0.18, 0.65),
+      duration: pulse.duration,
       gain: dbGain(-10),
       position: target,
       tone: {
-        brightness,
-        detune: phaseToDetune(target.phase),
-        frequency: ratioToFrequency(target.pitchRatio, 52 + brightness * 12),
+        brightness: pulse.brightness,
+        detune: phaseToDetune(target.phase ?? 0),
+        frequency: ratioToFrequency(target.pitchRatio ?? 1, 52 + pulse.brightness * 12),
         mode: 'additive',
-        pulseRate: target.pulseRate,
+        pulseRate: target.pulseRate ?? 1,
         type: 'sine',
         harmonic: [
           { coefficient: 1, gain: 1, type: 'sine' },
-          { coefficient: target.pulseRate, gain: 0.25 + brightness * 0.45, type: 'triangle' },
+          { coefficient: target.pulseRate ?? 1, gain: 0.25 + pulse.brightness * 0.45, type: 'triangle' },
         ],
       },
     })
@@ -561,19 +560,10 @@ export class AudioEngine {
   movement(player, previous, chamber = {}) {
     this.updateListener(player)
     const movedDistance = Math.hypot(player.x - previous.x, player.y - previous.y)
-    const safeRadius = 5
-    const westWall = (chamber.start?.x ?? 0) - safeRadius
-    const eastWall = (chamber.start?.x ?? 0) + safeRadius
-    const southWall = (chamber.start?.y ?? 0) - safeRadius
-    const northWall = (chamber.start?.y ?? 0) + safeRadius
-    const nearestWall = Math.min(player.x - westWall, eastWall - player.x, player.y - southWall, northWall - player.y)
-    const currentPosition = {
-      x: (chamber.start?.x ?? 0) + ((chamber.target?.x ?? 0) - (chamber.start?.x ?? 0)) / 2,
-      y: (chamber.start?.y ?? 0) + ((chamber.target?.y ?? 0) - (chamber.start?.y ?? 0)) / 2,
-    }
+    const feedback = movementFeedback(player, previous, chamber)
     const wallPosition = {
-      x: player.x <= westWall + 1 ? westWall : player.x >= eastWall - 1 ? eastWall : player.x,
-      y: player.y <= southWall + 1 ? southWall : player.y >= northWall - 1 ? northWall : player.y,
+      x: player.x <= feedback.bounds.west + 1 ? feedback.bounds.west : player.x >= feedback.bounds.east - 1 ? feedback.bounds.east : player.x,
+      y: player.y <= feedback.bounds.south + 1 ? feedback.bounds.south : player.y >= feedback.bounds.north - 1 ? feedback.bounds.north : player.y,
     }
 
     this.voice({
@@ -595,7 +585,7 @@ export class AudioEngine {
       category: 'ambience',
       duration: 0.35,
       gain: dbGain(-23),
-      position: currentPosition,
+      position: feedback.currentPosition,
       tone: {
         brightness: chamber.target?.brightness ?? 0.45,
         frequency: ratioToFrequency(chamber.target?.pulseRate ?? 1, 36),
@@ -623,7 +613,7 @@ export class AudioEngine {
       },
     })
 
-    if (nearestWall <= 1.5) {
+    if (feedback.nearestWall <= 1.5) {
       this.voice({
         category: 'hazard',
         duration: 0.22,

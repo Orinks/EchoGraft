@@ -2,8 +2,10 @@ import { AudioEngine } from '../engine/audio.js'
 import { campaignScope, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { createEventLog } from '../content/log.js'
-import { createPlayer, movePlayer, rotatePlayer } from '../content/player.js'
+import { plantedSeed, plantingAssessment } from '../content/planting.js'
+import { createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
+import { scanPulse } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveries, graftDiscoveryCatalog, graftSeeds, seedFamilies, tuneSeed, tuningParameters } from '../content/seeds.js'
 
@@ -120,16 +122,9 @@ function continueGame() {
 
 function movement(dx, dy) {
   const previous = player
-  player = movePlayer(player, dx, dy)
+  player = movePlayer(player, dx, dy, chamber)
   audio.movement(player, previous, chamber)
-  const safeRadius = 5
-  const westWall = chamber.start.x - safeRadius
-  const eastWall = chamber.start.x + safeRadius
-  const southWall = chamber.start.y - safeRadius
-  const northWall = chamber.start.y + safeRadius
-  const nearestWall = Math.min(player.x - westWall, eastWall - player.x, player.y - southWall, northWall - player.y).toFixed(1)
-  const heartDistance = Math.hypot(chamber.target.x - player.x, chamber.target.y - player.y).toFixed(1)
-  log(`Moved to ${player.x}, ${player.y}. Facing ${player.facing} degrees. Movement audio: spatial footstep, wall ${nearestWall} steps away, current between start and heart, landmark heart ${heartDistance} steps away.`)
+  log(movementFeedback(player, previous, chamber).text)
 }
 
 function rotate(degrees) {
@@ -146,13 +141,9 @@ function listen() {
 }
 
 function locate() {
-  const dx = chamber.target.x - player.x
-  const dy = chamber.target.y - player.y
-  const distance = Math.hypot(dx, dy).toFixed(1)
-  const horizontal = dx < 0 ? 'west' : dx > 0 ? 'east' : 'center'
-  const vertical = dy < 0 ? 'south' : dy > 0 ? 'north' : 'level'
+  const pulse = scanPulse(player, chamber.target)
   audio.scan(player, chamber.target)
-  log(`Locate: chamber heart is ${distance} steps away, ${horizontal}, ${vertical}.`)
+  log(`Locate: chamber heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.horizontal}, ${pulse.direction.vertical}. ${pulse.text}`)
 }
 
 function heartShapeText(target) {
@@ -170,19 +161,14 @@ function hazardsText() {
 }
 
 function positionMeaningText(position) {
-  const distance = Math.hypot(chamber.target.x - position.x, chamber.target.y - position.y).toFixed(1)
-  const tolerance = chamber.tolerances.position
-  return Number(distance) <= tolerance
-    ? `Meaningful position: within ${distance} steps of the chamber heart, inside the ${tolerance} step restoration tolerance.`
-    : `Meaningful position: ${distance} steps from the chamber heart; move closer than ${tolerance} steps for stronger resonance.`
+  return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
 
 function scan() {
-  const distance = Math.hypot(chamber.target.x - player.x, chamber.target.y - player.y).toFixed(1)
-  const side = chamber.target.x < player.x ? 'left' : chamber.target.x > player.x ? 'right' : 'centered'
+  const pulse = scanPulse(player, chamber.target)
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
-    log(`Objective scan: heart is ${distance} steps away, ${side}; shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
   if (scanMode === 'boundaries') log(`Boundary scan: safe work zone extends from ${chamber.start.x - 5}, ${chamber.start.y - 5} to ${chamber.start.x + 5}, ${chamber.start.y + 5}. Current position ${player.x}, ${player.y}.`)
   if (scanMode === 'seeds') log(plantedSeeds.length ? `Seed scan: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}`).join('; ')}.` : 'Seed scan: no planted seed objects in this chamber.')
@@ -195,10 +181,11 @@ function plantOrPickUp() {
     const [seed] = plantedSeeds.splice(existing, 1)
     log(`Picked up ${seed.name}.`)
   } else {
-    const seed = { ...currentSeed(), position: { x: player.x, y: player.y } }
+    const planted = plantedSeed(currentSeed(), { x: player.x, y: player.y }, chamber, plantedSeeds)
+    const seed = planted.seed
     plantedSeeds.push(seed)
     audio.seed(seed)
-    log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${positionMeaningText(seed.position)}`)
+    log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${planted.assessment.text}`)
   }
   audio.syncSeedObjects(chamber.id, plantedSeeds)
   evaluate()
