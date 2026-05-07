@@ -474,6 +474,39 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   })
 }
 
+export function failedGraftUtility(seedA, seedB, id = `${seedA.id}-${seedB.id}-failed-graft`) {
+  const noisyTool = normalizeSeed({
+    amAmount: Math.max(seedA.amAmount ?? 0, seedB.amAmount ?? 0),
+    brightness: Number((((seedA.brightness ?? 0.5) + (seedB.brightness ?? 0.5)) / 2).toFixed(2)),
+    ecologicalAffinity: 'compost, masking texture, and noisy utility',
+    failedGraft: true,
+    family: 'Failed graft',
+    fmAmount: Math.max(seedA.fmAmount ?? 0, seedB.fmAmount ?? 0),
+    graftAncestry: [seedA.family, seedB.family],
+    grafted: true,
+    growthBehavior: 'twining',
+    id,
+    name: `${seedA.name.split(' ')[0]}-${seedB.name.split(' ')[0]} noisy graft tool`,
+    noiseAmount: Math.max(0.35, seedA.noiseAmount ?? 0, seedB.noiseAmount ?? 0),
+    oscillatorType: 'noise-kissed',
+    pitchRatio: Number((((seedA.pitchRatio ?? 1) + (seedB.pitchRatio ?? 1)) / 2).toFixed(2)),
+    pulseRate: Number((((seedA.pulseRate ?? 1) + (seedB.pulseRate ?? 1)) / 2).toFixed(2)),
+    waveform: 'square',
+  })
+
+  return {
+    compostYield: 1,
+    noisyTool,
+    status: 'failed',
+    text: `Failed graft: ${seedA.name} plus ${seedB.name} did not stabilize. Recovered 1 dream compost and ${noisyTool.name} as a noise-kissed tool for masking hazards.`,
+  }
+}
+
+export function graftFailureReason(seedA, seedB) {
+  if ((seedA.family ?? seedA.id) === (seedB.family ?? seedB.id)) return 'matching family lines need a second family to stabilize'
+  return undefined
+}
+
 export function restoredSystemInheritedTraits(restoredSystems = []) {
   const restored = new Set(restoredSystems)
   const systemTraits = [
@@ -490,6 +523,16 @@ export function restoredSystemInheritedTraits(restoredSystems = []) {
 }
 
 export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`, options = {}) {
+  const failureReason = options.forceFailure ? 'forced graft instability' : graftFailureReason(seedA, seedB)
+  if (failureReason) {
+    const failure = failedGraftUtility(seedA, seedB, id)
+    return {
+      ...failure,
+      failureReason,
+      text: `${failure.text} Failure reason: ${failureReason}.`,
+    }
+  }
+
   const seed = graftSeeds(seedA, seedB, id)
   const discoveries = graftDiscoveries(seed)
   const record = graftRecordForSeed(seed)

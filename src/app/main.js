@@ -248,6 +248,16 @@ function tune(direction) {
 function graft() {
   if (inventory.length < 2) return
   const report = graftSeedsWithReport(inventory[0], inventory[1], `graft-${Date.now()}`, { restoredSystems: save.restoredSystems })
+  if (report.status === 'failed') {
+    inventory.push(report.noisyTool)
+    save.materials.dreamCompost = (save.materials.dreamCompost ?? 0) + report.compostYield
+    selectedSeedIndex = seedCarryState(inventory, inventory.length - 1).selectedCarryIndex
+    log(report.text)
+    log(`Recovered failed graft utility: ${report.noisyTool.name}; dream compost now ${save.materials.dreamCompost}.`)
+    audio.seed(report.noisyTool)
+    persist()
+    return
+  }
   const next = report.seed
   inventory.push(next)
   const heldInReserve = inventory.indexOf(next) >= seedCarryLimit

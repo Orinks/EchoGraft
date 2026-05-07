@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -345,6 +345,29 @@ describe('seed DNA', () => {
       'restored Memory unlocked archive ancestry echo',
     ]))
     expect(report.text).toContain('restored Water unlocked current-carried AM sway')
+  })
+
+  it('turns failed grafts into compost and noisy tools', () => {
+    const seedA = createSeedDNA('sol-a', { family: 'Sol', name: 'Sol A', noiseAmount: 0.05 })
+    const seedB = createSeedDNA('sol-b', { family: 'Sol', name: 'Sol B', noiseAmount: 0.1 })
+    const utility = failedGraftUtility(seedA, seedB, 'failed-sol-graft')
+    const report = graftSeedsWithReport(seedA, seedB, 'failed-sol-graft')
+
+    expect(graftFailureReason(seedA, seedB)).toBe('matching family lines need a second family to stabilize')
+    expect(utility).toMatchObject({
+      compostYield: 1,
+      status: 'failed',
+    })
+    expect(utility.noisyTool).toMatchObject({
+      failedGraft: true,
+      grafted: true,
+      noiseAmount: 0.35,
+      oscillatorType: 'noise-kissed',
+    })
+    expect(report.status).toBe('failed')
+    expect(report.noisyTool.name).toBe('Sol-Sol noisy graft tool')
+    expect(report.text).toContain('Recovered 1 dream compost')
+    expect(report.text).toContain('noise-kissed tool')
   })
 
   it('reports graft ancestry as parent seed lines and archive record', () => {
