@@ -163,6 +163,35 @@ describe('resonance evaluation', () => {
     expect(canopy.rewards.codex).toContain('canopy-pulse')
   })
 
+  it('authors Root Pumps as the first Rootworks pulse-routing contract', () => {
+    const rootPumps = chambers.find((chamber) => chamber.id === 'root-reservoir')
+    expect(rootPumps.title).toBe('Contract 9: Root Pumps')
+    expect(rootPumps.system).toBe('Rootworks')
+    expect(rootPumps.contractType).toBe('restoration')
+    expect(rootPumps.mechanic).toBe('root pump pulse routing')
+    expect(rootPumps.target.pulseRate).toBeLessThan(1)
+    expect(rootPumps.rewards.codex).toContain('root-pumps')
+  })
+
+  it('authors Fungus Relays as a Rootworks hazard-routing contract', () => {
+    const fungusRelays = chambers.find((chamber) => chamber.id === 'mycelium-gate')
+    expect(fungusRelays.title).toBe('Contract 11: Fungus Relays')
+    expect(fungusRelays.system).toBe('Rootworks')
+    expect(fungusRelays.mechanic).toBe('fungus relay hazard routing')
+    expect(fungusRelays.hazards[0].message).toContain('Fungus relays')
+    expect(fungusRelays.rewards.codex).toContain('fungus-relays')
+  })
+
+  it('authors Nutrient Locks as a brightness-gated Rootworks contract', () => {
+    const nutrientLocks = chambers.find((chamber) => chamber.id === 'nutrient-lattice')
+    expect(nutrientLocks.title).toBe('Contract 13: Nutrient Locks')
+    expect(nutrientLocks.system).toBe('Rootworks')
+    expect(nutrientLocks.mechanic).toBe('nutrient lock brightness tuning')
+    expect(nutrientLocks.target.brightness).toBeGreaterThan(0.7)
+    expect(nutrientLocks.hazards[0].message).toContain('overload')
+    expect(nutrientLocks.rewards.codex).toContain('nutrient-locks')
+  })
+
   it('appraises the seed collection as restoration support instead of museum commerce', () => {
     const save = createDefaultSave()
     save.materials.biomass = 2
