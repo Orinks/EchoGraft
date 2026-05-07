@@ -152,12 +152,19 @@ export function graftStabilitySummary(chamber, plantedSeeds = []) {
   const grafts = plantedSeeds.filter((seed) => seed.grafted)
   const requiresGraft = Boolean(chamber.requiresGraft)
   const catalogued = grafts.filter((seed) => seed.discoveryId && seed.graftAncestry?.length >= 2)
+  const mycelialSubstrate = String(chamber.substrate ?? '').toLowerCase().includes('mycel')
+  const myceliumBoosted = grafts.filter((seed) => {
+    const text = [seed.family, seed.ecologicalAffinity, seed.discoveredOrigin, ...(seed.graftAncestry ?? [])].join(' ').toLowerCase()
+    return text.includes('myco') || text.includes('mycel')
+  })
   const band = grafts.length
-    ? catalogued.length === grafts.length ? 'catalogued' : 'viable'
+    ? mycelialSubstrate || myceliumBoosted.length ? 'mycelium-boosted' : catalogued.length === grafts.length ? 'catalogued' : 'viable'
     : requiresGraft ? 'missing' : 'not needed'
   const stable = !requiresGraft || grafts.length > 0
   const ratingContribution = band === 'catalogued'
     ? 'supports stronger restoration ratings'
+    : band === 'mycelium-boosted'
+      ? 'boosts graft stability through mycelium network support'
     : band === 'viable'
       ? 'keeps graft-dependent restoration stable'
       : band === 'missing'
@@ -169,10 +176,11 @@ export function graftStabilitySummary(chamber, plantedSeeds = []) {
     cataloguedGrafts: catalogued.length,
     dimension: 'Graft stability',
     grafts: grafts.length,
+    myceliumBoosted: mycelialSubstrate ? grafts.length : myceliumBoosted.length,
     ratingContribution,
     requiresGraft,
     stable,
-    text: `Graft stability ${band}; ${grafts.length} grafted seed(s), ${catalogued.length} catalogued; ${ratingContribution}.`,
+    text: `Graft stability ${band}; ${grafts.length} grafted seed(s), ${catalogued.length} catalogued, ${mycelialSubstrate ? 'mycelial substrate' : `${myceliumBoosted.length} mycelium-linked`}; ${ratingContribution}.`,
   }
 }
 

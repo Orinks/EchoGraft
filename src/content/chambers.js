@@ -435,7 +435,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.67, radius: 0.18, message: 'Fungus relays buckle around the sour mold band.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'sour mold keeps relays unstable until routed around the forbidden band' },
     requires: ['root-choir'],
-    rewards: { codex: ['fungus-relays'], materials: { biomass: 1, memory: 2, spores: 3 } },
+    rewards: { codex: ['fungus-relays'], materials: { biomass: 1, memory: 2, mycelium: 1, spores: 3 } },
   },
   {
     id: 'optional-root-echo',

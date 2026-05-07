@@ -129,6 +129,33 @@ describe('resonance evaluation', () => {
     expect(result.graftStability.ratingContribution).toContain('stronger restoration ratings')
   })
 
+  it('boosts graft stability with Mycelium-linked grafts and substrate', () => {
+    const chamber = chambers.find((item) => item.requiresGraft)
+    const plain = createSeedDNA('plain-graft', {
+      discoveredOrigin: 'Intake lung',
+      ecologicalAffinity: 'oxygen and stable pitch',
+      family: 'Sol-Lumen graft',
+      graftAncestry: ['Sol', 'Lumen'],
+      grafted: true,
+      position: chamber.target,
+    })
+    const myco = createSeedDNA('myco-graft', {
+      discoveredOrigin: 'Mycelium gate',
+      ecologicalAffinity: 'mycelium root networks',
+      family: 'Myco-Lumen graft',
+      graftAncestry: ['Myco', 'Lumen'],
+      grafted: true,
+      position: chamber.target,
+    })
+    const substrate = { ...chamber, substrate: 'mycelial rootbed' }
+
+    expect(graftStabilitySummary(chamber, [plain]).band).toBe('viable')
+    expect(graftStabilitySummary(chamber, [myco]).band).toBe('mycelium-boosted')
+    expect(graftStabilitySummary(chamber, [myco]).myceliumBoosted).toBe(1)
+    expect(graftStabilitySummary(substrate, [plain]).band).toBe('mycelium-boosted')
+    expect(graftStabilitySummary(substrate, [plain]).ratingContribution).toContain('boosts graft stability')
+  })
+
   it('summarizes hazard containment from forbidden intervals', () => {
     const chamber = chambers.find((item) => item.hazards?.length)
     const hazard = chamber.hazards[0]
@@ -238,6 +265,7 @@ describe('resonance evaluation', () => {
 
     expect(fungusRelays.rewards.materials.spores).toBeGreaterThan(0)
     expect(next.materials.spores).toBe(3)
+    expect(next.materials.mycelium).toBe(1)
   })
 
   it('turns Dream Compost into a specific research material', () => {

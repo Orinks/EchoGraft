@@ -59,7 +59,7 @@ describe('save system', () => {
     const loaded = loadSave(storage)
     expect(loaded.arkClock).toBe(0)
     expect(loaded.endgameResolution).toBeNull()
-    expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, dreamCompost: 0, glassPollen: 0, memory: 0, resin: 0, spores: 0 })
+    expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, dreamCompost: 0, glassPollen: 0, memory: 0, mycelium: 0, resin: 0, spores: 0 })
     expect(loaded.environmentalChanges).toEqual([])
     expect(loaded.graftRecords).toEqual([])
     expect(loaded.plantedByChamber).toEqual({})
