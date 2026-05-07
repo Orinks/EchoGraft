@@ -5,6 +5,23 @@ export function solveTimeText(chamber) {
   return min === max ? `${min} minute solve` : `${min} to ${max} minute solve`
 }
 
+export function chamberCycleState(chamber, arkClock = 0) {
+  if (!chamber.cycle?.states?.length) return undefined
+
+  const interval = Math.max(1, chamber.cycle.interval ?? 1)
+  const index = Math.floor(arkClock / interval) % chamber.cycle.states.length
+  const state = chamber.cycle.states[index]
+  const nextIn = interval - (arkClock % interval)
+
+  return {
+    ...state,
+    index,
+    interval,
+    nextIn,
+    text: `${chamber.cycle.name}: ${state.name}. ${state.text} Next change in ${nextIn} Ark cycle(s).`,
+  }
+}
+
 export const campaignScope = {
   firstFullCampaignHours: { min: 6, max: 10 },
   seasons: [
@@ -361,6 +378,15 @@ export const chambers = [
     start: { x: -2, y: -3, facing: 20 },
     target: { x: 0, y: 1, pitchRatio: 1, pulseRate: 1.75, brightness: 0.66, phase: 30 },
     requiredSeeds: 1,
+    cycle: {
+      name: 'glass rain weather state',
+      interval: 2,
+      states: [
+        { id: 'mist', name: 'Mist lift', text: 'Soft rain opens distance cues and makes scans carry farther.' },
+        { id: 'drizzle', name: 'Drizzle hold', text: 'Steady rain dampens sharp glass reflections for careful planting.' },
+        { id: 'sunbreak', name: 'Sunbreak', text: 'Brief light through the rain brightens canopy glass before the next cycle.' },
+      ],
+    },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.12, phase: 50 },
     requires: ['nutrient-lattice'],
@@ -377,6 +403,7 @@ export const chambers = [
     start: { x: 3, y: -2, facing: 290 },
     target: { x: 1, y: 2, pitchRatio: 2, pulseRate: 1.5, brightness: 0.85, phase: 90 },
     requiredSeeds: 1,
+    thermalShutters: { minBrightness: 0.75, maxBrightness: 0.9, text: 'thermal shutters open when focused light is warm enough but not overheated' },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.28, brightness: 0.08, phase: 50 },
     requires: ['glass-rain'],
@@ -461,6 +488,7 @@ export const chambers = [
     start: { x: 2, y: -4, facing: 340 },
     target: { x: -1, y: 1, pitchRatio: 1.25, pulseRate: 2, brightness: 0.55, phase: 60 },
     requiredSeeds: 1,
+    pressureSails: { minPulseRate: 1.75, maxPulseRate: 2.25, text: 'pressure sails hold open when airflow pulse stays steady' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.16, phase: 55 },
     requires: ['hail-damper'],

@@ -44,6 +44,46 @@ export function photosynthesisState(chamber, plantedSeeds) {
   }
 }
 
+export function thermalShutterState(chamber, plantedSeeds) {
+  if (!chamber.thermalShutters) return undefined
+
+  const ecology = averageSeeds(plantedSeeds)
+  const { minBrightness, maxBrightness } = chamber.thermalShutters
+  const open = ecology.brightness >= minBrightness && ecology.brightness <= maxBrightness
+  const state = ecology.brightness < minBrightness ? 'too cool' : ecology.brightness > maxBrightness ? 'overheated' : 'open'
+
+  return {
+    brightness: Number(ecology.brightness.toFixed(2)),
+    maxBrightness,
+    minBrightness,
+    open,
+    state,
+    text: open
+      ? `Thermal shutters open at brightness ${ecology.brightness.toFixed(2)}; ${chamber.thermalShutters.text}.`
+      : `Thermal shutters are ${state}; keep brightness between ${minBrightness} and ${maxBrightness}.`,
+  }
+}
+
+export function pressureSailState(chamber, plantedSeeds) {
+  if (!chamber.pressureSails) return undefined
+
+  const ecology = averageSeeds(plantedSeeds)
+  const { minPulseRate, maxPulseRate } = chamber.pressureSails
+  const steady = ecology.pulseRate >= minPulseRate && ecology.pulseRate <= maxPulseRate
+  const state = ecology.pulseRate < minPulseRate ? 'slack' : ecology.pulseRate > maxPulseRate ? 'straining' : 'steady'
+
+  return {
+    maxPulseRate,
+    minPulseRate,
+    pulseRate: Number(ecology.pulseRate.toFixed(2)),
+    state,
+    steady,
+    text: steady
+      ? `Pressure sails steady at pulse ${ecology.pulseRate.toFixed(2)}; ${chamber.pressureSails.text}.`
+      : `Pressure sails are ${state}; keep pulse between ${minPulseRate} and ${maxPulseRate}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
     return { solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
@@ -51,6 +91,8 @@ export function evaluateResonance(chamber, plantedSeeds) {
 
   const ecology = averageSeeds(plantedSeeds)
   const photosynthesis = photosynthesisState(chamber, plantedSeeds)
+  const thermalShutters = thermalShutterState(chamber, plantedSeeds)
+  const pressureSails = pressureSailState(chamber, plantedSeeds)
   const checks = [
     ['position', distance(ecology.position, chamber.target), chamber.tolerances.position, 'Move planted seed position closer to the heart.'],
     ['pitchRatio', Math.abs(ecology.pitchRatio - chamber.target.pitchRatio), chamber.tolerances.pitchRatio, 'Tune pitch ratio closer to the chamber heart.'],
@@ -63,6 +105,8 @@ export function evaluateResonance(chamber, plantedSeeds) {
 
   if (chamber.requiresGraft && !ecology.grafted) missing.push('Create and plant a grafted seed.')
   if (photosynthesis && !photosynthesis.active) missing.push('Raise brightness until the photosynthetic canopy opens.')
+  if (thermalShutters && !thermalShutters.open) missing.push('Tune brightness until the thermal shutters open without overheating.')
+  if (pressureSails && !pressureSails.steady) missing.push('Tune pulse until the pressure sails hold steady.')
   if (chamber.plantingPattern) {
     const coverage = plantingCoverage(chamber, plantedSeeds)
     if (!coverage.complete) {
@@ -82,6 +126,8 @@ export function evaluateResonance(chamber, plantedSeeds) {
     missing,
     ecology,
     photosynthesis,
+    pressureSails,
+    thermalShutters,
     plantingCoverage: chamber.plantingPattern ? plantingCoverage(chamber, plantedSeeds) : undefined,
   }
 }

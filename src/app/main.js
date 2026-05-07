@@ -1,5 +1,5 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -130,7 +130,9 @@ function listen() {
   audio.chamber(chamber, plantedSeeds)
   const planted = plantedSeeds.length ? `${plantedSeeds.length} planted seed voice(s)` : 'no planted seed voices'
   const status = lastResult.solved ? 'restored' : `resonance ${Math.round(lastResult.score * 100)} percent`
-  log(`Listen: ${chamber.title} is ${status}; ${planted}; heart pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}.`)
+  const cycle = chamberCycleState(chamber, save.arkClock)
+  const cycleText = cycle ? ` ${cycle.text}` : ''
+  log(`Listen: ${chamber.title} is ${status}; ${planted}; heart pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}.${cycleText}`)
 }
 
 function locate() {
@@ -297,7 +299,9 @@ function evaluateReport() {
   audio.resonance(lastResult, chamber)
   audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
   const photosynthesis = lastResult.photosynthesis ? ` ${lastResult.photosynthesis.text}` : ''
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}`
+  const pressureSails = lastResult.pressureSails ? ` ${lastResult.pressureSails.text}` : ''
+  const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}`
   log(`Evaluate resonance: ${Math.round(lastResult.score * 100)} percent. ${details}`)
 }
 
@@ -551,6 +555,7 @@ function atlas() {
   const campaign = firstFullCampaignEstimate(campaignScope)
   const stewardship = stewardshipSummary(chambers, save)
   const decision = decisionSummary(chambers, save.solvedChambers)
+  const activeCycle = chamberCycleState(chamber, save.arkClock)
   shell(`
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
@@ -558,6 +563,7 @@ function atlas() {
       <p>Systems online: ${save.restoredSystems.join(', ') || 'none yet'}.</p>
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
       <p>Ark clock: cycle ${save.arkClock}.</p>
+      ${activeCycle ? `<p>Active chamber cycle: ${activeCycle.text}</p>` : ''}
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>

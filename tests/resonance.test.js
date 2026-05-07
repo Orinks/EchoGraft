@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chambers, codexRecords, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
-import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, photosynthesisState, pressureSailState, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -196,6 +196,56 @@ describe('resonance evaluation', () => {
     expect(evaluateResonance(canopy, [dimSeed]).missing).toContain('Raise brightness until the photosynthetic canopy opens.')
     expect(photosynthesisState(canopy, [brightSeed]).active).toBe(true)
     expect(evaluateResonance(canopy, [brightSeed]).solved).toBe(true)
+  })
+
+  it('authors Sun Prism with thermal shutter brightness limits', () => {
+    const prism = chambers.find((chamber) => chamber.id === 'sun-prism')
+
+    expect(prism.thermalShutters.minBrightness).toBe(0.75)
+    expect(prism.thermalShutters.maxBrightness).toBe(0.9)
+  })
+
+  it('opens thermal shutters only inside the warm brightness window', () => {
+    const prism = chambers.find((chamber) => chamber.id === 'sun-prism')
+    const coolSeed = createSeedDNA('cool-prism', { pitchRatio: 2, pulseRate: 1.5, brightness: 0.6, phase: 90, position: { x: 1, y: 2 } })
+    const hotSeed = createSeedDNA('hot-prism', { pitchRatio: 2, pulseRate: 1.5, brightness: 0.95, phase: 90, position: { x: 1, y: 2 } })
+    const warmSeed = createSeedDNA('warm-prism', { pitchRatio: 2, pulseRate: 1.5, brightness: 0.85, phase: 90, position: { x: 1, y: 2 } })
+
+    expect(thermalShutterState(prism, [coolSeed]).state).toBe('too cool')
+    expect(thermalShutterState(prism, [hotSeed]).state).toBe('overheated')
+    expect(evaluateResonance(prism, [coolSeed]).missing).toContain('Tune brightness until the thermal shutters open without overheating.')
+    expect(thermalShutterState(prism, [warmSeed]).open).toBe(true)
+    expect(evaluateResonance(prism, [warmSeed]).solved).toBe(true)
+  })
+
+  it('cycles authored chamber states slowly from the Ark clock', () => {
+    const glassRain = chambers.find((chamber) => chamber.id === 'glass-rain')
+
+    expect(chamberCycleState(glassRain, 0).name).toBe('Mist lift')
+    expect(chamberCycleState(glassRain, 1).name).toBe('Mist lift')
+    expect(chamberCycleState(glassRain, 2).name).toBe('Drizzle hold')
+    expect(chamberCycleState(glassRain, 4).name).toBe('Sunbreak')
+    expect(chamberCycleState(glassRain, 6).name).toBe('Mist lift')
+  })
+
+  it('authors Wind Bellows with steady pressure sail pulse limits', () => {
+    const bellows = chambers.find((chamber) => chamber.id === 'wind-bellows')
+
+    expect(bellows.pressureSails.minPulseRate).toBe(1.75)
+    expect(bellows.pressureSails.maxPulseRate).toBe(2.25)
+  })
+
+  it('holds pressure sails only inside the steady pulse window', () => {
+    const bellows = chambers.find((chamber) => chamber.id === 'wind-bellows')
+    const slackSeed = createSeedDNA('slack-sail', { pitchRatio: 1.25, pulseRate: 1.2, brightness: 0.55, phase: 60, position: { x: -1, y: 1 } })
+    const strainSeed = createSeedDNA('strain-sail', { pitchRatio: 1.25, pulseRate: 2.8, brightness: 0.55, phase: 60, position: { x: -1, y: 1 } })
+    const steadySeed = createSeedDNA('steady-sail', { pitchRatio: 1.25, pulseRate: 2, brightness: 0.55, phase: 60, position: { x: -1, y: 1 } })
+
+    expect(pressureSailState(bellows, [slackSeed]).state).toBe('slack')
+    expect(pressureSailState(bellows, [strainSeed]).state).toBe('straining')
+    expect(evaluateResonance(bellows, [slackSeed]).missing).toContain('Tune pulse until the pressure sails hold steady.')
+    expect(pressureSailState(bellows, [steadySeed]).steady).toBe(true)
+    expect(evaluateResonance(bellows, [steadySeed]).solved).toBe(true)
   })
 
   it('authors Root Pumps as the first Rootworks pulse-routing contract', () => {
