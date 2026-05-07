@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -133,6 +133,47 @@ describe('scan pulse', () => {
     expect(memoryScan.memoryOnline).toBe(true)
     expect(memoryScan.hiddenEchoes).toContainEqual(expect.objectContaining({ id: 'perception-04', title: 'Perception 04' }))
     expect(memoryScan.text).toContain('Hidden echoes: Perception 04 audible before restoration')
+  })
+
+  it('summarizes endgame multi-chamber network resonance state', () => {
+    const networkScan = networkScanState(
+      {
+        nodes: [
+          { online: true, strength: 3, system: 'Intake' },
+          { online: true, strength: 2, system: 'Memory' },
+          { online: false, strength: 0, system: 'Heart' },
+        ],
+        onlineNodes: [
+          { online: true, strength: 3, system: 'Intake' },
+          { online: true, strength: 2, system: 'Memory' },
+        ],
+        readyForFinale: false,
+        totalStrength: 5,
+      },
+      { endingsUnlocked: false, heartOnline: false },
+      { systems: ['Intake', 'Memory'] },
+    )
+
+    expect(networkScan.readyForFinale).toBe(false)
+    expect(networkScan.onlineNodes).toHaveLength(2)
+    expect(networkScan.offlineNodes).toContainEqual(expect.objectContaining({ system: 'Heart' }))
+    expect(networkScan.strongest).toMatchObject({ system: 'Intake', strength: 3 })
+    expect(networkScan.text).toContain('Network scan: endgame multi-chamber resonance building')
+    expect(networkScan.text).toContain('Heart locked; endings not ready')
+    expect(networkScan.text).toContain('Final chord systems: Intake, Memory')
+  })
+
+  it('reports network scan readiness when the final network is online', () => {
+    const networkScan = networkScanState(
+      { nodes: [], onlineNodes: [], readyForFinale: true, totalStrength: 18 },
+      { endingsUnlocked: true, heartOnline: true },
+      { systems: [] },
+    )
+
+    expect(networkScan.readyForFinale).toBe(true)
+    expect(networkScan.heartOnline).toBe(true)
+    expect(networkScan.text).toContain('resonance ready')
+    expect(networkScan.text).toContain('Heart online; endings available')
   })
 
   it('expands scan range after Intake comes online', () => {

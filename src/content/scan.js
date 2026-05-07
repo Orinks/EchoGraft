@@ -178,6 +178,25 @@ export function memoryScanState(chamber = {}, save = {}, records = {}) {
   }
 }
 
+export function networkScanState(network = {}, heart = {}, finalChord = {}) {
+  const nodes = network.nodes ?? []
+  const onlineNodes = network.onlineNodes ?? nodes.filter((node) => node.online)
+  const offlineNodes = nodes.filter((node) => !node.online)
+  const strongest = [...onlineNodes].sort((a, b) => (b.strength ?? 0) - (a.strength ?? 0))[0]
+  const chordSystems = finalChord.systems ?? []
+
+  return {
+    chordSystems,
+    heartOnline: Boolean(heart.heartOnline),
+    offlineNodes,
+    onlineNodes,
+    readyForFinale: Boolean(network.readyForFinale),
+    strongest,
+    totalStrength: network.totalStrength ?? 0,
+    text: `Network scan: endgame multi-chamber resonance ${network.readyForFinale ? 'ready' : 'building'}; ${onlineNodes.length} online system(s), ${offlineNodes.length} offline; strength ${network.totalStrength ?? 0}. Heart ${heart.heartOnline ? 'online' : 'locked'}; endings ${heart.endingsUnlocked ? 'available' : 'not ready'}. ${strongest ? `Strongest system ${strongest.system} strength ${strongest.strength}.` : 'No restored system voices online yet.'} Final chord systems: ${chordSystems.length ? chordSystems.join(', ') : 'none recorded yet'}.`,
+  }
+}
+
 export function navigationScanState(save = {}) {
   const navigationOnline = save.restoredSystems?.includes('Navigation') || save.restoredSystems?.includes('Navigation grove')
 
