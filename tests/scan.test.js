@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedPositionState, seedScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -61,16 +61,31 @@ describe('scan pulse', () => {
         pulseRate: 1,
         waveform: 'sine',
       },
-    ])
+    ], { target: { x: 0, y: 0 }, tolerances: { position: 1.5 } })
 
     expect(seedScan.count).toBe(1)
     expect(seedScan.seeds[0]).toMatchObject({
       family: 'Sol',
       position: { x: 0, y: 1 },
+      positionState: { distance: 1, offset: { dx: 0, dy: 1 }, withinTolerance: true },
       traits: { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, waveform: 'sine' },
     })
     expect(seedScan.text).toContain('Seed scan: Sol phonoseed at 0, 1')
+    expect(seedScan.text).toContain('Position: 0, 1; heart offset 0, 1; distance 1 step(s); inside position tolerance 1.5')
     expect(seedScan.text).toContain('traits pitch 1, pulse 1, brightness 0.45, phase 0, waveform sine')
+  })
+
+  it('reports a reusable seed position state relative to the chamber heart', () => {
+    const position = seedPositionState(
+      { position: { x: 3, y: -1 } },
+      { target: { x: 1, y: 1 }, tolerances: { position: 2 } },
+    )
+
+    expect(position.position).toEqual({ x: 3, y: -1 })
+    expect(position.offset).toEqual({ dx: 2, dy: -2 })
+    expect(position.distance).toBeCloseTo(2.828)
+    expect(position.withinTolerance).toBe(false)
+    expect(position.text).toContain('outside position tolerance 2')
   })
 
   it('summarizes hazard forbidden intervals and unsafe seed zones', () => {

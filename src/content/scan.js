@@ -71,11 +71,30 @@ export function boundaryScanState(player, chamber = {}) {
   }
 }
 
-export function seedScanState(plantedSeeds = []) {
+export function seedPositionState(seed = {}, chamber = {}) {
+  const position = seed.position ?? { x: 0, y: 0 }
+  const target = chamber.target ?? { x: 0, y: 0 }
+  const offset = { dx: Number((position.x - target.x).toFixed(3)), dy: Number((position.y - target.y).toFixed(3)) }
+  const distance = Number(Math.hypot(offset.dx, offset.dy).toFixed(3))
+  const tolerance = chamber.tolerances?.position
+  const withinTolerance = Number.isFinite(tolerance) ? distance <= tolerance : undefined
+
+  return {
+    distance,
+    offset,
+    position,
+    tolerance,
+    withinTolerance,
+    text: `Position: ${position.x}, ${position.y}; heart offset ${offset.dx}, ${offset.dy}; distance ${distance} step(s)${Number.isFinite(tolerance) ? `; ${withinTolerance ? 'inside' : 'outside'} position tolerance ${tolerance}` : ''}.`,
+  }
+}
+
+export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
     family: seed.family ?? 'unknown family',
     name: seed.name ?? seed.id ?? 'unknown seed',
     position: seed.position ?? { x: 0, y: 0 },
+    positionState: seedPositionState(seed, chamber),
     traits: {
       brightness: seed.brightness ?? 0,
       phase: seed.phase ?? 0,
@@ -89,7 +108,7 @@ export function seedScanState(plantedSeeds = []) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; family ${seed.family}; traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} family ${seed.family}; traits pitch ${seed.traits.pitchRatio}, pulse ${seed.traits.pulseRate}, brightness ${seed.traits.brightness}, phase ${seed.traits.phase}, waveform ${seed.traits.waveform}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

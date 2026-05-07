@@ -214,7 +214,7 @@ function scan() {
     log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
   if (scanMode === 'boundaries') log(boundaryScanState(player, chamber).text)
-  if (scanMode === 'seeds') log(seedScanState(plantedSeeds).text)
+  if (scanMode === 'seeds') log(seedScanState(plantedSeeds, chamber).text)
   if (scanMode === 'hazards') log(hazardScanState(chamber, plantedSeeds).text)
   if (scanMode === 'memory') log(memoryScanState(chamber, save, availableCodexRecords()).text)
   if (scanMode === 'network') log(networkScanState(multiChamberResonanceNetwork(chambers, save), heartNetworkEndingState(chambers, save), playerBuiltFinalChord(chambers, save, inventory)).text)
