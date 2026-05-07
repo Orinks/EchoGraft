@@ -296,6 +296,36 @@ describe('seed DNA', () => {
     expect(report.text).toContain('root pitch 0.75 from Parent A')
   })
 
+  it('uses parent B for graft modulation and growth behavior', () => {
+    const parentA = createSeedDNA('parent-a-mod', {
+      amAmount: 0.7,
+      fmAmount: 0.8,
+      growthBehavior: 'steady',
+      name: 'Parent A',
+      noiseAmount: 0.6,
+    })
+    const parentB = createSeedDNA('parent-b-mod', {
+      amAmount: 0.25,
+      fmAmount: 0.15,
+      growthBehavior: 'twining',
+      name: 'Parent B',
+      noiseAmount: 0.35,
+    })
+    const report = graftSeedsWithReport(parentA, parentB, 'mod-growth-graft')
+
+    expect(report.seed).toMatchObject({
+      amAmount: 0.25,
+      fmAmount: 0.15,
+      growthBehavior: 'twining',
+      noiseAmount: 0.35,
+    })
+    expect(report.inheritedTraits).toEqual(expect.arrayContaining([
+      'modulation FM 0.15, AM 0.25, noise 0.35 from Parent B',
+      'growth twining from Parent B',
+    ]))
+    expect(report.text).toContain('modulation FM 0.15, AM 0.25, noise 0.35 from Parent B')
+  })
+
   it('reports graft ancestry as parent seed lines and archive record', () => {
     const graft = graftSeeds(createSeedDNA('sol'), createSeedDNA('lumen'))
     const state = seedGraftAncestryState(graft)

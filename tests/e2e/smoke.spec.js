@@ -129,7 +129,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Tune up' }).click()
   await expect(page.getByText(/Tuned Lumen phonoseed: growthBehavior is .* growth behavior/)).toBeVisible()
   await page.getByRole('button', { name: 'Graft first two seeds' }).click()
-  await expect(page.getByText(/First graft: Sol phonoseed plus Lumen phonoseed created Sol-Lumen graft.*root pitch 1 from Sol phonoseed.*waveform sine from Sol phonoseed/)).toBeVisible()
+  await expect(page.getByText(/First graft: Sol phonoseed plus Lumen phonoseed created Sol-Lumen graft.*root pitch 1 from Sol phonoseed.*waveform sine from Sol phonoseed.*modulation FM .* AM .* noise .* from Lumen phonoseed.*growth .* from Lumen phonoseed/)).toBeVisible()
   await expect(page.getByText(/Grafted Sol-Lumen graft/)).toBeVisible()
   await expect(page.getByText(/Unlocked graft mechanic: hybrid resonance planting/)).toBeVisible()
   await expect(page.locator('li').filter({ hasText: /Sol-Lumen graft: .*Graft ancestry: Sol plus Lumen; archive record sol-lumen; hybrid traits inherited from parent seed lines/ })).toBeVisible()
