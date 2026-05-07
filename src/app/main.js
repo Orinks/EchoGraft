@@ -6,7 +6,7 @@ import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer } from '../content/player.js'
 import { availableChambers, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary } from '../content/resonance.js'
-import { scanPulse } from '../content/scan.js'
+import { scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
@@ -155,9 +155,10 @@ function listen() {
 }
 
 function locate() {
-  const pulse = scanPulse(player, chamber.target, chamber)
+  const range = scanRangeState(save)
+  const pulse = scanPulse(player, chamber.target, { ...chamber, scanRange: range.range })
   audio.scan(player, chamber.target)
-  log(`Locate: chamber heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.horizontal}, ${pulse.direction.vertical}. ${pulse.text}`)
+  log(`Locate: chamber heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.horizontal}, ${pulse.direction.vertical}. ${range.text} ${pulse.text}`)
 }
 
 function heartShapeText(target) {
@@ -199,10 +200,11 @@ function positionMeaningText(position) {
 }
 
 function scan() {
-  const pulse = scanPulse(player, chamber.target, chamber)
+  const range = scanRangeState(save)
+  const pulse = scanPulse(player, chamber.target, { ...chamber, scanRange: range.range })
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
-    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${range.text} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
   }
   if (scanMode === 'boundaries') log(`Boundary scan: safe work zone extends from ${chamber.start.x - 5}, ${chamber.start.y - 5} to ${chamber.start.x + 5}, ${chamber.start.y + 5}. Current position ${player.x}, ${player.y}.`)
   if (scanMode === 'seeds') log(plantedSeeds.length ? `Seed scan: ${plantedSeeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}`).join('; ')}.` : 'Seed scan: no planted seed objects in this chamber.')

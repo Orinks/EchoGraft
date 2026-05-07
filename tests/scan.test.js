@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { scanPulse, windCarriedEcho } from '../src/content/scan.js'
+import { scanPulse, scanRangeState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -9,6 +9,7 @@ describe('scan pulse', () => {
     expect(pulse.direction).toMatchObject({ horizontal: 'west', side: 'left', vertical: 'north' })
     expect(pulse.delayTrail).toHaveLength(3)
     expect(pulse.delayTrail[2]).toBeGreaterThan(pulse.delayTrail[1])
+    expect(pulse.range).toBe(8)
     expect(pulse.text).toContain('Scan pulse')
   })
 
@@ -17,6 +18,18 @@ describe('scan pulse', () => {
 
     expect(pulse.brightness).toBeGreaterThan(0.8)
     expect(pulse.duration).toBeLessThan(0.25)
+  })
+
+  it('expands scan range after Intake comes online', () => {
+    const base = scanRangeState({ restoredSystems: [] })
+    const intake = scanRangeState({ restoredSystems: ['Intake'] })
+    const farPulse = scanPulse({ x: 0, y: 0 }, { x: 10, y: 0 }, { scanRange: intake.range })
+
+    expect(base.range).toBe(8)
+    expect(intake.range).toBe(12)
+    expect(intake.text).toContain('Intake scan range unlocked')
+    expect(farPulse.inRange).toBe(true)
+    expect(farPulse.text).toContain('range 12')
   })
 
   it('adds wind-carried echo text when a chamber declares a draft', () => {
