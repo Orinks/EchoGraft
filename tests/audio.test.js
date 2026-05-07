@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine } from '../src/engine/audio.js'
+import { AudioEngine, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -15,6 +15,14 @@ function movementVoices(player, previous, chamber) {
 }
 
 describe('audio movement cues', () => {
+  it('classifies spatial Syngen sound roles for gameplay voices', () => {
+    expect(spatialVoiceRoleForCategory('seed')).toBe('seed')
+    expect(spatialVoiceRoleForCategory('scan')).toBe('scan')
+    expect(spatialVoiceRoleForCategory('hazard')).toBe('hazard')
+    expect(spatialVoiceRoleForCategory('ambience')).toBe('landmark')
+    expect(spatialVoiceRoleForCategory('music')).toBe('chamber')
+  })
+
   it('schedules persistent planted seed voices from the frame loop', () => {
     const audio = new AudioEngine()
     const played = []

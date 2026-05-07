@@ -188,8 +188,8 @@ function connectVoice(synth, bus) {
 }
 
 function createSpatialVoicePrototype() {
-  if (!syngen?.prop?.base?.invent) return null
-  return syngen.prop.base.invent({
+  if (!syngen?.sound?.extend) return null
+  return syngen.sound.extend({
     name: 'echograft-spatial-voice',
     reverb: true,
     onConstruct({
@@ -219,6 +219,15 @@ function createSpatialVoicePrototype() {
       this.synth?.stop?.()
     },
   })
+}
+
+export function spatialVoiceRoleForCategory(category = 'ui') {
+  if (category === 'seed') return 'seed'
+  if (category === 'scan') return 'scan'
+  if (category === 'hazard') return 'hazard'
+  if (category === 'music') return 'chamber'
+  if (category === 'ambience' || category === 'ui') return 'landmark'
+  return 'chamber'
 }
 
 function createSynthForTone(tone, seed) {
@@ -280,7 +289,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.audio?.synth && syngen?.audio?.mixer && syngen?.prop?.base)
+    this.hasAudioStack = Boolean(syngen?.audio?.synth && syngen?.audio?.mixer && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.music = {
       chamber: null,
@@ -426,17 +435,18 @@ export class AudioEngine {
 
     const x = position?.x ?? 0
     const y = position?.y ?? 0
-    const prop = syngen.props.create(this.spatialVoice, {
+    const sound = syngen.sound.instantiate.call(this.spatialVoice, {
       destination: bus,
       duration,
       gain,
       seed,
       tone,
+      voiceRole: spatialVoiceRoleForCategory(category),
       x,
       y,
       z: 0,
     })
-    setTimeout(() => syngen.props.destroy(prop), (duration + 0.1) * 1000)
+    setTimeout(() => sound.destroy(), (duration + 0.1) * 1000)
   }
 
   tickMusic() {
