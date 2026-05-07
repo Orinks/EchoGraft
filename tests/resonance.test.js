@@ -187,7 +187,7 @@ describe('resonance evaluation', () => {
     const chamber = chambers.find((item) => item.rewards?.codex?.length)
     const save = createDefaultSave()
     const available = optionalRecordRecoverySummary(chamber, save)
-    save.codexIds.push(chamber.rewards.codex[0])
+    save.codexIds.push(...chamber.rewards.codex)
     const recovered = optionalRecordRecoverySummary(chamber, save)
 
     expect(available.band).toBe('available')
@@ -612,6 +612,20 @@ describe('resonance evaluation', () => {
 
     expect(trees.map((tree) => tree.id)).toEqual(['gardener-notes', 'crew-messages', 'plant-memory', 'restoration-records'])
     expect(trees.find((tree) => tree.id === 'restoration-records').records[0].id).toBe('first-breath')
+  })
+
+  it('rewards every authored gardener note through campaign chamber solves', () => {
+    const expectedNotes = Array.from({ length: 12 }, (_, index) => `gardener-note-${String(index + 1).padStart(2, '0')}`)
+    const rewardedNotes = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).filter((id) => id.startsWith('gardener-note'))
+    const rewardedNoteSet = new Set(rewardedNotes)
+    const tutorialSave = mergeRewards(createDefaultSave(), chambers.find((chamber) => chamber.id === 'tutorial'), 'Stable')
+    const tutorialTrees = codexRecordTrees(codexRecords, tutorialSave.codexIds)
+    const gardenerTree = tutorialTrees.find((tree) => tree.id === 'gardener-notes')
+
+    expect(rewardedNotes).toHaveLength(expectedNotes.length)
+    expect([...rewardedNoteSet].sort()).toEqual(expectedNotes)
+    expect(expectedNotes.every((id) => codexRecords[id])).toBe(true)
+    expect(gardenerTree.records.map((record) => record.title)).toContain('Gardener Note 01')
   })
 
   it('authors Intake Lung as an intake restoration contract', () => {

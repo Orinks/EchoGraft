@@ -201,7 +201,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
-    rewards: { codex: ['first-breath'], materials: { biomass: 1, spores: 1 } },
+    rewards: { codex: ['first-breath', 'gardener-note-01'], materials: { biomass: 1, spores: 1 } },
   },
   {
     id: 'direction',
@@ -285,7 +285,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.08, phase: 180 },
     requires: ['rhythm'],
-    rewards: { codex: ['glass-leaves'], materials: { crystal: 2 } },
+    rewards: { codex: ['glass-leaves', 'gardener-note-07'], materials: { crystal: 2 } },
   },
   {
     id: 'harmony',
@@ -308,7 +308,7 @@ export const chambers = [
     optional: true,
     researchReveal: { kind: 'record', name: 'twin-roots' },
     requires: ['pitch'],
-    rewards: { codex: ['twin-roots'], materials: { memory: 1 } },
+    rewards: { codex: ['twin-roots', 'gardener-note-05'], materials: { memory: 1 } },
   },
   {
     id: 'phase',
@@ -343,7 +343,7 @@ export const chambers = [
     optional: true,
     researchReveal: { kind: 'trait', name: 'graft ancestry' },
     requires: ['harmony'],
-    rewards: { codex: ['splice-nursery'], materials: { biomass: 1, memory: 1 } },
+    rewards: { codex: ['splice-nursery', 'gardener-note-04'], materials: { biomass: 1, memory: 1 } },
   },
   {
     id: 'mold',
@@ -361,7 +361,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'mold pressure spreads if the low interval is not contained before the planning window closes' },
     requires: ['phase'],
-    rewards: { codex: ['mold-pressure'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
+    rewards: { codex: ['mold-pressure', 'gardener-note-08'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
   {
     id: 'finale',
@@ -383,7 +383,7 @@ export const chambers = [
       systems: ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'],
     },
     requires: ['mold'],
-    rewards: { codex: ['verdancy-heart'], materials: { biomass: 3, crystal: 2, memory: 2 } },
+    rewards: { codex: ['verdancy-heart', 'gardener-note-06'], materials: { biomass: 3, crystal: 2, memory: 2 } },
     ending: true,
   },
   {
@@ -400,7 +400,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.4, pitchRatio: 0.12, pulseRate: 0.18, brightness: 0.16, phase: 50 },
     requires: ['finale'],
-    rewards: { codex: ['root-pumps'], materials: { biomass: 2, memory: 1 } },
+    rewards: { codex: ['root-pumps', 'gardener-note-02'], materials: { biomass: 2, memory: 1 } },
   },
   {
     id: 'root-choir',
@@ -522,7 +522,7 @@ export const chambers = [
     tolerances: { position: 1.1, pitchRatio: 0.08, pulseRate: 0.22, brightness: 0.14, phase: 22 },
     optional: true,
     requires: ['nutrient-lattice'],
-    rewards: { materials: { biomass: 2, memory: 1 } },
+    rewards: { codex: ['gardener-note-09'], materials: { biomass: 2, memory: 1 } },
   },
   {
     id: 'glass-rain',
@@ -552,7 +552,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.22, brightness: 0.12, phase: 50 },
     requires: ['nutrient-lattice'],
-    rewards: { materials: { crystal: 2 } },
+    rewards: { codex: ['gardener-note-03'], materials: { crystal: 2 } },
   },
   {
     id: 'sun-prism',
@@ -844,7 +844,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.22, brightness: 0.12, phase: 45 },
     requires: ['orchard-gate'],
-    rewards: { materials: { biomass: 2, crystal: 1, memory: 1 } },
+    rewards: { codex: ['gardener-note-12'], materials: { biomass: 2, crystal: 1, memory: 1 } },
   },
   {
     id: 'optional-heart-glass',
@@ -935,7 +935,7 @@ export const chambers = [
       curation: 'choosing recovered seed voices for the living archive',
     },
     requires: ['finale'],
-    rewards: { codex: ['system-diagnostic-10'], materials: { memory: 2 } },
+    rewards: { codex: ['system-diagnostic-10', 'gardener-note-11'], materials: { memory: 2 } },
   },
 ]
 
