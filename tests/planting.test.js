@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { chamberSubstrate, growthTiming, plantedSeed, plantingAssessment, plantingCoverage, plantingPositions } from '../src/content/planting.js'
+import { chamberSubstrate, growthTiming, plantedSeed, plantingAssessment, plantingCoverage, plantingPositions, substrateMutationChance } from '../src/content/planting.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
 describe('planting', () => {
@@ -11,8 +11,10 @@ describe('planting', () => {
 
     expect(planted.seed.position).toEqual({ x: 0, y: 1 })
     expect(planted.seed.chamberSubstrate).toBe('wet root channel')
+    expect(planted.seed.mutationChance).toMatchObject({ chance: 0.08, percent: 8, substrate: 'wet root channel' })
     expect(planted.assessment.meaningful).toBe(true)
     expect(planted.assessment.text).toContain('Substrate wet root channel')
+    expect(planted.assessment.text).toContain('Mutation chance: 8%')
   })
 
   it('reports nearby seed interactions before resonance evaluation', () => {
@@ -28,6 +30,22 @@ describe('planting', () => {
   it('names chamber substrate from the Ark system', () => {
     expect(chamberSubstrate({ system: 'Canopy' })).toBe('photosynthetic lattice')
     expect(chamberSubstrate({ system: 'Memory Orchard' })).toBe('archive loam')
+  })
+
+  it('uses chamber substrate to set mutation chance bands', () => {
+    expect(substrateMutationChance({ system: 'Canopy' })).toMatchObject({
+      band: 'moderate',
+      chance: 0.1,
+      percent: 10,
+      substrate: 'photosynthetic lattice',
+    })
+    expect(substrateMutationChance({ system: 'Verdancy Heart' })).toMatchObject({
+      band: 'very high',
+      chance: 0.25,
+      percent: 25,
+      substrate: 'resonant heartsoil',
+    })
+    expect(substrateMutationChance('archive loam').text).toContain('memory-rich ancestry drift')
   })
 
   it('tracks multi-position planting slots for harmonic chambers', () => {

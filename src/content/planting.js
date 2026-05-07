@@ -9,6 +9,27 @@ export function chamberSubstrate(chamber = {}) {
   return 'breathable intake soil'
 }
 
+export function substrateMutationChance(chamberOrSubstrate = {}) {
+  const substrate = typeof chamberOrSubstrate === 'string' ? chamberOrSubstrate : chamberSubstrate(chamberOrSubstrate)
+  const profile = {
+    'archive loam': { band: 'high', chance: 0.18, pressure: 'memory-rich ancestry drift' },
+    'breathable intake soil': { band: 'low', chance: 0.05, pressure: 'stable oxygen rooting' },
+    'mycelial rootbed': { band: 'high', chance: 0.22, pressure: 'fungal graft exchange' },
+    'photosynthetic lattice': { band: 'moderate', chance: 0.1, pressure: 'light-reactive trait bloom' },
+    'reflective glass loam': { band: 'moderate', chance: 0.14, pressure: 'prismatic timbre reflection' },
+    'resonant heartsoil': { band: 'very high', chance: 0.25, pressure: 'network resonance mutation' },
+    'wet root channel': { band: 'low', chance: 0.08, pressure: 'current-softened root drift' },
+  }[substrate] ?? { band: 'low', chance: 0.05, pressure: 'stable baseline rooting' }
+  const percent = Math.round(profile.chance * 100)
+
+  return {
+    ...profile,
+    percent,
+    substrate,
+    text: `Mutation chance: ${percent}% (${profile.band}) from ${substrate}; ${profile.pressure}.`,
+  }
+}
+
 export function plantingPositions(chamber = {}) {
   const target = chamber.target ?? { x: 0, y: 0 }
   const offsets = chamber.plantingPattern?.offsets ?? []
@@ -74,6 +95,7 @@ export function plantingAssessment(seed, position, chamber = {}, plantedSeeds = 
   const distance = nearestSlot.distance
   const tolerance = chamber.tolerances?.position ?? 1
   const substrate = chamberSubstrate(chamber)
+  const mutationChance = substrateMutationChance(substrate)
   const nearbyInteractions = plantedSeeds.filter((planted) => {
     const other = planted.position ?? { x: 0, y: 0 }
     return Math.hypot(other.x - position.x, other.y - position.y) <= 2
@@ -94,9 +116,10 @@ export function plantingAssessment(seed, position, chamber = {}, plantedSeeds = 
     slot: nearestSlot.slot,
     slotIndex: nearestSlot.index,
     substrate,
+    mutationChance,
     text: meaningful
-      ? `Meaningful position: within ${distance.toFixed(1)} steps of a restoration planting point, inside the ${tolerance} step restoration tolerance.${slotText} Substrate ${substrate}. Nearby seed interactions: ${nearbyInteractions.length ? nearbyInteractions.map((item) => item.name).join(', ') : 'none'}. ${timing.text}`
-      : `Meaningful position: ${distance.toFixed(1)} steps from the nearest restoration planting point; move closer than ${tolerance} steps for stronger resonance.${slotText} Substrate ${substrate}. Nearby seed interactions: ${nearbyInteractions.length ? nearbyInteractions.map((item) => item.name).join(', ') : 'none'}. ${timing.text}`,
+      ? `Meaningful position: within ${distance.toFixed(1)} steps of a restoration planting point, inside the ${tolerance} step restoration tolerance.${slotText} Substrate ${substrate}. ${mutationChance.text} Nearby seed interactions: ${nearbyInteractions.length ? nearbyInteractions.map((item) => item.name).join(', ') : 'none'}. ${timing.text}`
+      : `Meaningful position: ${distance.toFixed(1)} steps from the nearest restoration planting point; move closer than ${tolerance} steps for stronger resonance.${slotText} Substrate ${substrate}. ${mutationChance.text} Nearby seed interactions: ${nearbyInteractions.length ? nearbyInteractions.map((item) => item.name).join(', ') : 'none'}. ${timing.text}`,
   }
 }
 
@@ -108,6 +131,7 @@ export function plantedSeed(seed, position, chamber = {}, plantedSeeds = []) {
       ...seed,
       chamberSubstrate: assessment.substrate,
       growthTiming: assessment.growthTiming,
+      mutationChance: assessment.mutationChance,
       position: { x: position.x, y: position.y },
     },
   }
