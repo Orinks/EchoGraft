@@ -133,6 +133,63 @@ export function seedTuningScanState(seed = {}, chamber = {}) {
   }
 }
 
+export function seedBrightnessFilterScanState(seed = {}, chamber = {}) {
+  const brightness = clamp(Number(seed.brightness ?? 0.5), 0, 1)
+  const target = chamber.target?.brightness
+  const delta = tuningDelta(brightness, target)
+  const tolerance = chamber.tolerances?.brightness
+  const withinTolerance = Number.isFinite(tolerance) && Number.isFinite(delta) ? Math.abs(delta) <= tolerance : undefined
+  const cutoffHz = Math.round(600 + brightness * 5600)
+  const gates = []
+
+  if (chamber.photosynthesis) {
+    const minBrightness = chamber.photosynthesis.minBrightness
+    gates.push({
+      active: brightness >= minBrightness,
+      kind: 'photosynthesis',
+      text: `photosynthesis needs ${minBrightness}`,
+    })
+  }
+
+  if (chamber.thermalShutters) {
+    const { maxBrightness, minBrightness } = chamber.thermalShutters
+    gates.push({
+      active: brightness >= minBrightness && brightness <= maxBrightness,
+      kind: 'thermal shutters',
+      text: `thermal shutters need ${minBrightness}-${maxBrightness}`,
+    })
+  }
+
+  if (chamber.timbrePuzzle) {
+    const minBrightness = chamber.timbrePuzzle.minBrightness
+    const waveform = seed.waveform ?? 'sine'
+    const waveforms = chamber.timbrePuzzle.waveforms ?? []
+    gates.push({
+      active: brightness >= minBrightness && waveforms.includes(waveform),
+      kind: 'brightness/timbre',
+      text: `brightness/timbre needs ${minBrightness} with ${waveforms.join(' or ') || 'any'} timbre`,
+    })
+  }
+
+  const gateText = gates.length
+    ? gates.map((gate) => `${gate.text}, ${gate.active ? 'open' : 'closed'}`).join('; ')
+    : 'no chamber brightness gate'
+  const toleranceText = Number.isFinite(tolerance) && Number.isFinite(delta)
+    ? `; ${withinTolerance ? 'inside' : 'outside'} filter tolerance ${tolerance}`
+    : ''
+
+  return {
+    brightness,
+    cutoffHz,
+    delta,
+    gates,
+    target,
+    tolerance,
+    withinTolerance,
+    text: `Brightness/filter: ${brightness}${Number.isFinite(target) ? `; target ${target} (delta ${delta})` : ''}${toleranceText}; filter cutoff about ${cutoffHz} Hz; ${gateText}.`,
+  }
+}
+
 export function seedSubstrateScanState(seed = {}, chamber = {}) {
   const substrate = seed.chamberSubstrate ?? chamberSubstrate(chamber)
   const mutationChance = seed.mutationChance ?? substrateMutationChance(substrate)
@@ -169,6 +226,7 @@ export function seedNearbyInteractionState(seed = {}, plantedSeeds = []) {
 
 export function seedScanState(plantedSeeds = [], chamber = {}) {
   const seeds = plantedSeeds.map((seed) => ({
+    brightnessFilterState: seedBrightnessFilterScanState(seed, chamber),
     family: seed.family ?? 'unknown family',
     familyState: seedFamilyScanState(seed),
     name: seed.name ?? seed.id ?? 'unknown seed',
@@ -183,7 +241,7 @@ export function seedScanState(plantedSeeds = [], chamber = {}) {
     count: seeds.length,
     seeds,
     text: seeds.length
-      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.tuningState.text}`).join('; ')}.`
+      ? `Seed scan: ${seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; ${seed.positionState.text} ${seed.familyState.text} ${seed.substrateState.text} ${seed.nearbyState.text} ${seed.brightnessFilterState.text} ${seed.tuningState.text}`).join('; ')}.`
       : 'Seed scan: no planted seed objects in this chamber.',
   }
 }

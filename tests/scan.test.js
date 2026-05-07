@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedBrightnessFilterScanState, seedFamilyScanState, seedNearbyInteractionState, seedPositionState, seedScanState, seedSubstrateScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -68,6 +68,7 @@ describe('scan pulse', () => {
     expect(seedScan.count).toBe(1)
     expect(seedScan.seeds[0]).toMatchObject({
       family: 'Sol',
+      brightnessFilterState: { brightness: 0.45, cutoffHz: 3120, delta: 0, withinTolerance: undefined },
       familyState: { affinity: 'oxygen and stable pitch', family: 'Sol', origin: 'Intake lung' },
       nearbyState: { nearby: [] },
       position: { x: 0, y: 1 },
@@ -83,6 +84,7 @@ describe('scan pulse', () => {
     expect(seedScan.text).toContain('Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung.')
     expect(seedScan.text).toContain('Chamber substrate: breathable intake soil; Mutation chance: 5% (low) from breathable intake soil; stable oxygen rooting.')
     expect(seedScan.text).toContain('Nearby seed interactions: none within 2 steps.')
+    expect(seedScan.text).toContain('Brightness/filter: 0.45; target 0.45 (delta 0); filter cutoff about 3120 Hz; no chamber brightness gate.')
     expect(seedScan.text).toContain('Tuning state: pitch 1 (delta 0), pulse 1 (delta 0), brightness 0.45 (delta 0), phase 0 (delta 0), waveform sine; locked traits none.')
   })
 
@@ -111,6 +113,30 @@ describe('scan pulse', () => {
     expect(tuning.deltas).toMatchObject({ brightness: 0.15, phase: 90, pitchRatio: 0.25, pulseRate: 0 })
     expect(tuning.lockedTraits).toEqual(['pitchRatio'])
     expect(tuning.text).toContain('locked traits pitchRatio')
+  })
+
+  it('reports a reusable brightness filter state with chamber gates', () => {
+    const filter = seedBrightnessFilterScanState(
+      { brightness: 0.76, waveform: 'triangle' },
+      {
+        target: { brightness: 0.8 },
+        timbrePuzzle: { minBrightness: 0.72, waveforms: ['triangle', 'sawtooth'] },
+        tolerances: { brightness: 0.08 },
+      },
+    )
+
+    expect(filter).toMatchObject({
+      brightness: 0.76,
+      cutoffHz: 4856,
+      delta: -0.04,
+      target: 0.8,
+      withinTolerance: true,
+    })
+    expect(filter.gates).toEqual([
+      expect.objectContaining({ active: true, kind: 'brightness/timbre' }),
+    ])
+    expect(filter.text).toContain('inside filter tolerance 0.08')
+    expect(filter.text).toContain('brightness/timbre needs 0.72 with triangle or sawtooth timbre, open')
   })
 
   it('reports chamber substrate and mutation pressure for planted seeds', () => {
