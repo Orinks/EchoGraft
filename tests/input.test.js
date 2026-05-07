@@ -1,0 +1,37 @@
+import { describe, expect, it } from 'vitest'
+import { createSyngenInputPoller, inputIntentFromSnapshot, syngenInputSnapshot } from '../src/engine/input.js'
+
+describe('syngen input state', () => {
+  it('normalizes keyboard state into game intents', () => {
+    const snapshot = syngenInputSnapshot({ code: 'KeyW', type: 'keydown' })
+
+    expect(snapshot.keyboard.KeyW).toBe(true)
+    expect(inputIntentFromSnapshot(snapshot)).toEqual({ action: 'move', dx: 0, dy: 1, source: 'keyboard' })
+  })
+
+  it('normalizes gamepad state into game intents', () => {
+    expect(inputIntentFromSnapshot({ gamepad: { axis: { 0: 0.8 }, digital: {} }, keyboard: {} })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 0: true } }, keyboard: {} })).toEqual({ action: 'plant', source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 1: true } }, keyboard: {} })).toEqual({ action: 'scan', source: 'gamepad' })
+  })
+
+  it('throttles repeated Syngen input poll intents', () => {
+    const intents = []
+    let now = 1
+    const poller = createSyngenInputPoller((intent) => intents.push(intent), { clock: () => now, repeatSeconds: 0.2 })
+    const snapshot = { gamepad: { axis: {}, digital: { 1: true } }, keyboard: {} }
+
+    poller.poll(snapshot)
+    poller.poll(snapshot)
+    now = 1.21
+    poller.poll(snapshot)
+    poller.poll({ gamepad: { axis: {}, digital: {} }, keyboard: {} })
+    poller.poll(snapshot)
+
+    expect(intents).toEqual([
+      { action: 'scan', source: 'gamepad' },
+      { action: 'scan', source: 'gamepad' },
+      { action: 'scan', source: 'gamepad' },
+    ])
+  })
+})

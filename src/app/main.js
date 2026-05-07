@@ -1,4 +1,5 @@
 import { AudioEngine } from '../engine/audio.js'
+import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
@@ -24,6 +25,10 @@ let scanMode = 'objective'
 let conservatoryMode = 'balanced'
 let plantedSeeds = loadPlanted(chamber.id)
 let lastResult = evaluateResonance(chamber, plantedSeeds)
+const inputPoller = createSyngenInputPoller((intent) => {
+  if (screen === 'game' && intent.source === 'gamepad') handleInputIntent(intent)
+})
+inputPoller.start()
 
 function buildInventory() {
   const base = save.inventoryIds.map((id) => chamberSeeds[id]).filter(Boolean)
@@ -452,7 +457,18 @@ function cycleScanMode() {
   log(`Scan mode: ${scanMode}.`)
 }
 
-function handleGameKey(event) {
+function handleInputIntent(intent) {
+  if (intent.action === 'move') movement(intent.dx, intent.dy)
+  else if (intent.action === 'scan') scan()
+  else if (intent.action === 'plant') plantOrPickUp()
+  else if (intent.action === 'cycleSeed') {
+    const carry = currentCarry()
+    selectSeed(carry.carried.length ? (selectedSeedIndex + 1) % carry.carried.length : 0)
+  } else if (intent.action === 'cycleScanMode') cycleScanMode()
+  else if (intent.action === 'pause') setScreen('pause')
+}
+
+function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   if (event.key === 'w' || event.key === 'ArrowUp') movement(0, 1)
   else if (event.key === 's' || event.key === 'ArrowDown') movement(0, -1)
   else if (event.key === 'a' || event.key === 'ArrowLeft') movement(-1, 0)
@@ -488,10 +504,11 @@ function handleGameKey(event) {
 }
 
 document.addEventListener('keydown', (event) => {
+  const inputState = syngenInputSnapshot(event)
   if (screen === 'splash' && (event.key === 'Enter' || event.key === ' ')) {
     event.preventDefault()
     beginFromSplash()
-  } else if (screen === 'game') handleGameKey(event)
+  } else if (screen === 'game') handleGameKey(event, inputState)
   else if (event.key === 'Escape') setScreen('game')
 })
 
