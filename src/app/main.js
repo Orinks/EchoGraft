@@ -11,7 +11,7 @@ const app = document.querySelector('#app')
 const eventLog = createEventLog()
 let save = loadSave()
 let audio = new AudioEngine(save.settings)
-let screen = 'menu'
+let screen = 'splash'
 let chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
 let player = createPlayer(chamber.start)
 let inventory = buildInventory()
@@ -164,6 +164,11 @@ function setScreen(next) {
   render()
 }
 
+async function beginFromSplash() {
+  await ensureAudio()
+  setScreen('menu')
+}
+
 function updateSetting(key, value) {
   const parsed = key === 'reducedMotion' || key === 'minimalVisual' ? value : Number(value)
   save.settings[key] = parsed
@@ -200,13 +205,20 @@ function handleGameKey(event) {
 }
 
 document.addEventListener('keydown', (event) => {
-  if (screen === 'game') handleGameKey(event)
+  if (screen === 'splash' && (event.key === 'Enter' || event.key === ' ')) {
+    event.preventDefault()
+    beginFromSplash()
+  } else if (screen === 'game') handleGameKey(event)
   else if (event.key === 'Escape') setScreen('game')
 })
 
 app.addEventListener('click', async (event) => {
   const action = event.target?.dataset?.action
   if (!action) return
+  if (action === 'begin') {
+    await beginFromSplash()
+    return
+  }
   await ensureAudio()
   if (action === 'new') newGame()
   if (action === 'continue') continueGame()
@@ -250,6 +262,20 @@ function menu() {
       </nav>
     </main>
   `)
+}
+
+function splash() {
+  shell(`
+    <main class="screen splash" aria-labelledby="splash-title">
+      <div>
+        <p class="eyebrow">Accessible procedural audio game</p>
+        <h1 id="splash-title">EchoGraft</h1>
+        <p>Interact to unlock Syngen audio, then listen through the Verdancy Ark.</p>
+      </div>
+      <button class="begin-button" data-action="begin" type="button" autofocus>Interact to Begin</button>
+    </main>
+  `)
+  app.querySelector('[data-action="begin"]')?.focus()
 }
 
 function game() {
@@ -360,6 +386,7 @@ function ending() {
 }
 
 function render() {
+  if (screen === 'splash') splash()
   if (screen === 'menu') menu()
   if (screen === 'game') game()
   if (screen === 'settings') settings()

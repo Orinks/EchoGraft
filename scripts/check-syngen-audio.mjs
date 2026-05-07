@@ -1,8 +1,15 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-const audioPath = join(process.cwd(), 'src', 'engine', 'audio.js')
-const source = readFileSync(audioPath, 'utf8')
+const audioPaths = [
+  join(process.cwd(), 'src', 'engine', 'audio.js'),
+  join(process.cwd(), 'src', 'js', 'engine.js'),
+  join(process.cwd(), 'src', 'js', 'content', 'cues.js'),
+  join(process.cwd(), 'src', 'js', 'content', 'music.js'),
+  join(process.cwd(), 'src', 'js', 'app', 'screen', 'splash.js'),
+  join(process.cwd(), 'src', 'js', 'main.js'),
+]
+const source = audioPaths.map((path) => readFileSync(path, 'utf8')).join('\n')
 
 const forbidden = [
   'new AudioContext',
@@ -14,18 +21,14 @@ const forbidden = [
 ]
 
 const required = [
-  'syngen.audio.start',
-  'syngen.audio.mixer.createBus',
-  'syngen.audio.synth.',
-  'syngen.props.create',
-  'syngen.position.setVector',
-  'syngen.loop.start',
-  'syngen.loop.on',
-  'setMusicScene',
-  'tickMusic',
-  'createMenuMusicPhrase',
-  'createChamberMusicPhrase',
-  'createEndingMusicPhrase',
+  'const engine = syngen',
+  'engine.mixer.createBus',
+  'engine.synth.',
+  'engine.loop.start().pause()',
+  'engine.loop.resume()',
+  'engine.loop.on',
+  'content.music',
+  'content.cues',
 ]
 
 const violations = forbidden.filter((needle) => source.includes(needle))
