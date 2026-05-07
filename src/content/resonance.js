@@ -497,6 +497,22 @@ export function codexRecoverySummary(chambers, save) {
   }
 }
 
+export function memoryCodexEchoState(chambers, save = {}) {
+  const restoredSystems = save.restoredSystems ?? []
+  const solved = new Set(save.solvedChambers ?? [])
+  const memoryOnline = restoredSystems.includes('Memory') || restoredSystems.includes('Memory Orchard') || solved.has('phase')
+  const recovery = codexRecoverySummary(chambers, save)
+  const echoes = memoryOnline ? recovery.availableRecords.slice(0, 6) : []
+
+  return {
+    echoes,
+    memoryOnline,
+    text: memoryOnline
+      ? `Memory codex echoes unlocked: ${echoes.length} recoverable echo(s) can be heard before restoration.`
+      : `Memory codex echoes locked: restore Quiet Mirror or Memory Orchard access to preview hidden records.`,
+  }
+}
+
 export function centralHeartSummary(chambers, save) {
   const solved = new Set(save.solvedChambers ?? [])
   const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))

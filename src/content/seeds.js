@@ -275,6 +275,17 @@ export function seedLineageText(seed) {
   return `Lineage: ${history}${ancestry}`
 }
 
+export function historicalSeedTraitState(seed, save = {}) {
+  const memoryOnline = save.restoredSystems?.includes('Memory') || save.restoredSystems?.includes('Memory Orchard')
+
+  return {
+    memoryOnline,
+    text: memoryOnline
+      ? `Historical seed trait: ${seed.family ?? 'unknown family'} from ${seed.discoveredOrigin ?? 'unknown origin'} carries ${seed.ecologicalAffinity ?? 'unmapped ecology'}.`
+      : 'Historical seed traits locked until Memory comes online.',
+  }
+}
+
 export const starterSeeds = [
   createSeedDNA('sol', { name: 'Sol phonoseed', waveform: 'sine', pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0 }),
   createSeedDNA('lumen', { name: 'Lumen phonoseed', waveform: 'triangle', pitchRatio: 1.5, pulseRate: 2, brightness: 0.7, phase: 90 }),

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -268,6 +268,20 @@ describe('resonance evaluation', () => {
 
     expect(summary.availableRecords).toContainEqual(expect.objectContaining({ id: 'perception-02', chamberId: 'memory-pond' }))
     expect(summary.text).toContain('next available perception')
+  })
+
+  it('unlocks codex echoes after Memory comes online', () => {
+    const save = createDefaultSave()
+    save.solvedChambers = ['tutorial', 'direction', 'binaural', 'pitch', 'rhythm', 'timbre', 'phase']
+    save.restoredSystems = ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory']
+    const locked = memoryCodexEchoState(chambers, { ...save, restoredSystems: [], solvedChambers: ['tutorial'] })
+    const unlocked = memoryCodexEchoState(chambers, save)
+
+    expect(locked.memoryOnline).toBe(false)
+    expect(locked.echoes).toEqual([])
+    expect(unlocked.memoryOnline).toBe(true)
+    expect(unlocked.text).toContain('codex echoes unlocked')
+    expect(unlocked.echoes.length).toBeGreaterThan(0)
   })
 
   it('gathers seed rewards once into the inventory', () => {

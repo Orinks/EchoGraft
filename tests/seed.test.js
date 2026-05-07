@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -17,6 +17,18 @@ describe('seed DNA', () => {
     expect(seedFamilies.every((family) => family.name && family.affinity && family.origin)).toBe(true)
     expect(createSeedDNA('sol-cutting').family).toBe('Sol')
     expect(seedLineageText(createSeedDNA('sol-cutting'))).toContain('Sol lineage')
+  })
+
+  it('unlocks historical seed traits after Memory comes online', () => {
+    const seed = createSeedDNA('archive-memory')
+    const locked = historicalSeedTraitState(seed, { restoredSystems: [] })
+    const unlocked = historicalSeedTraitState(seed, { restoredSystems: ['Memory'] })
+
+    expect(locked.memoryOnline).toBe(false)
+    expect(locked.text).toContain('locked')
+    expect(unlocked.memoryOnline).toBe(true)
+    expect(unlocked.text).toContain(seed.family)
+    expect(unlocked.text).toContain(seed.discoveredOrigin)
   })
 
   it('tunes deep seed DNA traits', () => {

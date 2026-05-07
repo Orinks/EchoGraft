@@ -5,10 +5,10 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -43,7 +43,7 @@ function currentTuningParameter() {
 }
 
 function seedDnaText(seed) {
-  return `pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}, envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount}, growth ${seed.growthBehavior}. ${seedLineageText(seed)}`
+  return `pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}, envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount}, growth ${seed.growthBehavior}. ${seedLineageText(seed)} ${historicalSeedTraitState(seed, save).text}`
 }
 
 function loadPlanted(chamberId) {
@@ -627,6 +627,7 @@ function atlas() {
   const stewardship = stewardshipSummary(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
   const codexRecovery = codexRecoverySummary(chambers, save)
+  const memoryEchoes = memoryCodexEchoState(chambers, save)
   const centralHeart = centralHeartSummary(chambers, save)
   const crewWakeCycle = crewWakeCycleSummary(save)
   const launchGarden = launchGardenSummary(save)
@@ -689,6 +690,11 @@ function atlas() {
         <h2 id="codex-recovery-title">Codex Recovery</h2>
         <p>${codexRecovery.text}</p>
         ${codexRecovery.availableRecords.length ? `<ol>${codexRecovery.availableRecords.map((record) => `<li>${codexRecords[record.id]?.title ?? record.id} in ${record.chamberTitle}.</li>`).join('')}</ol>` : ''}
+      </section>
+      <section aria-labelledby="memory-echo-title">
+        <h2 id="memory-echo-title">Memory Codex Echoes</h2>
+        <p>${memoryEchoes.text}</p>
+        ${memoryEchoes.echoes.length ? `<ol>${memoryEchoes.echoes.map((record) => `<li>${codexRecords[record.id]?.title ?? record.id}: echo from ${record.chamberTitle}.</li>`).join('')}</ol>` : ''}
       </section>
       <section aria-labelledby="central-heart-title">
         <h2 id="central-heart-title">Central Heart</h2>
@@ -819,9 +825,14 @@ function library() {
 function codex() {
   audio.setMusicScene('menu')
   const trees = codexRecordTrees(availableCodexRecords(), save.codexIds)
+  const memoryEchoes = memoryCodexEchoState(chambers, save)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
+      <section aria-labelledby="codex-echo-title">
+        <h2 id="codex-echo-title">Memory Codex Echoes</h2>
+        <p>${memoryEchoes.text}</p>
+      </section>
       ${trees.length ? trees.map((tree) => `<section aria-labelledby="codex-${tree.id}"><h2 id="codex-${tree.id}">${tree.title}</h2><ol>${tree.records.map((record) => `<li><h3>${record.title ?? record.id}</h3><p>${record.text ?? 'Recovered record.'}</p></li>`).join('')}</ol></section>`).join('') : '<p>No perceptions recovered yet.</p>'}
       <button data-action="atlas">Atlas</button>
       <button data-action="game">Back to chamber</button>
