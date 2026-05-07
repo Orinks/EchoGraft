@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGrowthBehaviorState, seedLineageText, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -175,6 +175,23 @@ describe('seed DNA', () => {
       origin: 'Glass leaves',
     })
     expect(state.text).toBe('Seed family: Lumen; affinity canopy light and brightness; discovered origin Glass leaves.')
+  })
+
+  it('reports ecological affinity as a dedicated restoration role', () => {
+    const seed = createSeedDNA('myco-thread')
+    const state = seedEcologicalAffinityState(seed)
+
+    expect(state).toEqual({
+      affinity: 'noise, compost, and root networks',
+      family: 'Myco',
+      role: 'restoration role for Myco ecology',
+      text: 'Ecological affinity: noise, compost, and root networks; restoration role for Myco ecology.',
+    })
+    expect(createSeedDNA('affinity-fallback', { ecologicalAffinity: undefined }).ecologicalAffinity).toBeTruthy()
+    expect(seedEcologicalAffinityState({ family: 'Unknown' })).toMatchObject({
+      affinity: 'unmapped ecology',
+      role: 'restoration role not mapped yet',
+    })
   })
 
   it('unlocks historical seed traits after Memory comes online', () => {

@@ -104,6 +104,7 @@ export function normalizeSeed(seed) {
     ...seed,
     name: String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed')),
     family: String(seed.family ?? 'Unknown'),
+    ecologicalAffinity: String(seed.ecologicalAffinity ?? 'unmapped ecology'),
     waveform: waveforms.includes(seed.waveform) ? seed.waveform : 'sine',
     oscillatorType: oscillatorTypes.includes(seed.oscillatorType) ? seed.oscillatorType : 'pure',
     envelope: {
@@ -144,6 +145,21 @@ export function seedFamilyState(seed) {
     family,
     origin,
     text: `Seed family: ${family}; affinity ${affinity}; discovered origin ${origin}.`,
+  }
+}
+
+export function seedEcologicalAffinityState(seed) {
+  const affinity = String(seed.ecologicalAffinity ?? 'unmapped ecology')
+  const family = String(seed.family ?? 'Unknown')
+  const role = affinity === 'unmapped ecology'
+    ? 'restoration role not mapped yet'
+    : `restoration role for ${family} ecology`
+
+  return {
+    affinity,
+    family,
+    role,
+    text: `Ecological affinity: ${affinity}; ${role}.`,
   }
 }
 
