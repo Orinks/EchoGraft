@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, seedNameState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedFamilyState, seedLineageText, seedNameState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -30,6 +30,18 @@ describe('seed DNA', () => {
     expect(seedFamilies.every((family) => family.name && family.affinity && family.origin)).toBe(true)
     expect(createSeedDNA('sol-cutting').family).toBe('Sol')
     expect(seedLineageText(createSeedDNA('sol-cutting'))).toContain('Sol lineage')
+  })
+
+  it('reports family, affinity, and origin as readable seed DNA metadata', () => {
+    const seed = createSeedDNA('lumen-cutting')
+    const state = seedFamilyState(seed)
+
+    expect(state).toMatchObject({
+      affinity: 'canopy light and brightness',
+      family: 'Lumen',
+      origin: 'Glass leaves',
+    })
+    expect(state.text).toBe('Seed family: Lumen; affinity canopy light and brightness; discovered origin Glass leaves.')
   })
 
   it('unlocks historical seed traits after Memory comes online', () => {

@@ -103,6 +103,7 @@ export function normalizeSeed(seed) {
   return {
     ...seed,
     name: String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed')),
+    family: String(seed.family ?? 'Unknown'),
     envelope: {
       attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
       decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
@@ -127,6 +128,19 @@ export function seedNameState(seed) {
     id,
     name,
     text: `Seed name: ${name}; catalog id ${id}.`,
+  }
+}
+
+export function seedFamilyState(seed) {
+  const family = String(seed.family ?? 'Unknown')
+  const affinity = String(seed.ecologicalAffinity ?? 'unmapped ecology')
+  const origin = String(seed.discoveredOrigin ?? 'unknown origin')
+
+  return {
+    affinity,
+    family,
+    origin,
+    text: `Seed family: ${family}; affinity ${affinity}; discovered origin ${origin}.`,
   }
 }
 
