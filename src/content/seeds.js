@@ -104,6 +104,7 @@ export function normalizeSeed(seed) {
     ...seed,
     name: String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed')),
     family: String(seed.family ?? 'Unknown'),
+    waveform: waveforms.includes(seed.waveform) ? seed.waveform : 'sine',
     envelope: {
       attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
       decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
@@ -201,6 +202,19 @@ export function seedPhaseState(seed, targetPhase) {
     text: targetDelta === undefined
       ? `Phase: ${phase} degrees; ${role}.`
       : `Phase: ${phase} degrees; target offset ${targetDelta} degrees; ${role}.`,
+  }
+}
+
+export function seedWaveformState(seed, requiredWaveforms = []) {
+  const waveform = waveforms.includes(seed.waveform) ? seed.waveform : 'sine'
+  const required = requiredWaveforms.length ? requiredWaveforms.join(' or ') : 'any chamber-compatible waveform'
+  const matchesRequirement = requiredWaveforms.length ? requiredWaveforms.includes(waveform) : true
+
+  return {
+    matchesRequirement,
+    requiredWaveforms,
+    text: `Waveform: ${waveform}; timbre shape for synthesis and graft inheritance; ${matchesRequirement ? 'matches' : 'does not match'} ${required}.`,
+    waveform,
   }
 }
 

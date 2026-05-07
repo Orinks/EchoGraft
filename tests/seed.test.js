@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedBrightnessState, seedFamilies, seedFamilyState, seedLineageText, seedNameState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedWaveformState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -63,6 +63,16 @@ describe('seed DNA', () => {
     expect(state.targetDelta).toBe(-15)
     expect(state.role).toBe(tuningParameterDetails.phase.role)
     expect(state.text).toContain('alignment, cancellation, and hidden echo behavior')
+  })
+
+  it('reports waveform as synthesis timbre and chamber requirement metadata', () => {
+    const seed = createSeedDNA('waveform-report', { waveform: 'triangle' })
+    const state = seedWaveformState(seed, ['triangle', 'sawtooth'])
+
+    expect(state.waveform).toBe('triangle')
+    expect(state.matchesRequirement).toBe(true)
+    expect(state.text).toContain('timbre shape for synthesis and graft inheritance')
+    expect(seedWaveformState(seed, ['sine']).matchesRequirement).toBe(false)
   })
 
   it('keeps the seed family catalog in the 24 to 36 band', () => {
