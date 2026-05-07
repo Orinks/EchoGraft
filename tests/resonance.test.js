@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chambers, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
+import { campaignScope, chambers, codexRecords, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
 import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -118,6 +118,13 @@ describe('resonance evaluation', () => {
     expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-graft'] }).id).toBe('adaptation')
     expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-root'] }).id).toBe('release')
     expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-memory'] }).id).toBe('conservatory')
+  })
+
+  it('keeps codex records and perceptions in the 80 to 120 band', () => {
+    const records = Object.values(codexRecords)
+    expect(records.length).toBeGreaterThanOrEqual(80)
+    expect(records.length).toBeLessThanOrEqual(120)
+    expect(records.every((record) => record.title && record.text)).toBe(true)
   })
 
   it('appraises the seed collection as restoration support instead of museum commerce', () => {
