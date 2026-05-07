@@ -127,6 +127,42 @@ describe('resonance evaluation', () => {
     expect(records.every((record) => record.title && record.text)).toBe(true)
   })
 
+  it('authors Intake Lung as an intake restoration contract', () => {
+    const intake = chambers.find((chamber) => chamber.id === 'direction')
+    expect(intake.title).toBe('Contract 1: Intake Lung')
+    expect(intake.system).toBe('Intake')
+    expect(intake.contractType).toBe('restoration')
+    expect(intake.mechanic).toContain('chamber heart scan')
+    expect(intake.rewards.codex).toContain('intake-lung')
+  })
+
+  it('authors Navigation Grove as a direction and distance contract', () => {
+    const navigation = chambers.find((chamber) => chamber.id === 'binaural')
+    expect(navigation.title).toBe('Contract 2: Navigation Grove')
+    expect(navigation.system).toBe('Navigation')
+    expect(navigation.mechanic).toBe('direction and distance')
+    expect(navigation.target.x).toBeLessThan(0)
+    expect(navigation.rewards.codex).toContain('navigation-grove')
+  })
+
+  it('authors Water Pump Third as a water pitch-ratio contract', () => {
+    const water = chambers.find((chamber) => chamber.id === 'pitch')
+    expect(water.title).toBe('Contract 3: Water Pump Third')
+    expect(water.system).toBe('Water')
+    expect(water.mechanic).toBe('pitch-ratio matching')
+    expect(water.target.pitchRatio).toBe(1.5)
+    expect(water.rewards.codex).toContain('water-pumps')
+  })
+
+  it('authors Canopy Pulse Trellis as a canopy-light rhythm contract', () => {
+    const canopy = chambers.find((chamber) => chamber.id === 'rhythm')
+    expect(canopy.title).toBe('Contract 4: Canopy Pulse Trellis')
+    expect(canopy.system).toBe('Canopy')
+    expect(canopy.mechanic).toBe('pulse-rate rhythm matching')
+    expect(canopy.target.pulseRate).toBe(2)
+    expect(canopy.rewards.codex).toContain('canopy-pulse')
+  })
+
   it('appraises the seed collection as restoration support instead of museum commerce', () => {
     const save = createDefaultSave()
     save.materials.biomass = 2
