@@ -176,9 +176,35 @@ export function graftStabilitySummary(chamber, plantedSeeds = []) {
   }
 }
 
+export function hazardContainmentSummary(chamber, plantedSeeds = []) {
+  const hazards = chamber.hazards ?? []
+  const violations = hazards.flatMap((hazard) =>
+    plantedSeeds
+      .filter((seed) => Math.abs(seed.pitchRatio - hazard.pitchRatio) <= hazard.radius)
+      .map((seed) => ({ hazard, seed })),
+  )
+  const band = hazards.length === 0 ? 'clear' : violations.length === 0 ? 'contained' : 'breached'
+  const contained = violations.length === 0
+  const ratingContribution = band === 'contained'
+    ? 'supports stronger restoration ratings'
+    : band === 'breached'
+      ? 'blocks safe restoration until resolved'
+      : 'neutral for this contract'
+
+  return {
+    band,
+    contained,
+    dimension: 'Hazard containment',
+    hazards: hazards.length,
+    ratingContribution,
+    violations,
+    text: `Hazard containment ${band}; ${violations.length} breach(es) across ${hazards.length} known hazard(s); ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
-    return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
+    return { accuracy: resonanceAccuracySummary(0), graftStability: graftStabilitySummary(chamber, plantedSeeds), hazardContainment: hazardContainmentSummary(chamber, plantedSeeds), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
   }
 
   const ecology = averageSeeds(plantedSeeds)
@@ -220,6 +246,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     score: roundedScore,
     accuracy: resonanceAccuracySummary(roundedScore),
     graftStability: graftStabilitySummary(chamber, plantedSeeds),
+    hazardContainment: hazardContainmentSummary(chamber, plantedSeeds),
     missing,
     ecology,
     photosynthesis,

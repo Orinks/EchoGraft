@@ -319,6 +319,7 @@ function evaluate() {
     if (outcome.systemOnline || ['Stable', 'Flourishing', 'Harmonic', 'Wild'].includes(outcome.outcome)) log(outcome.text, 'success')
     log(seedMoveSummary(chamber, seedMoveCount()).text, 'success')
     log(lastResult.graftStability.text, 'success')
+    log(lastResult.hazardContainment.text, 'success')
   }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
@@ -343,7 +344,7 @@ function evaluateReport() {
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
   const timbrePuzzle = lastResult.timbrePuzzle ? ` ${lastResult.timbrePuzzle.text}` : ''
   const moveSummary = seedMoveSummary(chamber, seedMoveCount())
-  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle} ${moveSummary.text} ${lastResult.graftStability.text}`
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle} ${moveSummary.text} ${lastResult.graftStability.text} ${lastResult.hazardContainment.text}`
   log(`Evaluate resonance: ${lastResult.accuracy.text} ${details}`)
 }
 

@@ -64,6 +64,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Intake system restored and online/)).toBeVisible()
   await expect(eventLog.getByText(/Seed moves used 1; efficient/)).toBeVisible()
   await expect(eventLog.getByText(/Graft stability not needed/)).toBeVisible()
+  await expect(eventLog.getByText(/Hazard containment clear/)).toBeVisible()
   await page.getByRole('button', { name: 'Restore chamber' }).click()
   await expect(eventLog.getByText(/already restored with Resonant rating/)).toBeVisible()
   await expect(eventLog.getByText(/Codex updated: First Breath/)).toBeVisible()
