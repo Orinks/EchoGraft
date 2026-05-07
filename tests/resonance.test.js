@@ -628,6 +628,20 @@ describe('resonance evaluation', () => {
     expect(gardenerTree.records.map((record) => record.title)).toContain('Gardener Note 01')
   })
 
+  it('rewards every authored crew message through campaign chamber solves', () => {
+    const expectedMessages = Array.from({ length: 12 }, (_, index) => `crew-message-${String(index + 1).padStart(2, '0')}`)
+    const rewardedMessages = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).filter((id) => id.startsWith('crew-message'))
+    const rewardedMessageSet = new Set(rewardedMessages)
+    const intakeSave = mergeRewards(createDefaultSave(), chambers.find((chamber) => chamber.id === 'direction'), 'Stable')
+    const intakeTrees = codexRecordTrees(codexRecords, intakeSave.codexIds)
+    const crewTree = intakeTrees.find((tree) => tree.id === 'crew-messages')
+
+    expect(rewardedMessages).toHaveLength(expectedMessages.length)
+    expect([...rewardedMessageSet].sort()).toEqual(expectedMessages)
+    expect(expectedMessages.every((id) => codexRecords[id])).toBe(true)
+    expect(crewTree.records.map((record) => record.title)).toContain('Crew Message 01')
+  })
+
   it('authors Intake Lung as an intake restoration contract', () => {
     const intake = chambers.find((chamber) => chamber.id === 'direction')
     expect(intake.title).toBe('Contract 1: Intake Lung')

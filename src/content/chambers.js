@@ -201,7 +201,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
-    rewards: { codex: ['first-breath', 'gardener-note-01'], materials: { biomass: 1, spores: 1 } },
+    rewards: { codex: ['first-breath', 'gardener-note-01', 'crew-message-12'], materials: { biomass: 1, spores: 1 } },
   },
   {
     id: 'direction',
@@ -217,7 +217,7 @@ export const chambers = [
     solveTimeMinutes: { min: 5, max: 7 },
     tolerances: { position: 1.2, pitchRatio: 0.2, pulseRate: 0.5, brightness: 0.25, phase: 180 },
     requires: ['tutorial'],
-    rewards: { codex: ['intake-lung'], materials: { biomass: 2 } },
+    rewards: { codex: ['intake-lung', 'crew-message-01'], materials: { biomass: 2 } },
   },
   {
     id: 'binaural',
@@ -233,7 +233,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.2, pitchRatio: 0.2, pulseRate: 0.5, brightness: 0.25, phase: 180 },
     requires: ['direction'],
-    rewards: { codex: ['navigation-grove'], materials: { crystal: 1 } },
+    rewards: { codex: ['navigation-grove', 'crew-message-02'], materials: { crystal: 1 } },
   },
   {
     id: 'pitch',
@@ -250,7 +250,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.08, pulseRate: 0.6, brightness: 0.3, phase: 180 },
     requires: ['binaural'],
-    rewards: { codex: ['water-pumps'], materials: { biomass: 1, crystal: 1 } },
+    rewards: { codex: ['water-pumps', 'crew-message-03'], materials: { biomass: 1, crystal: 1 } },
   },
   {
     id: 'rhythm',
@@ -267,7 +267,7 @@ export const chambers = [
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.2, brightness: 0.3, phase: 180 },
     requires: ['pitch'],
-    rewards: { codex: ['canopy-pulse'], materials: { biomass: 2, spores: 1 } },
+    rewards: { codex: ['canopy-pulse', 'crew-message-04'], materials: { biomass: 2, spores: 1 } },
   },
   {
     id: 'timbre',
@@ -324,7 +324,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.3, phase: 20 },
     requires: ['timbre'],
-    rewards: { codex: ['quiet-mirror'], materials: { memory: 2 } },
+    rewards: { codex: ['quiet-mirror', 'crew-message-05'], materials: { memory: 2 } },
   },
   {
     id: 'graft',
@@ -343,7 +343,7 @@ export const chambers = [
     optional: true,
     researchReveal: { kind: 'trait', name: 'graft ancestry' },
     requires: ['harmony'],
-    rewards: { codex: ['splice-nursery', 'gardener-note-04'], materials: { biomass: 1, memory: 1 } },
+    rewards: { codex: ['splice-nursery', 'gardener-note-04', 'crew-message-06'], materials: { biomass: 1, memory: 1 } },
   },
   {
     id: 'mold',
@@ -361,7 +361,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'mold pressure spreads if the low interval is not contained before the planning window closes' },
     requires: ['phase'],
-    rewards: { codex: ['mold-pressure', 'gardener-note-08'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
+    rewards: { codex: ['mold-pressure', 'gardener-note-08', 'crew-message-11'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
   {
     id: 'finale',
@@ -383,7 +383,7 @@ export const chambers = [
       systems: ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'],
     },
     requires: ['mold'],
-    rewards: { codex: ['verdancy-heart', 'gardener-note-06'], materials: { biomass: 3, crystal: 2, memory: 2 } },
+    rewards: { codex: ['verdancy-heart', 'gardener-note-06', 'crew-message-09'], materials: { biomass: 3, crystal: 2, memory: 2 } },
     ending: true,
   },
   {
@@ -777,7 +777,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.5, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 32 },
     requires: ['ancestor-filter'],
-    rewards: { codex: ['plant-memory-12'], materials: { archiveLoam: 1, biomass: 2, dreamCompost: 1, memory: 1 } },
+    rewards: { codex: ['plant-memory-12', 'crew-message-08'], materials: { archiveLoam: 1, biomass: 2, dreamCompost: 1, memory: 1 } },
   },
   {
     id: 'optional-pastoral-loop',
@@ -844,7 +844,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.22, brightness: 0.12, phase: 45 },
     requires: ['orchard-gate'],
-    rewards: { codex: ['gardener-note-12'], materials: { biomass: 2, crystal: 1, memory: 1 } },
+    rewards: { codex: ['gardener-note-12', 'crew-message-07', 'crew-message-10'], materials: { biomass: 2, crystal: 1, memory: 1 } },
   },
   {
     id: 'optional-heart-glass',
