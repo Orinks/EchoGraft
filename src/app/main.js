@@ -254,6 +254,7 @@ function setTuningParameter(parameter) {
 
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
+  audio.resonance(lastResult, chamber)
   audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
   if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard(chamber, plantedSeeds.at(-1))
   if (!lastResult.solved) {
@@ -262,13 +263,17 @@ function evaluate() {
     return
   }
   const firstSolve = !save.solvedChambers.includes(chamber.id)
-  if (firstSolve) save.solvedChambers.push(chamber.id)
   const rating = restorationRating(lastResult)
+  if (firstSolve) save.solvedChambers.push(chamber.id)
+  if (firstSolve && !save.restoredSystems.includes(chamber.system)) save.restoredSystems.push(chamber.system)
+  const environmentalChange = `${chamber.system}: ${chamber.title} stabilized with ${rating} resonance`
+  if (firstSolve && !save.environmentalChanges.includes(environmentalChange)) save.environmentalChanges.push(environmentalChange)
   const gatheredSeedNames = (chamber.rewards?.seeds ?? []).filter((id) => !save.inventoryIds.includes(id)).map((id) => chamberSeeds[id]?.name ?? id)
   save = mergeRewards(save, chamber, rating)
   inventory = buildInventory()
   audio.ui('success')
   log(`${chamber.title} solved with ${rating} rating. Rewards now available in the atlas.`, 'success')
+  if (firstSolve) log(`${chamber.system} system restored and online.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
@@ -279,6 +284,14 @@ function evaluate() {
     screen = 'ending'
     render()
   }
+}
+
+function evaluateReport() {
+  lastResult = evaluateResonance(chamber, plantedSeeds)
+  audio.resonance(lastResult, chamber)
+  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
+  const details = lastResult.missing.length ? lastResult.missing.join(' ') : 'All resonance checks are inside tolerance.'
+  log(`Evaluate resonance: ${Math.round(lastResult.score * 100)} percent. ${details}`)
 }
 
 function restoreChamber() {
@@ -293,6 +306,12 @@ function restoreChamber() {
     return
   }
   evaluate()
+}
+
+function advanceArkClock() {
+  save.arkClock += 1
+  persist()
+  log(`Ark clock advanced to cycle ${save.arkClock}. Decide whether to improve ${chamber.title}, take another work order, research grafts, or continue advancing the Ark.`)
 }
 
 function resetChamber() {
@@ -396,10 +415,12 @@ app.addEventListener('click', async (event) => {
   if (action === 'tuneDown') tune(-1)
   if (action === 'tuneUp') tune(1)
   if (action === 'graft') graft()
+  if (action === 'evaluate') evaluateReport()
   if (action === 'selectSeed') selectSeed(Number(event.target.dataset.seedIndex))
   if (action === 'previewSeed') previewSelectedSeed()
   if (action === 'compose') composeConservatory()
   if (action === 'restore') restoreChamber()
+  if (action === 'advanceClock') advanceArkClock()
   if (action === 'reset') resetChamber()
   if (action === 'next') setScreen('atlas')
   if (action === 'contract') {
@@ -480,6 +501,7 @@ function game() {
           <button data-action="plant">Plant or pick up</button>
           <button data-action="tuneDown">Tune down</button>
           <button data-action="tuneUp">Tune up</button>
+          <button data-action="evaluate">Evaluate resonance</button>
           <button data-action="tuningParameter" data-parameter="envelope.attack">Tune envelope</button>
           <button data-action="tuningParameter" data-parameter="fmAmount">Tune modulation</button>
           <button data-action="tuningParameter" data-parameter="noiseAmount">Tune noise</button>
@@ -517,6 +539,9 @@ function atlas() {
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
       <p>Season 1 contracts: ${save.solvedChambers.length} restored. Materials: ${materialsText()}.</p>
+      <p>Systems online: ${save.restoredSystems.join(', ') || 'none yet'}.</p>
+      <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
+      <p>Ark clock: cycle ${save.arkClock}.</p>
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
       <section aria-labelledby="stewardship-title">
         <h2 id="stewardship-title">Stewardship Review</h2>
@@ -528,6 +553,10 @@ function atlas() {
         <p>Recommended next work: ${decision.recommendation}.</p>
         <p>Required choices: ${decision.requiredChoices.join(', ') || 'none ready'}.</p>
         <p>Optional choices: ${decision.optionalChoices.join(', ') || 'none ready'}.</p>
+        <p>Post-restore options: improve the active chamber, take another work order, research grafts, or advance the Ark clock.</p>
+        <button data-action="game">Improve active chamber</button>
+        <button data-action="library">Research grafts</button>
+        <button data-action="advanceClock">Advance Ark clock</button>
       </section>
       <section aria-labelledby="planning-title">
         <h2 id="planning-title">Suggested Planning Session</h2>
@@ -552,6 +581,10 @@ function atlas() {
       <button data-action="codex">Codex</button>
       ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
       <button data-action="menu">Main menu</button>
+      <section class="log" aria-label="Caption and event log" aria-live="polite">
+        <h2>Caption Log</h2>
+        <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>
+      </section>
     </main>
   `)
 }

@@ -3,8 +3,10 @@ export const saveKey = 'echograft-save-v1'
 export function createDefaultSave() {
   return {
     version: 1,
+    arkClock: 0,
     currentChamberId: 'tutorial',
     codexIds: [],
+    environmentalChanges: [],
     materials: {
       biomass: 0,
       crystal: 0,
@@ -14,6 +16,7 @@ export function createDefaultSave() {
     postgameUnlocked: false,
     unlockedGraftMechanics: [],
     ratings: {},
+    restoredSystems: [],
     solvedChambers: [],
     inventoryIds: ['sol', 'lumen', 'umbra'],
     customSeeds: [],

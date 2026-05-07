@@ -537,6 +537,27 @@ export class AudioEngine {
     })
   }
 
+  resonance(result = {}, chamber = {}) {
+    const score = clamp(result.score ?? 0)
+    this.voice({
+      category: result.solved ? 'ui' : 'scan',
+      duration: 0.18 + score * 0.35,
+      gain: dbGain(result.solved ? -8 : -12),
+      position: chamber.target,
+      tone: {
+        brightness: clamp((chamber.target?.brightness ?? 0.45) + score * 0.3),
+        frequency: ratioToFrequency((chamber.target?.pitchRatio ?? 1) * (0.75 + score * 0.5), 50),
+        harmonic: [
+          { coefficient: 1, gain: 1, type: result.solved ? 'triangle' : 'sine' },
+          { coefficient: 1 + score, gain: 0.35, type: 'triangle' },
+        ],
+        mode: result.solved ? 'additive' : 'am',
+        pulseRate: chamber.target?.pulseRate ?? 1,
+        type: result.solved ? 'triangle' : 'sine',
+      },
+    })
+  }
+
   movement(player, previous, chamber = {}) {
     this.updateListener(player)
     const movedDistance = Math.hypot(player.x - previous.x, player.y - previous.y)
