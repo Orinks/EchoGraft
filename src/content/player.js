@@ -93,7 +93,9 @@ export function movementSurface(chamber = {}) {
 export function movementFeedback(player, previous, chamber = {}) {
   const bounds = chamberMovementBounds(chamber)
   const target = chamber.target ?? { x: 0, y: 0 }
+  const exitPosition = chamber.exit?.position ?? chamber.returnPoint ?? chamber.start ?? { x: 0, y: 0 }
   const nearestWall = Math.min(player.x - bounds.west, bounds.east - player.x, player.y - bounds.south, bounds.north - player.y)
+  const exitDistance = Math.hypot(exitPosition.x - player.x, exitPosition.y - player.y)
   const heartDistance = Math.hypot(target.x - player.x, target.y - player.y)
   const surface = movementSurface(chamber)
   const moved = player.x !== previous.x || player.y !== previous.y
@@ -114,6 +116,8 @@ export function movementFeedback(player, previous, chamber = {}) {
       x: player.x,
       y: player.y,
     },
+    exitDistance,
+    exitPosition,
     heartDistance,
     moved,
     nearestWall,

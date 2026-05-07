@@ -73,4 +73,25 @@ describe('audio movement cues', () => {
     expect(eastPosition.x).toBeGreaterThan(eastPlayer.x)
     expect(eastPosition.y).toBe(eastPlayer.y)
   })
+
+  it('adds subtle nearby presence tones for walls and exits', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const nearExitPrevious = createPlayer(chamber.start)
+    const nearExitPlayer = movePlayer(nearExitPrevious, 0, 1, chamber)
+    const wallPrevious = createPlayer({ x: chamber.start.x, y: chamber.start.y + 5, facing: 0 })
+    const wallPlayer = movePlayer(wallPrevious, 0, 1, chamber)
+    const exitPresence = movementVoices(nearExitPlayer, nearExitPrevious, chamber).find((voice) => (
+      voice.category === 'ambience'
+      && voice.position?.x === chamber.start.x
+      && voice.position?.y === chamber.start.y
+    ))
+    const wallPresence = movementVoices(wallPlayer, wallPrevious, chamber).find((voice) => (
+      voice.category === 'ambience'
+      && voice.position?.x === chamber.start.x
+      && voice.position?.y === chamber.start.y + 5
+    ))
+
+    expect(exitPresence?.tone).toMatchObject({ brightness: 0.42, mode: 'additive' })
+    expect(wallPresence?.tone).toMatchObject({ brightness: 0.18, mode: 'am' })
+  })
 })

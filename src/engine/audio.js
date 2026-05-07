@@ -150,6 +150,14 @@ function directionalFootstepPosition(player = {}, previous = {}) {
   }
 }
 
+function boundaryPresencePosition(player = {}, feedback = {}) {
+  const bounds = feedback.bounds ?? {}
+  return {
+    x: player.x <= (bounds.west ?? player.x) + 1 ? bounds.west : player.x >= (bounds.east ?? player.x) - 1 ? bounds.east : player.x,
+    y: player.y <= (bounds.south ?? player.y) + 1 ? bounds.south : player.y >= (bounds.north ?? player.y) - 1 ? bounds.north : player.y,
+  }
+}
+
 function seedHarmonics(seed) {
   const brightness = clamp(seed.brightness)
   return [
@@ -663,10 +671,7 @@ export class AudioEngine {
     this.updateListener(player)
     const movedDistance = Math.hypot(player.x - previous.x, player.y - previous.y)
     const feedback = movementFeedback(player, previous, chamber)
-    const wallPosition = {
-      x: player.x <= feedback.bounds.west + 1 ? feedback.bounds.west : player.x >= feedback.bounds.east - 1 ? feedback.bounds.east : player.x,
-      y: player.y <= feedback.bounds.south + 1 ? feedback.bounds.south : player.y >= feedback.bounds.north - 1 ? feedback.bounds.north : player.y,
-    }
+    const wallPosition = boundaryPresencePosition(player, feedback)
 
     this.voice({
       category: 'ui',
@@ -708,6 +713,42 @@ export class AudioEngine {
         type: 'sine',
       },
     })
+
+    if (feedback.nearestWall <= 2.5) {
+      this.voice({
+        category: 'ambience',
+        duration: 0.28,
+        gain: dbGain(-31),
+        position: wallPosition,
+        tone: {
+          brightness: 0.18,
+          frequency: ratioToFrequency(0.65, 34),
+          mode: 'am',
+          pulseRate: 0.5,
+          type: 'sine',
+        },
+      })
+    }
+
+    if (feedback.exitDistance <= 2.5) {
+      this.voice({
+        category: 'ambience',
+        duration: 0.3,
+        gain: dbGain(-30),
+        position: feedback.exitPosition,
+        tone: {
+          brightness: 0.42,
+          frequency: ratioToFrequency(1.2, 45),
+          harmonic: [
+            { coefficient: 1, gain: 1, type: 'sine' },
+            { coefficient: 2, gain: 0.16, type: 'triangle' },
+          ],
+          mode: 'additive',
+          pulseRate: 0.8,
+          type: 'sine',
+        },
+      })
+    }
 
     if (feedback.nearestWall <= 1.5) {
       this.voice({

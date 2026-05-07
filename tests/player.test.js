@@ -21,6 +21,8 @@ describe('movement', () => {
 
     expect(feedback.moved).toBe(true)
     expect(feedback.surface).toBe('compass rail')
+    expect(feedback.exitDistance).toBeGreaterThan(0)
+    expect(feedback.exitPosition).toMatchObject(chamber.start)
     expect(feedback.text).toContain('Movement audio: spatial footstep')
     expect(feedback.text).toContain('wall')
     expect(feedback.text).toContain('current between start and heart')
