@@ -5,7 +5,7 @@ import { extname, join, normalize } from 'node:path'
 const host = '127.0.0.1'
 const portIndex = process.argv.indexOf('--port')
 const port = Number(portIndex >= 0 ? process.argv[portIndex + 1] : process.env.PORT) || 4177
-const root = join(process.cwd(), 'public')
+const root = process.cwd()
 
 const types = {
   '.css': 'text/css',
@@ -22,7 +22,7 @@ createServer((request, response) => {
   let path = join(root, requested)
 
   if (!existsSync(path) || statSync(path).isDirectory()) {
-    path = join(root, requested, 'index.html')
+    path = join(path, 'index.html')
   }
 
   if (!existsSync(path)) {

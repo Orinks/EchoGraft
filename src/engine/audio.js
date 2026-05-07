@@ -21,15 +21,16 @@ const categoryBus = {
 }
 
 function clamp(value, min = 0, max = 1) {
-  return syngen.utility.clamp(value, min, max)
+  return syngen?.utility?.clamp ? syngen.utility.clamp(value, min, max) : Math.min(max, Math.max(min, value))
 }
 
 function dbGain(decibels) {
-  return syngen.utility.fromDb(decibels)
+  return syngen?.utility?.fromDb ? syngen.utility.fromDb(decibels) : 10 ** (decibels / 20)
 }
 
 function ratioToFrequency(ratio, rootMidi = 48) {
-  return syngen.utility.midiToFrequency(rootMidi) * ratio
+  const midiToFrequency = syngen?.utility?.midiToFrequency ?? ((midi) => 440 * 2 ** ((midi - 69) / 12))
+  return midiToFrequency(rootMidi) * ratio
 }
 
 function semanticRatio(label) {
@@ -43,7 +44,8 @@ function semanticPulse(label) {
 }
 
 function phaseToDetune(phase) {
-  return Math.sin(syngen.utility.degreesToRadians(phase)) * 18
+  const toRadians = syngen?.utility?.degreesToRadians ?? ((degrees) => degrees * Math.PI / 180)
+  return Math.sin(toRadians(phase)) * 18
 }
 
 function panFromPosition(position = {}) {
@@ -77,6 +79,7 @@ function connectVoice(synth, bus) {
 }
 
 function createSpatialVoicePrototype() {
+  if (!syngen?.prop?.base?.invent) return null
   return syngen.prop.base.invent({
     name: 'echograft-spatial-voice',
     reverb: true,
@@ -165,6 +168,7 @@ export class AudioEngine {
     this.enabled = false
     this.syngen = syngen
     this.buses = {}
+    this.hasAudioStack = Boolean(syngen?.audio?.synth && syngen?.audio?.mixer && syngen?.prop?.base)
     this.spatialVoice = createSpatialVoicePrototype()
     this.music = {
       chamber: null,
@@ -204,6 +208,11 @@ export class AudioEngine {
   }
 
   async start() {
+    if (!this.hasAudioStack) {
+      syngen?.ready?.(() => {})
+      this.enabled = true
+      return true
+    }
     syngen.audio.start()
     await syngen.audio.context().resume()
     if (!syngen.loop.isRunning()) syngen.loop.start()
@@ -215,12 +224,14 @@ export class AudioEngine {
   }
 
   startMusicLoop() {
+    if (!this.hasAudioStack) return
     if (this.musicFrameHandler) return
     this.musicFrameHandler = () => this.tickMusic()
     syngen.loop.on('frame', this.musicFrameHandler)
   }
 
   createBuses() {
+    if (!this.hasAudioStack) return
     if (Object.keys(this.buses).length) return
     for (const key of Object.values(categoryBus)) {
       this.buses[key] = syngen.audio.mixer.createBus()
@@ -235,6 +246,7 @@ export class AudioEngine {
   }
 
   applySettings() {
+    if (!this.hasAudioStack) return
     syngen.audio.mixer.master.param.gain.value = this.settings.master ?? 1
     for (const [key, bus] of Object.entries(this.buses)) {
       bus.gain.value = this.settings[key] ?? 1
@@ -258,8 +270,10 @@ export class AudioEngine {
   }
 
   updateListener(player) {
+    if (!syngen?.position?.setVector || !syngen?.position?.setEuler) return
     syngen.position.setVector({ x: player.x, y: player.y, z: 0 })
-    syngen.position.setEuler({ yaw: syngen.utility.degreesToRadians(player.facing) })
+    const toRadians = syngen?.utility?.degreesToRadians ?? ((degrees) => degrees * Math.PI / 180)
+    syngen.position.setEuler({ yaw: toRadians(player.facing) })
   }
 
   voice({
@@ -271,7 +285,7 @@ export class AudioEngine {
     spatial = Boolean(position),
     tone,
   }) {
-    if (!this.enabled) return
+    if (!this.enabled || !this.hasAudioStack) return
     const bus = this.bus(category)
     if (!spatial) {
       const synth = createSynthForTone(tone, seed)

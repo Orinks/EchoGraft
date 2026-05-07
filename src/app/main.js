@@ -1,4 +1,3 @@
-import './styles.css'
 import { AudioEngine } from '../engine/audio.js'
 import { chambers, chamberSeeds, codexRecords } from '../content/chambers.js'
 import { createEventLog } from '../content/log.js'

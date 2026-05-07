@@ -1,3 +1,1 @@
-import syngen from 'syngen'
-
-export { syngen }
+export const syngen = globalThis.syngen
