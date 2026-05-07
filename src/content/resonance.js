@@ -105,9 +105,32 @@ export function timbrePuzzleState(chamber, plantedSeeds) {
   }
 }
 
+export function resonanceAccuracySummary(resultOrScore = 0) {
+  const rawScore = typeof resultOrScore === 'number' ? resultOrScore : resultOrScore.score ?? 0
+  const score = Math.max(0, Math.min(1, rawScore))
+  const percent = Math.round(score * 100)
+  const band = percent >= 96 ? 'precise' : percent >= 85 ? 'stable' : percent >= 50 ? 'rough' : 'weak'
+  const ratingContribution = percent >= 96
+    ? 'supports Resonant or Harmonic ratings'
+    : percent >= 85
+      ? 'supports Stable ratings'
+      : percent >= 50
+        ? 'needs refinement before strong ratings'
+        : 'does not yet support restoration ratings'
+
+  return {
+    band,
+    dimension: 'Resonance accuracy',
+    percent,
+    ratingContribution,
+    score: Number(score.toFixed(2)),
+    text: `Resonance accuracy ${percent} percent (${band}); ${ratingContribution}.`,
+  }
+}
+
 export function evaluateResonance(chamber, plantedSeeds) {
   if (plantedSeeds.length < chamber.requiredSeeds) {
-    return { solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
+    return { accuracy: resonanceAccuracySummary(0), solved: false, score: 0, missing: [`Plant ${chamber.requiredSeeds - plantedSeeds.length} more seed(s).`] }
   }
 
   const ecology = averageSeeds(plantedSeeds)
@@ -143,9 +166,11 @@ export function evaluateResonance(chamber, plantedSeeds) {
   }
 
   const score = checks.reduce((total, [, value, tolerance]) => total + Math.max(0, 1 - value / Math.max(tolerance, 0.01)), 0) / checks.length
+  const roundedScore = Number(score.toFixed(2))
   return {
     solved: missing.length === 0,
-    score: Number(score.toFixed(2)),
+    score: roundedScore,
+    accuracy: resonanceAccuracySummary(roundedScore),
     missing,
     ecology,
     photosynthesis,

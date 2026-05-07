@@ -137,7 +137,7 @@ function rotate(degrees) {
 function listen() {
   audio.chamber(chamber, plantedSeeds)
   const planted = plantedSeeds.length ? `${plantedSeeds.length} planted seed voice(s)` : 'no planted seed voices'
-  const status = lastResult.solved ? 'restored' : `resonance ${Math.round(lastResult.score * 100)} percent`
+  const status = lastResult.solved ? 'restored' : lastResult.accuracy.text
   const cycle = chamberCycleState(chamber, save.arkClock)
   const cycleText = cycle ? ` ${cycle.text}` : ''
   const weatherWindow = weatherWindowState(chamber, save.arkClock)
@@ -288,7 +288,7 @@ function evaluate() {
   if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard(chamber, plantedSeeds.at(-1))
   if (!lastResult.solved) {
     persist()
-    log(`Resonance ${Math.round(lastResult.score * 100)} percent. ${lastResult.missing[0] ?? 'Keep listening.'}`)
+    log(`${lastResult.accuracy.text} ${lastResult.missing[0] ?? 'Keep listening.'}`)
     return
   }
   const firstSolve = !save.solvedChambers.includes(chamber.id)
@@ -330,7 +330,7 @@ function evaluateReport() {
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''
   const timbrePuzzle = lastResult.timbrePuzzle ? ` ${lastResult.timbrePuzzle.text}` : ''
   const details = lastResult.missing.length ? lastResult.missing.join(' ') : `All resonance checks are inside tolerance.${photosynthesis}${pressureSails}${thermalShutters}${timbrePuzzle}`
-  log(`Evaluate resonance: ${Math.round(lastResult.score * 100)} percent. ${details}`)
+  log(`Evaluate resonance: ${lastResult.accuracy.text} ${details}`)
 }
 
 function restoreChamber() {
@@ -395,7 +395,7 @@ function handleGameKey(event) {
   else if (event.key === ' ') scan()
   else if (event.key.toLowerCase() === 'z') cycleScanMode()
   else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
-  else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. Resonance ${Math.round(lastResult.score * 100)} percent.`)
+  else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${lastResult.accuracy.text}`)
   else if (event.key.toLowerCase() === 'i') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
   else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
   else if (event.key.toLowerCase() === 'l') log(`Latest log: ${latestLogText()}`)
@@ -544,7 +544,7 @@ function game() {
       <section class="hud" aria-live="polite">
         <h1 id="chamber-title">${chamber.title}</h1>
         <p><strong>Contract:</strong> ${chamber.contractType}; ${chamber.system}; ${contractStatus(chamber)}; ${solveTimeText(chamber)}; scan ${scanMode}.</p>
-        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; resonance ${Math.round(lastResult.score * 100)} percent. Press O, P, I, L, X, V, or C for details.</p>
+        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; ${lastResult.accuracy.text} Press O, P, I, L, X, V, or C for details.</p>
       </section>
       <section class="layout">
         <div class="radar" role="img" aria-label="Abstract chamber radar. Player and planted seeds are also described in text.">

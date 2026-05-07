@@ -22,7 +22,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Restore chamber' }).click()
   await expect(eventLog.getByText(/Restore: Training Contract: First Breath is not ready/)).toBeVisible()
   await page.getByRole('button', { name: 'Evaluate resonance' }).click()
-  await expect(eventLog.getByText(/Evaluate resonance: 0 percent\. Plant 1 more seed/)).toBeVisible()
+  await expect(eventLog.getByText(/Evaluate resonance: Resonance accuracy 0 percent \(weak\).*Plant 1 more seed/)).toBeVisible()
   await page.keyboard.press('o')
   await expect(eventLog.getByText(/Objective:/)).toBeVisible()
   await page.keyboard.press('p')

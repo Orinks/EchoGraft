@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
+import { availableChambers, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, firstFullCampaignEstimate, freeCompositionConservatory, mergeRewards, multiChamberResonanceNetwork, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -43,6 +43,20 @@ describe('resonance evaluation', () => {
     expect(restorationRating({ solved: true, score: 0.84 })).toBe('Restored')
     expect(restorationRating({ solved: true, score: 0.85 })).toBe('Stable')
     expect(restorationRating({ solved: true, score: 0.96 })).toBe('Resonant')
+  })
+
+  it('summarizes resonance accuracy as a rating dimension', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const result = evaluateResonance(chamber, [
+      createSeedDNA('near-sol', { pitchRatio: 1, pulseRate: 1, brightness: 0.45, phase: 0, position: { x: 0, y: 0 } }),
+    ])
+
+    expect(result.accuracy).toEqual(resonanceAccuracySummary(result.score))
+    expect(result.accuracy.dimension).toBe('Resonance accuracy')
+    expect(result.accuracy.percent).toBe(100)
+    expect(result.accuracy.ratingContribution).toContain('Resonant')
+    expect(resonanceAccuracySummary(0.85).band).toBe('stable')
+    expect(resonanceAccuracySummary(0.49).ratingContribution).toContain('does not yet support')
   })
 
   it('treats Stable required restorations as online campaign progression', () => {
