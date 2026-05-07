@@ -656,6 +656,20 @@ describe('resonance evaluation', () => {
     expect(plantMemoryTree.records.map((record) => record.title)).toContain('Plant Memory 01')
   })
 
+  it('rewards every authored system diagnostic through campaign chamber solves', () => {
+    const expectedDiagnostics = Array.from({ length: 12 }, (_, index) => `system-diagnostic-${String(index + 1).padStart(2, '0')}`)
+    const rewardedDiagnostics = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).filter((id) => id.startsWith('system-diagnostic'))
+    const rewardedDiagnosticSet = new Set(rewardedDiagnostics)
+    const intakeSave = mergeRewards(createDefaultSave(), chambers.find((chamber) => chamber.id === 'direction'), 'Stable')
+    const intakeTrees = codexRecordTrees(codexRecords, intakeSave.codexIds)
+    const diagnosticTree = intakeTrees.find((tree) => tree.id === 'system-diagnostics')
+
+    expect(rewardedDiagnostics).toHaveLength(expectedDiagnostics.length)
+    expect([...rewardedDiagnosticSet].sort()).toEqual(expectedDiagnostics)
+    expect(expectedDiagnostics.every((id) => codexRecords[id])).toBe(true)
+    expect(diagnosticTree.records.map((record) => record.title)).toContain('System Diagnostic 01')
+  })
+
   it('authors Intake Lung as an intake restoration contract', () => {
     const intake = chambers.find((chamber) => chamber.id === 'direction')
     expect(intake.title).toBe('Contract 1: Intake Lung')
