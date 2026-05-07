@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endgameResolutions, launchGardenStages, launchGardenSummary, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -514,6 +514,21 @@ describe('resonance evaluation', () => {
     expect(network.readyForFinale).toBe(true)
     expect(network.totalStrength).toBe(13)
     expect(network.nodes.find((node) => node.system === 'Intake').text).toContain('network strength 3')
+  })
+
+  it('unlocks network resonance and ending access after Heart restoration', () => {
+    const locked = heartNetworkEndingState(chambers, createDefaultSave())
+    const save = createDefaultSave()
+    save.solvedChambers = ['tutorial', 'direction', 'binaural', 'pitch', 'rhythm', 'phase', 'heart-atria', 'finale']
+    save.restoredSystems = ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Verdancy Heart', 'Heart']
+    save.postgameUnlocked = true
+    const unlocked = heartNetworkEndingState(chambers, save)
+
+    expect(locked.heartOnline).toBe(false)
+    expect(locked.text).toContain('locked')
+    expect(unlocked.heartOnline).toBe(true)
+    expect(unlocked.endingsUnlocked).toBe(true)
+    expect(unlocked.text).toContain('ending resolutions are available')
   })
 
   it('builds the final chord from the player planted restored chamber voices', () => {

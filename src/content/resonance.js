@@ -571,6 +571,22 @@ export function multiChamberResonanceNetwork(chambers, save) {
   }
 }
 
+export function heartNetworkEndingState(chambers, save = {}) {
+  const central = centralHeartSummary(chambers, save)
+  const network = multiChamberResonanceNetwork(chambers, save)
+  const heartOnline = central.online || (save.restoredSystems ?? []).includes('Heart') || (save.restoredSystems ?? []).includes('Verdancy Heart')
+  const endingsUnlocked = heartOnline && (network.readyForFinale || save.postgameUnlocked || (save.solvedChambers ?? []).includes('finale'))
+
+  return {
+    endingsUnlocked,
+    heartOnline,
+    networkStrength: network.totalStrength,
+    text: heartOnline
+      ? `Heart network resonance unlocked: strength ${network.totalStrength}; ${endingsUnlocked ? 'ending resolutions are available' : 'restore more network branches before endings open'}.`
+      : `Heart network resonance locked: restore Heart Atria before ending resolutions can open.`,
+  }
+}
+
 export function playerBuiltFinalChord(chambers, save, inventory = []) {
   const solved = new Set(save.solvedChambers ?? [])
   const plantedByChamber = save.plantedByChamber ?? {}

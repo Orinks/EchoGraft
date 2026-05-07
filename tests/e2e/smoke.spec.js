@@ -88,6 +88,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Canopy photosynthesis doors locked/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Memory Codex Echoes' })).toBeVisible()
   await expect(page.getByText(/Memory codex echoes locked/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Heart Network Endings' })).toBeVisible()
+  await expect(page.getByText(/Heart network resonance locked/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Final Ecology Philosophy' })).toBeVisible()
   await expect(page.getByText(/Final ecology philosophy support aligned/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Decision Point' })).toBeVisible()

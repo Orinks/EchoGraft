@@ -5,7 +5,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { chamberMovementBounds, createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { chamberCompassCue, navigationScanState, scanPulse, scanRangeState } from '../content/scan.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
 import { canopyBrightnessTuningState, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -632,6 +632,7 @@ function atlas() {
   const crewWakeCycle = crewWakeCycleSummary(save)
   const launchGarden = launchGardenSummary(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
+  const heartUnlock = heartNetworkEndingState(chambers, save)
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
   const canopyDoors = canopyDoorState(chambers, save)
@@ -707,6 +708,10 @@ function atlas() {
         <h2 id="network-title">Multi-Chamber Resonance Network</h2>
         <p>${resonanceNetwork.text}</p>
         <ol>${resonanceNetwork.nodes.map((node) => `<li>${node.text}</li>`).join('')}</ol>
+      </section>
+      <section aria-labelledby="heart-unlock-title">
+        <h2 id="heart-unlock-title">Heart Network Endings</h2>
+        <p>${heartUnlock.text}</p>
       </section>
       <section aria-labelledby="final-chord-title">
         <h2 id="final-chord-title">Player-Built Final Chord</h2>
@@ -932,6 +937,7 @@ function ending() {
   const crewWakeCycle = crewWakeCycleSummary(save)
   const launchGarden = launchGardenSummary(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
+  const heartUnlock = heartNetworkEndingState(chambers, save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -939,6 +945,7 @@ function ending() {
       <section aria-labelledby="resolution-ending-title">
         <h2 id="resolution-ending-title">${endingScene.title}</h2>
         <p>${endingScene.text}</p>
+        <p>${heartUnlock.text}</p>
       </section>
       <p>${crewWakeCycle.text}</p>
       <p>${launchGarden.text}</p>
