@@ -16,6 +16,15 @@ export const campaignScope = {
   ],
 }
 
+export const majorArkSystems = [
+  { id: 'intake', name: 'Intake', unlock: 'longer scan range and pressure awareness' },
+  { id: 'navigation', name: 'Navigation', unlock: 'atlas previews, objective scan, and chamber compass cues' },
+  { id: 'water', name: 'Water', unlock: 'current navigation and root contract routing' },
+  { id: 'canopy', name: 'Canopy', unlock: 'brightness tuning and photosynthesis doors' },
+  { id: 'memory', name: 'Memory', unlock: 'codex echoes and historical seed traits' },
+  { id: 'heart', name: 'Heart', unlock: 'network resonance and endgame resolutions' },
+]
+
 export const chambers = [
   {
     id: 'tutorial',

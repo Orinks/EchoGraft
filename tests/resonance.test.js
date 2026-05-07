@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chambers, solveTimeText } from '../src/content/chambers.js'
+import { campaignScope, chambers, majorArkSystems, solveTimeText } from '../src/content/chambers.js'
+import { chooseEndgameResolution, endgameResolutions } from '../src/content/endings.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary, unlockNext } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -104,6 +105,19 @@ describe('resonance evaluation', () => {
     expect(optionalContracts.length).toBeGreaterThanOrEqual(15)
     expect(optionalContracts.length).toBeLessThanOrEqual(25)
     expect(optionalContracts.every((chamber) => chamber.contractType !== 'restoration')).toBe(true)
+  })
+
+  it('defines six major Ark systems with permanent benefits', () => {
+    expect(majorArkSystems.map((system) => system.name)).toEqual(['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'])
+    expect(majorArkSystems.every((system) => system.unlock)).toBe(true)
+  })
+
+  it('defines four endgame resolutions from restoration patterns', () => {
+    expect(endgameResolutions.map((resolution) => resolution.id)).toEqual(['preservation', 'adaptation', 'release', 'conservatory'])
+    expect(chooseEndgameResolution(createDefaultSave()).id).toBe('preservation')
+    expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-graft'] }).id).toBe('adaptation')
+    expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-root'] }).id).toBe('release')
+    expect(chooseEndgameResolution({ ...createDefaultSave(), solvedChambers: ['optional-heart-memory'] }).id).toBe('conservatory')
   })
 
   it('appraises the seed collection as restoration support instead of museum commerce', () => {

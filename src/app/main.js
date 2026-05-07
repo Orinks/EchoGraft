@@ -1,5 +1,6 @@
 import { AudioEngine } from '../engine/audio.js'
-import { campaignScope, chambers, chamberSeeds, codexRecords, solveTimeText } from '../content/chambers.js'
+import { campaignScope, chambers, chamberSeeds, codexRecords, majorArkSystems, solveTimeText } from '../content/chambers.js'
+import { chooseEndgameResolution, endgameResolutions } from '../content/endings.js'
 import { createEventLog } from '../content/log.js'
 import { createPlayer, movePlayer, rotatePlayer } from '../content/player.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
@@ -278,6 +279,7 @@ function evaluate() {
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
   if (chamber.ending) {
+    save.endgameResolution = chooseEndgameResolution(save).id
     save.postgameUnlocked = true
     persist()
     audio.ending(chambers, inventory)
@@ -401,6 +403,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'library') setScreen('library')
   if (action === 'codex') setScreen('codex')
   if (action === 'conservatory') setScreen('conservatory')
+  if (action === 'ending') setScreen('ending')
   if (action === 'menu') setScreen('menu')
   if (action === 'game') setScreen('game')
   if (action === 'scan') scan()
@@ -452,6 +455,7 @@ function menu() {
         <button data-action="atlas">Restoration atlas</button>
         <button data-action="library">Seed library</button>
         <button data-action="codex">Codex</button>
+        ${save.postgameUnlocked ? '<button data-action="ending">Ending resolution</button>' : ''}
         ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
         <button data-action="settings">Settings</button>
         <button data-action="help">Help</button>
@@ -543,6 +547,12 @@ function atlas() {
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
       <p>Ark clock: cycle ${save.arkClock}.</p>
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
+      <section aria-labelledby="major-systems-title">
+        <h2 id="major-systems-title">Major Ark Systems</h2>
+        <ul>
+          ${majorArkSystems.map((system) => `<li>${system.name}: ${system.unlock}.</li>`).join('')}
+        </ul>
+      </section>
       <section aria-labelledby="stewardship-title">
         <h2 id="stewardship-title">Stewardship Review</h2>
         <p>${stewardship.restoredCount} of ${stewardship.totalCount} contracts restored. Materials: ${stewardship.materialSummary}.</p>
@@ -722,9 +732,11 @@ function pause() {
 
 function ending() {
   audio.setMusicScene('ending', { inventory })
+  const resolution = endgameResolutions.find((item) => item.id === save.endgameResolution) ?? chooseEndgameResolution(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
+      <p>Resolution: ${resolution.title}. ${resolution.text}</p>
       <p>The repaired resonance gardens answer one another. Every grafted voice becomes part of a living orbital chord.</p>
       <button data-action="atlas">Return to atlas</button>
       <button data-action="menu">Main menu</button>

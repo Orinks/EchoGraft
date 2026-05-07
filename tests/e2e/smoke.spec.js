@@ -61,6 +61,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Season 1 contracts: 1 restored. Materials: biomass 1/)).toBeVisible()
   await expect(page.getByText(/Systems online: Intake/)).toBeVisible()
   await expect(page.getByText(/Environmental changes: Intake: Training Contract: First Breath stabilized with Resonant resonance/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Major Ark Systems' })).toBeVisible()
+  await expect(page.getByText(/Heart: network resonance and endgame resolutions/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
   await expect(page.getByText(/1 of 4\d contracts restored/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Decision Point' })).toBeVisible()
@@ -109,6 +111,7 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
       version: 1,
       currentChamberId: 'finale',
       codexIds: ['first-breath'],
+      endgameResolution: 'conservatory',
       materials: { biomass: 3, crystal: 2, memory: 2 },
       plantedByChamber: {},
       postgameUnlocked: true,
@@ -121,6 +124,9 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
   })
   await page.goto('/')
   await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'Ending resolution' }).click()
+  await expect(page.getByText(/Resolution: Conservatory/)).toBeVisible()
+  await page.getByRole('button', { name: 'Main menu' }).click()
   await page.getByRole('button', { name: 'Conservatory' }).click()
   await expect(page.getByRole('heading', { name: 'Conservatory' })).toBeVisible()
   await expect(page.getByText(/Postgame restoration is open/)).toBeVisible()

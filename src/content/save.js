@@ -6,6 +6,7 @@ export function createDefaultSave() {
     arkClock: 0,
     currentChamberId: 'tutorial',
     codexIds: [],
+    endgameResolution: null,
     environmentalChanges: [],
     materials: {
       biomass: 0,
