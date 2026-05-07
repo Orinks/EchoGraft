@@ -1,5 +1,6 @@
 import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
+import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
@@ -29,6 +30,12 @@ const inputPoller = createSyngenInputPoller((intent) => {
   if (screen === 'game' && intent.source === 'gamepad') handleInputIntent(intent)
 })
 inputPoller.start()
+const runtimeState = createSyngenStateBridge({
+  exportState: exportRuntimeState,
+  importState: importRuntimeState,
+  resetState: resetRuntimeState,
+})
+runtimeState.attach()
 
 function buildInventory() {
   const base = save.inventoryIds.map((id) => chamberSeeds[id]).filter(Boolean)
@@ -94,6 +101,63 @@ function persist() {
   save.customSeeds = inventory.filter((seed) => seed.grafted)
   save.plantedByChamber[chamber.id] = structuredClone(plantedSeeds)
   saveGame(save)
+}
+
+function exportRuntimeState() {
+  return {
+    conservatoryMode,
+    player,
+    plantedSeeds,
+    save,
+    scanMode,
+    screen,
+    selectedSeedIndex,
+    tuningIndex,
+  }
+}
+
+function hydrateRuntimeSave(nextSave = {}) {
+  const defaults = createDefaultSave()
+  return {
+    ...defaults,
+    ...nextSave,
+    materials: { ...defaults.materials, ...(nextSave.materials ?? {}) },
+    settings: { ...defaults.settings, ...(nextSave.settings ?? {}) },
+  }
+}
+
+function importRuntimeState(state = {}) {
+  save = hydrateRuntimeSave(state.save)
+  audio.setSettings(save.settings)
+  chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
+  player = state.player ?? createPlayer(chamber.start)
+  inventory = buildInventory()
+  selectedSeedIndex = state.selectedSeedIndex ?? 0
+  tuningIndex = state.tuningIndex ?? 0
+  scanMode = state.scanMode ?? 'objective'
+  conservatoryMode = state.conservatoryMode ?? 'balanced'
+  plantedSeeds = state.plantedSeeds ?? loadPlanted(chamber.id)
+  lastResult = evaluateResonance(chamber, plantedSeeds)
+  audio.updateListener(player)
+  audio.chamber(chamber, plantedSeeds)
+  render()
+}
+
+function resetRuntimeState() {
+  audio.clearSeedObjects()
+  save = createDefaultSave()
+  audio.setSettings(save.settings)
+  chamber = chambers.find((item) => item.id === save.currentChamberId) ?? chambers[0]
+  player = createPlayer(chamber.start)
+  inventory = buildInventory()
+  selectedSeedIndex = 0
+  tuningIndex = 0
+  scanMode = 'objective'
+  conservatoryMode = 'balanced'
+  plantedSeeds = loadPlanted(chamber.id)
+  lastResult = evaluateResonance(chamber, plantedSeeds)
+  screen = 'splash'
+  render()
 }
 
 function seedMoveCount() {
