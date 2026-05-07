@@ -4,7 +4,7 @@ import { createEventLog } from '../content/log.js'
 import { createPlayer, movePlayer, rotatePlayer } from '../content/player.js'
 import { availableChambers, decisionSummary, evaluateResonance, firstFullCampaignEstimate, mergeRewards, restorationPlanningSession, restorationRating, seedCollectionAppraisal, stewardshipSummary } from '../content/resonance.js'
 import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
-import { graftSeeds, tuneSeed, tuningParameters } from '../content/seeds.js'
+import { graftDiscoveries, graftSeeds, tuneSeed, tuningParameters } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -31,6 +31,27 @@ function currentSeed() {
 
 function currentTuningParameter() {
   return tuningParameters[tuningIndex]
+}
+
+function tuningLabel(parameter) {
+  return ({
+    amAmount: 'AM modulation',
+    'envelope.attack': 'envelope attack',
+    'envelope.release': 'envelope release',
+    fmAmount: 'FM modulation',
+    growthBehavior: 'growth behavior',
+    noiseAmount: 'noise amount',
+  })[parameter] ?? parameter
+}
+
+function tuningValue(seed, parameter) {
+  if (parameter === 'envelope.attack') return seed.envelope?.attack
+  if (parameter === 'envelope.release') return seed.envelope?.release
+  return seed[parameter]
+}
+
+function seedDnaText(seed) {
+  return `pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}, envelope attack ${seed.envelope?.attack}, release ${seed.envelope?.release}, FM ${seed.fmAmount}, AM ${seed.amAmount}, noise ${seed.noiseAmount}, growth ${seed.growthBehavior}`
 }
 
 function loadPlanted(chamberId) {
@@ -147,6 +168,14 @@ function hazardsText() {
   return chamber.hazards?.length ? chamber.hazards.map((hazard) => hazard.message).join(' ') : 'No active hazards detected.'
 }
 
+function positionMeaningText(position) {
+  const distance = Math.hypot(chamber.target.x - position.x, chamber.target.y - position.y).toFixed(1)
+  const tolerance = chamber.tolerances.position
+  return Number(distance) <= tolerance
+    ? `Meaningful position: within ${distance} steps of the chamber heart, inside the ${tolerance} step restoration tolerance.`
+    : `Meaningful position: ${distance} steps from the chamber heart; move closer than ${tolerance} steps for stronger resonance.`
+}
+
 function scan() {
   const distance = Math.hypot(chamber.target.x - player.x, chamber.target.y - player.y).toFixed(1)
   const side = chamber.target.x < player.x ? 'left' : chamber.target.x > player.x ? 'right' : 'centered'
@@ -168,7 +197,7 @@ function plantOrPickUp() {
     const seed = { ...currentSeed(), position: { x: player.x, y: player.y } }
     plantedSeeds.push(seed)
     audio.seed(seed)
-    log(`Planted ${seed.name} at ${player.x}, ${player.y}.`)
+    log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${positionMeaningText(seed.position)}`)
   }
   audio.syncSeedObjects(chamber.id, plantedSeeds)
   evaluate()
@@ -179,7 +208,7 @@ function tune(direction) {
   if (!seed) return
   const parameter = currentTuningParameter()
   inventory[selectedSeedIndex] = tuneSeed(seed, parameter, direction)
-  log(`Tuned ${inventory[selectedSeedIndex].name}: ${parameter} is ${inventory[selectedSeedIndex][parameter]}.`)
+  log(`Tuned ${inventory[selectedSeedIndex].name}: ${tuningLabel(parameter)} is ${tuningValue(inventory[selectedSeedIndex], parameter)}.`)
   audio.seed(inventory[selectedSeedIndex])
   persist()
 }
@@ -189,7 +218,11 @@ function graft() {
   const next = graftSeeds(inventory[0], inventory[1], `graft-${Date.now()}`)
   inventory.push(next)
   selectedSeedIndex = inventory.length - 1
-  log(`Grafted ${next.name}. Selected graft has pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
+  const discoveries = graftDiscoveries(next)
+  const newDiscoveries = discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
+  save.unlockedGraftMechanics = [...save.unlockedGraftMechanics, ...newDiscoveries]
+  log(`Grafted ${next.name}. Inherited waveform ${next.waveform}, synth ${next.oscillatorType}, envelope attack ${next.envelope.attack}, growth ${next.growthBehavior}. Selected graft has pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
+  if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
   audio.ui('success')
   persist()
 }
@@ -206,6 +239,19 @@ function composeConservatory() {
   log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord.`)
 }
 
+function selectSeed(index) {
+  selectedSeedIndex = Math.min(Math.max(index, 0), inventory.length - 1)
+  audio.seed(currentSeed())
+  log(`Selected ${currentSeed().name}.`)
+}
+
+function setTuningParameter(parameter) {
+  const index = tuningParameters.indexOf(parameter)
+  if (index < 0) return
+  tuningIndex = index
+  log(`Tuning parameter: ${tuningLabel(currentTuningParameter())}.`)
+}
+
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult })
@@ -218,10 +264,12 @@ function evaluate() {
   const firstSolve = !save.solvedChambers.includes(chamber.id)
   if (firstSolve) save.solvedChambers.push(chamber.id)
   const rating = restorationRating(lastResult)
+  const gatheredSeedNames = (chamber.rewards?.seeds ?? []).filter((id) => !save.inventoryIds.includes(id)).map((id) => chamberSeeds[id]?.name ?? id)
   save = mergeRewards(save, chamber, rating)
   inventory = buildInventory()
   audio.ui('success')
   log(`${chamber.title} solved with ${rating} rating. Rewards now available in the atlas.`, 'success')
+  if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
   if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => codexRecords[id]?.title).filter(Boolean).join(', ')}.`, 'success')
   persist()
   if (chamber.ending) {
@@ -295,16 +343,14 @@ function handleGameKey(event) {
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
     event.preventDefault()
-    selectedSeedIndex = (selectedSeedIndex + 1) % inventory.length
-    log(`Selected ${currentSeed().name}.`)
+    selectSeed((selectedSeedIndex + 1) % inventory.length)
   } else if (/^[1-4]$/.test(event.key)) {
-    selectedSeedIndex = Math.min(Number(event.key) - 1, inventory.length - 1)
-    log(`Selected ${currentSeed().name}.`)
+    selectSeed(Number(event.key) - 1)
   } else if (event.key === '-' || event.key === '[') tune(-1)
   else if (event.key === '=' || event.key === ']') tune(1)
   else if (event.key === 'Shift') {
     tuningIndex = (tuningIndex + 1) % tuningParameters.length
-    log(`Tuning parameter: ${currentTuningParameter()}.`)
+    log(`Tuning parameter: ${tuningLabel(currentTuningParameter())}.`)
   } else if (event.key.toLowerCase() === 'g') graft()
   else if (event.key.toLowerCase() === 'r') resetChamber()
   else if (event.key.toLowerCase() === 'h') setScreen('help')
@@ -345,10 +391,12 @@ app.addEventListener('click', async (event) => {
     scanMode = event.target.dataset.mode
     log(`Scan mode: ${scanMode}.`)
   }
+  if (action === 'tuningParameter') setTuningParameter(event.target.dataset.parameter)
   if (action === 'plant') plantOrPickUp()
   if (action === 'tuneDown') tune(-1)
   if (action === 'tuneUp') tune(1)
   if (action === 'graft') graft()
+  if (action === 'selectSeed') selectSeed(Number(event.target.dataset.seedIndex))
   if (action === 'previewSeed') previewSelectedSeed()
   if (action === 'compose') composeConservatory()
   if (action === 'restore') restoreChamber()
@@ -432,6 +480,10 @@ function game() {
           <button data-action="plant">Plant or pick up</button>
           <button data-action="tuneDown">Tune down</button>
           <button data-action="tuneUp">Tune up</button>
+          <button data-action="tuningParameter" data-parameter="envelope.attack">Tune envelope</button>
+          <button data-action="tuningParameter" data-parameter="fmAmount">Tune modulation</button>
+          <button data-action="tuningParameter" data-parameter="noiseAmount">Tune noise</button>
+          <button data-action="tuningParameter" data-parameter="growthBehavior">Tune growth</button>
           <button data-action="graft">Graft first two seeds</button>
           <button data-action="restore">Restore chamber</button>
           <button data-action="reset">Reset chamber</button>
@@ -444,7 +496,7 @@ function game() {
       </section>
       <section class="inventory" aria-label="Seed inventory">
         <h2>Inventory</h2>
-        <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
+        <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
       </section>
       <section class="log" aria-label="Caption and event log" aria-live="polite">
         <h2>Caption Log</h2>
@@ -510,14 +562,25 @@ function library() {
   shell(`
     <main class="screen" aria-labelledby="library-title">
       <h1 id="library-title">Seed Library</h1>
-      <p>Selected tuning: ${currentTuningParameter()}. Materials: ${materialsText()}.</p>
+      <p>Selected tuning: ${tuningLabel(currentTuningParameter())}. Materials: ${materialsText()}.</p>
       <section aria-labelledby="appraisal-title">
         <h2 id="appraisal-title">Seed Collection Appraisal</h2>
         <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
         <p>Curated seed: ${appraisal.curatedSeed}. Playable voices: ${appraisal.playableVoices.join(', ')}.</p>
         <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
       </section>
-      <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: pitch ${seed.pitchRatio}, pulse ${seed.pulseRate}, brightness ${seed.brightness}, phase ${seed.phase}${seed.grafted ? ', grafted' : ''}</li>`).join('')}</ol>
+      <section aria-labelledby="tuning-title">
+        <h2 id="tuning-title">Tuning DNA</h2>
+        <p>Selected seed DNA: ${seedDnaText(currentSeed())}.</p>
+        ${tuningParameters.map((parameter) => `<button data-action="tuningParameter" data-parameter="${parameter}">${tuningLabel(parameter)}</button>`).join('')}
+        <button data-action="tuneDown">Tune down</button>
+        <button data-action="tuneUp">Tune up</button>
+      </section>
+      <section aria-labelledby="graft-mechanics-title">
+        <h2 id="graft-mechanics-title">Unlocked Graft Mechanics</h2>
+        <p>${save.unlockedGraftMechanics.length ? save.unlockedGraftMechanics.join(', ') : 'No graft mechanics unlocked yet.'}</p>
+      </section>
+      <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
       <button data-action="previewSeed">Preview selected seed</button>
       <button data-action="graft">Graft first two seeds</button>
       <button data-action="atlas">Atlas</button>

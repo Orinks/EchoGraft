@@ -36,6 +36,15 @@ describe('resonance evaluation', () => {
     expect(next.materials.biomass).toBe(1)
   })
 
+  it('gathers seed rewards once into the inventory', () => {
+    const save = createDefaultSave()
+    save.inventoryIds = ['sol', 'lumen', 'umbra']
+    const next = mergeRewards(save, chambers.find((chamber) => chamber.id === 'mold'), 'Stable')
+    const duplicate = mergeRewards(next, chambers.find((chamber) => chamber.id === 'mold'), 'Stable')
+    expect(next.inventoryIds).toContain('spire')
+    expect(duplicate.inventoryIds.filter((id) => id === 'spire')).toHaveLength(1)
+  })
+
   it('has a solvable ideal target for every chamber', () => {
     for (const chamber of chambers) {
       const ideal = createSeedDNA(`${chamber.id}-ideal`, {

@@ -12,6 +12,7 @@ export function createDefaultSave() {
     },
     plantedByChamber: {},
     postgameUnlocked: false,
+    unlockedGraftMechanics: [],
     ratings: {},
     solvedChambers: [],
     inventoryIds: ['sol', 'lumen', 'umbra'],

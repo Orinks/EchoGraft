@@ -3,7 +3,7 @@ import { createRng, pick } from './rng.js'
 export const waveforms = ['sine', 'triangle', 'sawtooth', 'square']
 export const oscillatorTypes = ['pure', 'fm', 'am', 'noise-kissed']
 export const growthBehaviors = ['steady', 'climbing', 'breathing', 'twining']
-export const tuningParameters = ['pitchRatio', 'pulseRate', 'brightness', 'phase']
+export const tuningParameters = ['pitchRatio', 'pulseRate', 'brightness', 'phase', 'envelope.attack', 'envelope.release', 'fmAmount', 'amAmount', 'noiseAmount', 'growthBehavior']
 
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
@@ -42,6 +42,12 @@ export function createSeedDNA(seedId, overrides = {}) {
 export function normalizeSeed(seed) {
   return {
     ...seed,
+    envelope: {
+      attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
+      decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
+      sustain: clamp(Number(seed.envelope?.sustain ?? 0.5), 0.1, 1),
+      release: clamp(Number(seed.envelope?.release ?? 0.25), 0.05, 1),
+    },
     pitchRatio: clamp(Number(seed.pitchRatio), 0.5, 3),
     brightness: clamp(Number(seed.brightness), 0, 1),
     fmAmount: clamp(Number(seed.fmAmount ?? 0), 0, 1),
@@ -54,11 +60,21 @@ export function normalizeSeed(seed) {
 
 export function tuneSeed(seed, parameter, direction, step = 1) {
   const tuned = structuredClone(seed)
+  tuned.envelope = tuned.envelope ?? { attack: 0.02, decay: 0.12, sustain: 0.5, release: 0.25 }
   const delta = direction * step
   if (parameter === 'pitchRatio') tuned.pitchRatio = Number((tuned.pitchRatio + delta * 0.05).toFixed(2))
   if (parameter === 'pulseRate') tuned.pulseRate = Number((tuned.pulseRate + delta * 0.25).toFixed(2))
   if (parameter === 'brightness') tuned.brightness = Number((tuned.brightness + delta * 0.05).toFixed(2))
   if (parameter === 'phase') tuned.phase = tuned.phase + delta * 15
+  if (parameter === 'envelope.attack') tuned.envelope.attack = Number((tuned.envelope.attack + delta * 0.01).toFixed(2))
+  if (parameter === 'envelope.release') tuned.envelope.release = Number((tuned.envelope.release + delta * 0.05).toFixed(2))
+  if (parameter === 'fmAmount') tuned.fmAmount = Number((tuned.fmAmount + delta * 0.05).toFixed(2))
+  if (parameter === 'amAmount') tuned.amAmount = Number((tuned.amAmount + delta * 0.05).toFixed(2))
+  if (parameter === 'noiseAmount') tuned.noiseAmount = Number((tuned.noiseAmount + delta * 0.05).toFixed(2))
+  if (parameter === 'growthBehavior') {
+    const current = growthBehaviors.indexOf(tuned.growthBehavior)
+    tuned.growthBehavior = growthBehaviors[(current + direction + growthBehaviors.length) % growthBehaviors.length]
+  }
   return normalizeSeed(tuned)
 }
 
@@ -80,6 +96,15 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
     growthBehavior: seedB.growthBehavior,
     grafted: true,
   })
+}
+
+export function graftDiscoveries(seed) {
+  const discoveries = ['hybrid resonance planting']
+  if (seed.fmAmount >= 0.4) discoveries.push('FM pressure grafting')
+  if (seed.amAmount >= 0.4) discoveries.push('AM current shaping')
+  if (seed.noiseAmount >= 0.2) discoveries.push('noise-bed masking')
+  if (seed.growthBehavior === 'twining') discoveries.push('twined multi-position growth')
+  return discoveries
 }
 
 export const starterSeeds = [
