@@ -1,9 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { canopyBrightnessTuningState, createSeedDNA, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, seedAudioPreview, seedFamilies, seedLineageText, seedNameState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
     expect(createSeedDNA('ark')).toEqual(createSeedDNA('ark'))
+  })
+
+  it('carries a readable seed name and catalog id for no-vision inspection', () => {
+    const named = createSeedDNA('sol-cutting', { name: 'Sol cutting' })
+    const fallback = createSeedDNA('unnamed-cutting', { name: undefined })
+
+    expect(seedNameState(named)).toEqual({
+      id: 'sol-cutting',
+      name: 'Sol cutting',
+      text: 'Seed name: Sol cutting; catalog id sol-cutting.',
+    })
+    expect(fallback.name).toBe('Seed unnamed-cutting')
+    expect(seedNameState(fallback).text).toContain('Seed name: Seed unnamed-cutting')
   })
 
   it('tunes bounded parameters', () => {

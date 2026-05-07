@@ -102,6 +102,7 @@ export function createSeedDNA(seedId, overrides = {}) {
 export function normalizeSeed(seed) {
   return {
     ...seed,
+    name: String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed')),
     envelope: {
       attack: clamp(Number(seed.envelope?.attack ?? 0.02), 0.01, 0.25),
       decay: clamp(Number(seed.envelope?.decay ?? 0.12), 0.04, 0.5),
@@ -115,6 +116,17 @@ export function normalizeSeed(seed) {
     noiseAmount: clamp(Number(seed.noiseAmount ?? 0), 0, 1),
     pulseRate: clamp(Number(seed.pulseRate), 0.25, 6),
     phase: ((Number(seed.phase) % 360) + 360) % 360,
+  }
+}
+
+export function seedNameState(seed) {
+  const name = String(seed.name ?? (seed.id ? `Seed ${seed.id}` : 'Unnamed phonoseed'))
+  const id = String(seed.id ?? name.toLowerCase().replace(/\s+/g, '-'))
+
+  return {
+    id,
+    name,
+    text: `Seed name: ${name}; catalog id ${id}.`,
   }
 }
 
