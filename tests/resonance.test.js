@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -170,6 +170,24 @@ describe('resonance evaluation', () => {
     expect(contained.band).toBe('contained')
     expect(contained.ratingContribution).toContain('stronger restoration ratings')
     expect(evaluateResonance(chamber, [breachedSeed]).hazardContainment.band).toBe('breached')
+  })
+
+  it('rejects mold forbidden pitch zones during restoration', () => {
+    const chamber = chambers.find((item) => item.id === 'mold')
+    const sourSeed = createSeedDNA('mold-sour', { pitchRatio: 0.75, pulseRate: 2, brightness: 0.7, phase: 90, position: chamber.target })
+    const clearSeed = createSeedDNA('mold-clear', { pitchRatio: 2, pulseRate: 2, brightness: 0.7, phase: 90, position: chamber.target })
+    const sourZone = forbiddenPitchZoneState(chamber, [sourSeed])
+    const clearZone = forbiddenPitchZoneState(chamber, [clearSeed])
+
+    expect(sourZone).toMatchObject({
+      breached: true,
+      count: 1,
+      zones: [expect.objectContaining({ lower: 0.55, pitchRatio: 0.75, upper: 0.95 })],
+    })
+    expect(sourZone.text).toContain('Rejected seeds: Seed mold-sour pitch 0.75')
+    expect(evaluateResonance(chamber, [sourSeed]).missing).toContain('Mold rejects the low fourth interval.')
+    expect(clearZone.breached).toBe(false)
+    expect(evaluateResonance(chamber, [clearSeed]).solved).toBe(true)
   })
 
   it('treats pulse-rate hazard intervals as unsafe zones', () => {

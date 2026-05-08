@@ -213,6 +213,43 @@ export function hazardContainmentSummary(chamber, plantedSeeds = []) {
   }
 }
 
+export function forbiddenPitchZoneState(chamber = {}, plantedSeeds = []) {
+  const zones = (chamber.hazards ?? [])
+    .filter((hazard) => Number.isFinite(hazard.pitchRatio))
+    .map((hazard) => {
+      const radius = Number(hazard.radius ?? 0)
+      const lower = Number((hazard.pitchRatio - radius).toFixed(3))
+      const upper = Number((hazard.pitchRatio + radius).toFixed(3))
+      const breaches = plantedSeeds
+        .filter((seed) => Number.isFinite(seed.pitchRatio) && seed.pitchRatio >= lower && seed.pitchRatio <= upper)
+        .map((seed) => ({
+          id: seed.id,
+          name: seed.name ?? seed.id ?? 'unknown seed',
+          pitchRatio: seed.pitchRatio,
+          position: seed.position ?? { x: 0, y: 0 },
+        }))
+
+      return {
+        breaches,
+        lower,
+        message: hazard.message ?? 'Forbidden pitch zone breached.',
+        pitchRatio: hazard.pitchRatio,
+        radius,
+        upper,
+      }
+    })
+  const breached = zones.some((zone) => zone.breaches.length)
+
+  return {
+    breached,
+    count: zones.length,
+    text: zones.length
+      ? `Forbidden pitch zones: ${zones.map((zone) => `${zone.lower}-${zone.upper} around ${zone.pitchRatio}: ${zone.message}`).join('; ')}. ${breached ? `Rejected seeds: ${zones.flatMap((zone) => zone.breaches.map((seed) => `${seed.name} pitch ${seed.pitchRatio}`)).join(', ')}.` : 'No planted seed is inside a forbidden pitch zone.'}`
+      : 'Forbidden pitch zones: none in this chamber.',
+    zones,
+  }
+}
+
 function materialTotal(materials = {}) {
   return Object.values(materials).reduce((total, value) => total + value, 0)
 }
