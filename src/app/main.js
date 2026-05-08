@@ -885,6 +885,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'credits') setScreen('credits')
   if (action === 'atlas') setScreen('atlas')
   if (action === 'library') setScreen('library')
+  if (action === 'grafting') setScreen('grafting')
   if (action === 'codex') setScreen('codex')
   if (action === 'conservatory') setScreen('conservatory')
   if (action === 'ending') setScreen('ending')
@@ -959,6 +960,7 @@ function menu() {
         <button data-action="continue">Continue</button>
         <button data-action="atlas">Restoration atlas</button>
         <button data-action="library">Seed library</button>
+        <button data-action="grafting">Grafting screen</button>
         <button data-action="codex">Codex</button>
         ${save.postgameUnlocked ? '<button data-action="ending">Ending resolution</button>' : ''}
         ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
@@ -1292,7 +1294,7 @@ function atlas() {
         ${restorationPhilosophies.map((item) => `<button data-action="philosophy" data-philosophy="${item.id}">${item.title}</button>`).join('')}
         <p>Post-restore options: improve the active chamber, take another work order, research grafts, or advance the Ark clock.</p>
         <button data-action="game">Improve active chamber</button>
-        <button data-action="library">Research grafts</button>
+        <button data-action="grafting">Research grafts</button>
         <button data-action="advanceClock">Advance Ark clock</button>
       </section>
       ${save.postgameUnlocked ? `
@@ -1304,6 +1306,7 @@ function atlas() {
           <button data-action="conservatory">Conservatory</button>
           <button data-action="codex">Codex</button>
           <button data-action="library">Seed library</button>
+          <button data-action="grafting">Grafting screen</button>
           <button data-action="game">Back to chamber</button>
           <button data-action="menu">Main menu</button>
         </nav>
@@ -1343,6 +1346,7 @@ function atlas() {
       <nav aria-label="Restoration atlas actions">
         <button data-action="game">Enter active chamber</button>
         <button data-action="library">Seed library</button>
+        <button data-action="grafting">Grafting screen</button>
         <button data-action="codex">Codex</button>
         ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
         <button data-action="menu">Main menu</button>
@@ -1417,6 +1421,7 @@ function library() {
       <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
       <nav aria-label="Seed library actions">
         <button data-action="previewSeed">Preview selected seed</button>
+        <button data-action="grafting">Grafting screen</button>
         <button data-action="atlas">Atlas</button>
         <button data-action="game">Back to chamber</button>
       </nav>
@@ -1424,6 +1429,44 @@ function library() {
         <h2>Caption Log</h2>
         <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>
       </section>
+    </main>
+  `)
+}
+
+function graftingScreen() {
+  audio.setMusicScene('menu')
+  const fullCatalog = fullSeedGraftCatalogState()
+  const menuState = seedLibraryMenuState(inventory, save, selectedSeedIndex)
+  shell(`
+    <main class="screen" aria-labelledby="grafting-screen-title">
+      <h1 id="grafting-screen-title">Seed Library Grafting</h1>
+      <p>${menuState.text}</p>
+      <section aria-labelledby="grafting-parent-title">
+        <h2 id="grafting-parent-title">Grafting Parent Pair</h2>
+        <p>${graftingBenchText()}</p>
+        <p>Bench rule: Parent A passes root pitch and waveform; Parent B passes modulation and growth. Failed grafts return dream compost or noisy tools instead of ending progress.</p>
+        <button data-action="graft">Graft first two seeds</button>
+      </section>
+      ${graftingBenchV1Html()}
+      <section aria-labelledby="grafting-catalog-title">
+        <h2 id="grafting-catalog-title">Graft Catalog</h2>
+        <p>${fullCatalog.text}</p>
+        <p>Unlocked mechanics: ${save.unlockedGraftMechanics.length ? save.unlockedGraftMechanics.join(', ') : 'none yet'}.</p>
+        <p>Known families: ${seedFamilies.map((family) => `${family.name}: ${family.affinity}`).join('; ')}.</p>
+      </section>
+      <section aria-labelledby="grafting-library-title">
+        <h2 id="grafting-library-title">Library Seed Selection</h2>
+        <p>${seedCarryText(inventory, selectedSeedIndex)}</p>
+        <p>Selected seed DNA: ${seedDnaText(currentSeed())}.</p>
+        <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
+      </section>
+      <nav aria-label="Grafting screen actions">
+        <button data-action="previewSeed">Preview selected seed</button>
+        <button data-action="library">Seed library</button>
+        <button data-action="atlas">Atlas</button>
+        <button data-action="game">Back to chamber</button>
+      </nav>
+      ${captionLogHtml()}
     </main>
   `)
 }
@@ -1466,6 +1509,7 @@ function codex() {
       <nav aria-label="Codex perception actions">
         <button data-action="atlas">Atlas</button>
         <button data-action="library">Seed library</button>
+        <button data-action="grafting">Grafting screen</button>
         <button data-action="game">Back to chamber</button>
       </nav>
       ${captionLogHtml()}
@@ -1641,6 +1685,7 @@ function pause() {
         <button data-action="game">Resume</button>
         <button data-action="atlas">Restoration atlas</button>
         <button data-action="library">Seed library</button>
+        <button data-action="grafting">Grafting screen</button>
         <button data-action="codex">Codex perceptions</button>
         <button data-action="settings">Settings</button>
         <button data-action="help">Help</button>
@@ -1713,6 +1758,7 @@ function render() {
   if (screen === 'game') game()
   if (screen === 'atlas') atlas()
   if (screen === 'library') library()
+  if (screen === 'grafting') graftingScreen()
   if (screen === 'codex') codex()
   if (screen === 'conservatory') conservatory()
   if (screen === 'settings') settings()
