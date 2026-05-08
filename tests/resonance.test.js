@@ -381,6 +381,15 @@ describe('resonance evaluation', () => {
     }
   })
 
+  it('keeps main campaign timing free of mandatory reflex tests', () => {
+    for (const chamber of chambers.filter((item) => !item.optional)) {
+      const timingText = `${chamber.objective} ${chamber.mechanic} ${chamber.emergency?.consequence ?? ''}`.toLowerCase()
+      expect(timingText, chamber.id).not.toContain('reflex')
+      expect(timingText, chamber.id).not.toContain('instant')
+      expect(timingText, chamber.id).not.toContain('game over')
+    }
+  })
+
   it('builds a 20 to 40 minute restoration planning session from upcoming contracts', () => {
     const plan = restorationPlanningSession(chambers, [])
     expect(plan.contracts.map((chamber) => chamber.id)).toEqual(['tutorial', 'direction', 'binaural', 'pitch'])

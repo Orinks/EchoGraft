@@ -1259,6 +1259,7 @@ function help() {
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
       <p>${controlsText()}</p>
+      <p>Main campaign chambers never require reflex timing. Scan, read the caption log, tune, reset, and plant at your own pace.</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
       <button data-action="game">Back to game</button>
       ${captionLogHtml()}

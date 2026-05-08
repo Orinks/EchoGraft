@@ -93,6 +93,10 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('?')
   await expect(eventLog.getByText(/Controls: move w, ArrowUp\/s, ArrowDown\/a, ArrowLeft\/d, ArrowRight; scan b/)).toBeVisible()
   await expect(eventLog.getByText(/Gamepad: left stick or D-pad moves, south button plants, east button scans/)).toBeVisible()
+  await page.keyboard.press('h')
+  await expect(page.getByRole('heading', { name: 'Help' })).toBeVisible()
+  await expect(page.getByText(/Main campaign chambers never require reflex timing/)).toBeVisible()
+  await page.getByRole('button', { name: 'Back to game' }).click()
 
   await page.keyboard.press('b')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
