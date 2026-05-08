@@ -224,3 +224,4 @@
 - Continued with `omx ultragoal complete-goals` for `G194-ambient-bed`. Added a named `AmbientBed` runtime object for chamber ambience layers and routed chamber ambience generation through it.
 - Continued with `omx ultragoal complete-goals` for `G195-heart-voice`. Audited the existing `HeartVoice` implementation and added explicit target/restored heart role markers to its runtime payload for downstream mix-layer identification.
 - Continued with `omx ultragoal complete-goals` for `G196-system-drone`. Audited the existing `SystemDrone` implementation and added explicit restored/preview system-drone role markers to its runtime payload.
+- Continued with `omx ultragoal complete-goals` for `G197-planted-seed-voices`. Audited the existing `SeedVoice` implementation and added an explicit planted-seed voice role marker to persistent planted seed payloads.

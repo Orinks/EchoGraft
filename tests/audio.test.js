@@ -124,7 +124,7 @@ describe('audio movement cues', () => {
     expect(voice.tick(audio, 21.9)).toBe(false)
     expect(played).toHaveLength(0)
     expect(voice.tick(audio, 22)).toBe(true)
-    expect(played[0]).toMatchObject({ id: 'lumen', persistent: true, seedVoice: true })
+    expect(played[0]).toMatchObject({ id: 'lumen', persistent: true, role: 'planted-seed-voice', seedVoice: true })
     expect(voice.nextBeat).toBe(24)
   })
 

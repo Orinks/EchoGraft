@@ -420,6 +420,7 @@ export class SeedVoice {
     this.seed = structuredClone({
       ...seed,
       persistent: true,
+      role: 'planted-seed-voice',
       seedVoice: true,
     })
     this.text = `SeedVoice: ${this.seed.name ?? this.seed.id ?? 'planted seed'} persists at ${this.seed.position?.x ?? 0}, ${this.seed.position?.y ?? 0}; pulse interval ${this.interval.toFixed(2)} second(s).`
