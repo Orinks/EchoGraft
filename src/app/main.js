@@ -1089,12 +1089,17 @@ function pause() {
   audio.setMusicScene('menu')
   shell(`
     <main class="screen" aria-labelledby="pause-title">
-      <h1 id="pause-title">Paused</h1>
-      <button data-action="game">Resume</button>
-      <button data-action="atlas">Atlas</button>
-      <button data-action="settings">Settings</button>
-      <button data-action="help">Help</button>
-      <button data-action="menu">Main menu</button>
+      <h1 id="pause-title">Pause Functions</h1>
+      <p>${mainMenuStatusText()}</p>
+      <nav aria-label="Pause functions menu">
+        <button data-action="game">Resume</button>
+        <button data-action="atlas">Restoration atlas</button>
+        <button data-action="library">Seed library</button>
+        <button data-action="codex">Codex perceptions</button>
+        <button data-action="settings">Settings</button>
+        <button data-action="help">Help</button>
+        <button data-action="menu">Main menu</button>
+      </nav>
     </main>
   `)
 }

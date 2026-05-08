@@ -244,3 +244,4 @@
 - Continued with `omx ultragoal complete-goals` for `G214-c-codex-perception-updates`. Hardened the `C` info command so codex reports include recovered records, next available perception recovery, and current chamber memory-scan state.
 - Continued with `omx ultragoal complete-goals` for `G215-controls`. Added the `?` info command for in-game controls and reused the same controls text in the Help screen.
 - Continued with `omx ultragoal complete-goals` for `G216-main-menu`. Hardened the main menu with a current-save status summary while preserving the semantic main navigation.
+- Continued with `omx ultragoal complete-goals` for `G217-pause-functions-menu`. Expanded the pause surface into a semantic functions menu with resume, atlas, seed library, codex, settings, help, main menu, and current-save status.

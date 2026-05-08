@@ -11,6 +11,11 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: /Training Contract: First Breath/ })).toBeVisible()
   await expect(page.locator('.a-game--status')).toHaveCount(0)
   await expect(page.locator('.a-game--inventory')).toHaveCount(0)
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('heading', { name: 'Pause Functions' })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Pause functions menu' })).toBeVisible()
+  await expect(page.getByText(/Current save: 0 of \d+ contracts restored; 0 of \d+ Ark systems online/)).toBeVisible()
+  await page.getByRole('button', { name: 'Resume' }).click()
 
   const eventLog = page.getByLabel('Caption and event log')
   await page.getByRole('button', { name: 'Listen' }).click()
