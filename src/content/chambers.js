@@ -260,6 +260,25 @@ export function milestoneChamberSlice(chamberList = chambers, season = 1, target
   }
 }
 
+export function seasonOneOpeningContractMix(chamberList = chambers, target = { required: 6, optional: 2 }) {
+  const seasonChambers = chamberList.filter((chamber) => chamber.season === 1 && chamber.contractType !== 'training')
+  const required = seasonChambers.filter((chamber) => !chamber.optional).slice(0, target.required)
+  const optional = seasonChambers.filter((chamber) => chamber.optional).slice(0, target.optional)
+  const ready = required.length === target.required && optional.length === target.optional
+  const requiredText = required.map((chamber) => chamber.title).join(', ')
+  const optionalText = optional.map((chamber) => chamber.title).join(', ')
+
+  return {
+    optional,
+    ready,
+    required,
+    target,
+    text: ready
+      ? `Season 1 opening contract mix ready: ${required.length} required and ${optional.length} optional contract(s) staged. Required: ${requiredText}. Optional: ${optionalText}.`
+      : `Season 1 opening contract mix incomplete: ${required.length} of ${target.required} required and ${optional.length} of ${target.optional} optional contract(s) staged.`,
+  }
+}
+
 export const majorArkSystems = [
   { id: 'intake', name: 'Intake', unlock: 'longer scan range and pressure awareness' },
   { id: 'navigation', name: 'Navigation', unlock: 'atlas previews, objective scan, and chamber compass cues' },
