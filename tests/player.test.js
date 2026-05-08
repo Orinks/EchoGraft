@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { chamberCurrent, createPlayer, movePlayer, movementFeedback, movementSurface, waterRoutedChamber, waterSystemState } from '../src/content/player.js'
+import { chamberCurrent, createPlayer, movePlayer, movementFeedback, movementSurface, rotatePlayer, waterRoutedChamber, waterSystemState } from '../src/content/player.js'
 
 describe('movement', () => {
   it('keeps early chamber movement grid-like and bounded by audible walls', () => {
@@ -72,5 +72,13 @@ describe('movement', () => {
     expect(dry.current).toBeUndefined()
     expect(chamberCurrent(routed)).toMatchObject({ dy: 1, name: 'restored water route' })
     expect(moved.y).toBe(player.y + 2)
+  })
+
+  it('rotates left and right for listener orientation', () => {
+    const player = createPlayer({ x: 0, y: 0, facing: 0 })
+
+    expect(rotatePlayer(player, -15).facing).toBe(345)
+    expect(rotatePlayer(player, 15).facing).toBe(15)
+    expect(rotatePlayer(rotatePlayer(player, -15), 15).facing).toBe(0)
   })
 })

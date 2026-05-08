@@ -316,6 +316,18 @@ test('moves with WASD and arrow keys', async ({ page }) => {
   await expect(eventLog.locator('li').filter({ hasText: /Movement audio: spatial footstep/ })).toHaveCount(2)
 })
 
+test('rotates and listens left and right with Q and E', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('q')
+  await expect(eventLog.getByText(/Rotated left to 345 degrees\. Listen left: chamber audio is reoriented for left\/right spatial cues\./)).toBeVisible()
+  await page.keyboard.press('e')
+  await expect(eventLog.getByText(/Rotated right to 0 degrees\. Listen right: chamber audio is reoriented for left\/right spatial cues\./)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

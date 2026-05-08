@@ -288,7 +288,8 @@ function movement(dx, dy) {
 function rotate(degrees) {
   player = rotatePlayer(player, degrees)
   audio.updateListener(player)
-  log(`Rotated to ${player.facing} degrees.`)
+  const direction = degrees < 0 ? 'left' : 'right'
+  log(`Rotated ${direction} to ${player.facing} degrees. Listen ${direction}: chamber audio is reoriented for left/right spatial cues.`)
 }
 
 function listen() {
