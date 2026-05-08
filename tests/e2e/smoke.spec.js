@@ -176,6 +176,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Navigation: Contract 2: Navigation Grove; atlas previews, objective scan, and chamber compass cues; awaiting restoration/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
   await expect(page.locator('section[aria-labelledby="stewardship-title"] p').filter({ hasText: /1 of 4\d contracts restored/ })).toBeVisible()
+  await expect(page.getByText(/First chamber rating improvements ready: Training Contract: First Breath is Resonant; target Resonant by revisit from the Restoration Atlas/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Ark Origin Mystery' })).toBeVisible()
   await expect(page.getByText(/Ark origin mystery: abandoned/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Navigation Atlas' })).toBeVisible()

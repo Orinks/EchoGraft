@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G303-first-chamber-rating-improvements`. Added a first chamber rating improvement state that explains how to revisit the training contract, reduce seed moves, improve resonance accuracy, recover optional records, and conserve materials toward a Resonant rating.
 - Continued with `omx ultragoal complete-goals` for `G302-first-material-loop`. Added a First Material Loop state that ties the tutorial's biomass/spores rewards to seed tuning, repair stock, and reset-safe material persistence, then surfaced it in the Restoration Atlas materials ledger.
 - Continued with `omx ultragoal complete-goals` for `G301-first-codex-records`. Added a First Codex Records state for the training contract's initial five readable records, then surfaced the starter record set in the Restoration Atlas and Codex screen.
 - Continued with `omx ultragoal complete-goals` for `G300-6-required-contracts-2-optional-cont`. Added a Season 1 opening contract mix that stages the first six required contracts and the first two optional branches, then surfaced it in the Restoration Atlas.

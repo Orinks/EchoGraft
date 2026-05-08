@@ -890,6 +890,33 @@ export function firstMaterialLoopState(chambers, save = {}) {
   }
 }
 
+export function firstChamberRatingImprovementState(chambers, save = {}) {
+  const firstContract = chambers.find((chamber) => chamber.id === 'tutorial') ?? chambers[0]
+  const currentRating = save.ratings?.[firstContract.id] ?? 'Unrated'
+  const targetRating = currentRating === 'Resonant' ? 'Resonant' : 'Resonant'
+  const improvementSteps = [
+    'revisit from the Restoration Atlas',
+    'plant fewer seed moves',
+    'tighten resonance accuracy',
+    'recover optional records',
+    'conserve materials',
+  ]
+  const improved = currentRating === targetRating
+  const ready = Boolean(firstContract?.id && firstContract?.rewards?.codex?.length && firstContract?.rewards?.materials)
+
+  return {
+    currentRating,
+    firstContract,
+    improved,
+    improvementSteps,
+    ready,
+    targetRating,
+    text: ready
+      ? `First chamber rating improvements ready: ${firstContract.title} is ${currentRating}; target ${targetRating} by ${improvementSteps.join(', ')}.`
+      : `First chamber rating improvements incomplete: starter contract needs rewards and rating dimensions.`,
+  }
+}
+
 export function graftCatalogCompletionState(save = {}, catalog = graftDiscoveryCatalog) {
   const fromRecords = (save.graftRecords ?? [])
     .map((record) => String(record.id ?? '').replace(/^graft-record-/, ''))
