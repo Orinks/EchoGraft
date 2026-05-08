@@ -18,7 +18,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Settings' }).click()
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
   await expect(page.getByLabel('Settings controls')).toBeVisible()
-  await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off; high contrast off/)).toBeVisible()
+  await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off; high contrast off; scan verbosity detailed/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Settings actions' })).toBeVisible()
   await expect(page.getByText(/Adjust master, ambience, music, UI, seed voice, hazard voice, and scan pulse levels independently/)).toBeVisible()
   await expect(page.getByLabel('Master volume')).toBeVisible()
@@ -46,6 +46,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByLabel('High contrast').check()
   await expect(page.locator('#app')).toHaveClass(/high-contrast/)
   await expect(page.getByText(/High contrast increases border, focus, radar, and feedback contrast/)).toBeVisible()
+  await expect(page.getByLabel('Scan verbosity')).toHaveValue('detailed')
   await expect(page.getByRole('button', { name: 'Back to game' })).toHaveCSS('border-top-color', 'rgb(255, 255, 255)')
   await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: High contrast set to on/)).toBeVisible()
   await expect(page.getByText(/Enter a key name or comma-separated alternatives such as B, Space, ArrowUp, or Shift\+L/)).toBeVisible()
@@ -256,6 +257,27 @@ test('supports a no-vision keyboard play path through first restoration', async 
   await expect(eventLog.getByText(/Meaningful position: within .* chamber heart/)).toBeVisible()
   await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Choose next contract' })).toBeVisible()
+})
+
+test('supports concise scan verbosity', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('echograft-save-v1', JSON.stringify({
+      version: 1,
+      currentChamberId: 'tutorial',
+      inventoryIds: ['sol', 'lumen', 'umbra'],
+      customSeeds: [],
+      plantedByChamber: {},
+      settings: { scanVerbosity: 'concise' },
+    }))
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('Space')
+  await expect(eventLog.getByText(/Objective scan: heart .* Required changes:/)).toBeVisible()
+  await expect(eventLog.getByText(/Target traits:/)).toHaveCount(0)
 })
 
 test('opens the postgame conservatory when unlocked', async ({ page }) => {

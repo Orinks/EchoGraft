@@ -50,6 +50,7 @@ const settingLabels = {
   reducedMotion: 'Reduced motion',
   minimalVisual: 'Minimal visual mode',
   highContrast: 'High contrast',
+  scanVerbosity: 'Scan verbosity',
 }
 
 const keyBindingLabels = {
@@ -370,7 +371,7 @@ function atlasStatusText() {
 }
 
 function settingsStatusText() {
-  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}; high contrast ${save.settings.highContrast ? 'on' : 'off'}.`
+  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}; high contrast ${save.settings.highContrast ? 'on' : 'off'}; scan verbosity ${save.settings.scanVerbosity}.`
 }
 
 function graftingBenchText() {
@@ -392,7 +393,11 @@ function scan() {
   const pulse = heartScan.pulse
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
-    log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+    if (save.settings.scanVerbosity === 'concise') {
+      log(`Objective scan: heart ${pulse.distance.toFixed(1)} steps ${pulse.direction.side}; ${range.text} Required changes: ${requiredChangesText()}`)
+    } else {
+      log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+    }
   }
   if (scanMode === 'boundaries') log(boundaryScanState(player, chamber).text)
   if (scanMode === 'seeds') log(seedScanState(plantedSeeds, chamber).text)
@@ -627,7 +632,7 @@ async function beginFromSplash() {
 }
 
 function updateSetting(key, value) {
-  const parsed = ['reducedMotion', 'minimalVisual', 'highContrast'].includes(key) ? value : Number(value)
+  const parsed = ['reducedMotion', 'minimalVisual', 'highContrast', 'scanVerbosity'].includes(key) ? value : Number(value)
   save.settings[key] = parsed
   audio.setSettings(save.settings)
   persist()
@@ -1207,6 +1212,10 @@ function settings() {
           <p>Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback.</p>
           <p>Minimal visual mode hides the abstract radar and keeps the chamber playable through text, controls, and audio feedback.</p>
           <p>High contrast increases border, focus, radar, and feedback contrast for players who inspect the visual layer.</p>
+          <label>Scan verbosity<select data-setting="scanVerbosity">
+            <option value="detailed"${save.settings.scanVerbosity === 'detailed' ? ' selected' : ''}>Detailed</option>
+            <option value="concise"${save.settings.scanVerbosity === 'concise' ? ' selected' : ''}>Concise</option>
+          </select></label>
           <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
           <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
           <label><input data-setting="highContrast" type="checkbox" ${save.settings.highContrast ? 'checked' : ''} /> High contrast</label>
