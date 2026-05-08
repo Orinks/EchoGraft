@@ -585,6 +585,7 @@ export const chambers = [
     start: { x: -4, y: 0, facing: 90 },
     target: { x: 2, y: 0, pitchRatio: 1.25, pulseRate: 1.25, brightness: 0.5, phase: 180 },
     requiredSeeds: 1,
+    phaseFog: { text: 'fog harp phase haze flips directional panning until true scan text is cross-checked' },
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.16, pulseRate: 0.25, brightness: 0.18, phase: 40 },
     requires: ['sun-prism'],

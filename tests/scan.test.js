@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -28,6 +28,22 @@ describe('scan pulse', () => {
     expect(reflection.delay).toBe(pulse.glassShear.delay)
     expect(pulse.text).toContain('Glass shear reflects scan')
     expect(pulse.text).toContain('glass rain sheets mirror objective scans')
+  })
+
+  it('inverts direction cues inside phase fog chambers', () => {
+    const chamber = chambers.find((item) => item.id === 'fog-harp')
+    const player = { x: -4, y: 0 }
+    const pulse = scanPulse(player, chamber.target, chamber)
+    const fog = phaseFogDirectionState(pulse.direction, chamber)
+
+    expect(chamber.phaseFog).toBeTruthy()
+    expect(pulse.direction).toMatchObject({ horizontal: 'east', side: 'right', vertical: 'level' })
+    expect(pulse.phaseFog).toMatchObject({
+      invertedDirection: { horizontal: 'west', side: 'left', vertical: 'level' },
+    })
+    expect(fog.text).toContain('Phase fog inverts direction cue')
+    expect(pulse.text).toContain('heard west, level')
+    expect(pulse.text).toContain('true direction east, level')
   })
 
   it('keeps nearby scan pulses short and bright', () => {

@@ -19,6 +19,7 @@ export function scanPulse(player, target = {}, chamber = {}) {
   const delayTrail = [0, 0.04 + distance * 0.012, 0.09 + distance * 0.018].map((value) => Number(value.toFixed(3)))
   const windEcho = chamber.windEcho ? windCarriedEcho(chamber.windEcho, distance) : undefined
   const glassShear = chamber.glassShear ? glassShearReflectionState(player, target, chamber, distance) : undefined
+  const phaseFog = chamber.phaseFog ? phaseFogDirectionState({ dx, dy, horizontal, side, vertical }, chamber) : undefined
 
   return {
     brightness,
@@ -28,9 +29,28 @@ export function scanPulse(player, target = {}, chamber = {}) {
     duration,
     glassShear,
     inRange,
+    phaseFog,
     range: scanRange,
-    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; range ${scanRange} step(s), ${inRange ? 'in range' : 'beyond range'}; delay trail ${delayTrail.join('/')}.${windEcho ? ` ${windEcho.text}` : ''}${glassShear ? ` ${glassShear.text}` : ''}`,
+    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; range ${scanRange} step(s), ${inRange ? 'in range' : 'beyond range'}; delay trail ${delayTrail.join('/')}.${windEcho ? ` ${windEcho.text}` : ''}${glassShear ? ` ${glassShear.text}` : ''}${phaseFog ? ` ${phaseFog.text}` : ''}`,
     windEcho,
+  }
+}
+
+export function phaseFogDirectionState(direction = {}, chamber = {}) {
+  const invertedHorizontal = direction.horizontal === 'west' ? 'east' : direction.horizontal === 'east' ? 'west' : 'center'
+  const invertedVertical = direction.vertical === 'north' ? 'south' : direction.vertical === 'south' ? 'north' : 'level'
+  const invertedSide = direction.side === 'left' ? 'right' : direction.side === 'right' ? 'left' : 'centered'
+
+  return {
+    actualDirection: direction,
+    invertedDirection: {
+      dx: -(direction.dx ?? 0),
+      dy: -(direction.dy ?? 0),
+      horizontal: invertedHorizontal,
+      side: invertedSide,
+      vertical: invertedVertical,
+    },
+    text: `Phase fog inverts direction cue: heard ${invertedHorizontal}, ${invertedVertical} (${invertedSide}); true direction ${direction.horizontal}, ${direction.vertical} (${direction.side}). ${chamber.phaseFog.text}`,
   }
 }
 
