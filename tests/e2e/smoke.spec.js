@@ -223,6 +223,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.getByRole('button', { name: 'Codex' }).click()
   await expect(page.getByText(/Perception status: \d+ recovered\. Codex recovery:/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Codex Completion' })).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Codex perception actions' })).toBeVisible()
   await expect(page.getByLabel('Caption and event log')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'First Breath' })).toBeVisible()

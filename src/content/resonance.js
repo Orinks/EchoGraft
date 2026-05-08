@@ -1,4 +1,4 @@
-import { weatherWindowState } from './chambers.js'
+import { codexRecords, weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
 import { graftDiscoveryCatalog, seedFamilies } from './seeds.js'
 import { createWorldLayoutIndex } from './world-layout.js'
@@ -662,6 +662,31 @@ export function codexRecoverySummary(chambers, save) {
     text: availableRecords.length
       ? `Codex recovery: ${recovered.size} recovered; next available perception in ${availableRecords[0].chamberTitle}.`
       : `Codex recovery: ${recovered.size} recovered; no ready unrecovered perceptions in available contracts.`,
+  }
+}
+
+export function codexCompletionState(save = {}, records = codexRecords) {
+  const dynamicRecords = Object.fromEntries((save.graftRecords ?? []).map((record) => [record.id, record]))
+  const availableRecords = { ...records, ...dynamicRecords }
+  const allIds = Object.keys(availableRecords)
+  const recoveredIds = Array.from(new Set(save.codexIds ?? [])).filter((id) => availableRecords[id])
+  const missingIds = allIds.filter((id) => !recoveredIds.includes(id))
+  const nextMissingId = missingIds[0]
+  const percent = allIds.length ? Math.round((recoveredIds.length / allIds.length) * 100) : 100
+
+  return {
+    availableRecords,
+    complete: missingIds.length === 0,
+    missingCount: missingIds.length,
+    missingIds,
+    nextMissing: nextMissingId ? { id: nextMissingId, ...availableRecords[nextMissingId] } : undefined,
+    percent,
+    recoveredCount: recoveredIds.length,
+    recoveredIds,
+    total: allIds.length,
+    text: missingIds.length
+      ? `Codex completion: ${recoveredIds.length} of ${allIds.length} records recovered (${percent} percent); next missing ${availableRecords[nextMissingId].title ?? nextMissingId}.`
+      : `Codex completion: all ${allIds.length} available records recovered.`,
   }
 }
 

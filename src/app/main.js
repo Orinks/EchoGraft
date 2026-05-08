@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
@@ -354,9 +354,10 @@ function codexInfoText() {
   const records = availableCodexRecords()
   const recovered = save.codexIds.map((id) => records[id]?.title).filter(Boolean)
   const recovery = codexRecoverySummary(chambers, save)
+  const completion = codexCompletionState(save, records)
   const memory = memoryScanState(chamber, save, records)
   const recoveredText = recovered.length ? recovered.join(', ') : 'no records recovered yet'
-  return `Codex: ${recoveredText}. Perception updates: ${recovery.text} ${memory.text}`
+  return `Codex: ${recoveredText}. Perception updates: ${recovery.text} ${memory.text} ${completion.text}`
 }
 
 function controlsText() {
@@ -1211,10 +1212,15 @@ function codex() {
   const trees = codexRecordTrees(availableCodexRecords(), save.codexIds)
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const recovery = codexRecoverySummary(chambers, save)
+  const completion = codexCompletionState(save, availableCodexRecords())
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
       <p>Perception status: ${save.codexIds.length} recovered. ${recovery.text}</p>
+      <section aria-labelledby="codex-completion-title">
+        <h2 id="codex-completion-title">Codex Completion</h2>
+        <p>${completion.text}</p>
+      </section>
       <section aria-labelledby="codex-echo-title">
         <h2 id="codex-echo-title">Memory Codex Echoes</h2>
         <p>${memoryEchoes.text}</p>
