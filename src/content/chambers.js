@@ -621,6 +621,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.4, pitchRatio: 0.1, pulseRate: 0.16, brightness: 0.18, phase: 28 },
+    staticBloom: { minBrightness: 0.42, text: 'hail static thins when the planted damper voice is strong enough to stay audible' },
     hazards: [{ pulseRate: 3, radius: 0.25, message: 'Hail surge rejects frantic pulses.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'hail clicks keep cracking the glass rhythm until damped' },
     requires: ['fog-harp'],

@@ -104,6 +104,30 @@ export function droughtPocketState(chamber, plantedSeeds) {
   }
 }
 
+export function staticBloomState(chamber, plantedSeeds = []) {
+  if (!chamber.staticBloom) return undefined
+
+  const { minBrightness } = chamber.staticBloom
+  const maskedSeeds = plantedSeeds
+    .filter((seed) => Number.isFinite(seed.brightness) && seed.brightness < minBrightness)
+    .map((seed) => ({
+      brightness: Number(seed.brightness.toFixed(2)),
+      id: seed.id,
+      name: seed.name ?? seed.id ?? 'unknown seed',
+      position: seed.position ?? { x: 0, y: 0 },
+    }))
+
+  return {
+    clear: maskedSeeds.length === 0,
+    masked: maskedSeeds.length > 0,
+    maskedSeeds,
+    minBrightness,
+    text: maskedSeeds.length
+      ? `Static bloom masks ${maskedSeeds.length} weak seed(s) below brightness ${minBrightness}: ${maskedSeeds.map((seed) => `${seed.name} at ${seed.brightness}`).join(', ')}.`
+      : `Static bloom clear; all planted seeds meet brightness ${minBrightness}. ${chamber.staticBloom.text}.`,
+  }
+}
+
 export function timbrePuzzleState(chamber, plantedSeeds) {
   if (!chamber.timbrePuzzle) return undefined
 
@@ -375,6 +399,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   const thermalShutters = thermalShutterState(chamber, plantedSeeds)
   const pressureSails = pressureSailState(chamber, plantedSeeds)
   const droughtPockets = droughtPocketState(chamber, plantedSeeds)
+  const staticBloom = staticBloomState(chamber, plantedSeeds)
   const timbrePuzzle = timbrePuzzleState(chamber, plantedSeeds)
   const checks = [
     ['position', distance(ecology.position, chamber.target), chamber.tolerances.position, 'Move planted seed position closer to the heart.'],
@@ -391,6 +416,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   if (thermalShutters && !thermalShutters.open) missing.push('Tune brightness until the thermal shutters open without overheating.')
   if (pressureSails && !pressureSails.steady) missing.push('Tune pulse until the pressure sails hold steady.')
   if (droughtPockets?.drained) missing.push('Raise pulse until drought pockets stop draining stability.')
+  if (staticBloom?.masked) missing.push('Raise weak seed brightness until static bloom stops masking it.')
   if (timbrePuzzle && !timbrePuzzle.active) missing.push('Use a bright edged timbre to open the brightness/timbre puzzle.')
   if (chamber.plantingPattern) {
     const coverage = plantingCoverage(chamber, plantedSeeds)
@@ -418,6 +444,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     droughtPockets,
     photosynthesis,
     pressureSails,
+    staticBloom,
     thermalShutters,
     timbrePuzzle,
     plantingCoverage: chamber.plantingPattern ? plantingCoverage(chamber, plantedSeeds) : undefined,

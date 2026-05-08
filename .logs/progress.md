@@ -295,3 +295,4 @@
 - Continued with `omx ultragoal complete-goals` for `G265-drought-pockets-drain-pulse-stabilit`. Added drought pocket pulse-stability state to Root Pumps so overly low pulses drain stability while the intended slow root-pump pulse remains solvable.
 - Continued with `omx ultragoal complete-goals` for `G266-glass-shear-reflects-scans`. Added glass shear scan reflection state to Glass Rain so objective scans report mirrored echo direction, delay, and readable no-vision reflection feedback.
 - Continued with `omx ultragoal complete-goals` for `G267-phase-fog-inverts-direction-cues`. Added phase fog scan inversion state to Fog Harp so scans report the heard inverted cue beside the true direction for no-vision cross-checking.
+- Continued with `omx ultragoal complete-goals` for `G268-static-bloom-masks-weak-seeds`. Added static bloom masking to Hail Damper so weak low-brightness seeds are named, blocked, and must be brightened before restoration.

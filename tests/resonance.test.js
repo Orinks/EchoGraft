@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -216,6 +216,22 @@ describe('resonance evaluation', () => {
     expect(evaluateResonance(chamber, [drainedSeed]).missing).toContain('Raise pulse until drought pockets stop draining stability.')
     expect(droughtPocketState(chamber, [stableSeed])).toMatchObject({ drained: false, pulseRate: 0.75, stable: true })
     expect(evaluateResonance(chamber, [stableSeed]).solved).toBe(true)
+  })
+
+  it('masks weak seeds inside static bloom chambers', () => {
+    const chamber = chambers.find((item) => item.id === 'hail-damper')
+    const weakSeed = createSeedDNA('hail-weak', { pitchRatio: 0.75, pulseRate: 0.75, brightness: 0.3, phase: 225, position: chamber.target })
+    const clearSeed = createSeedDNA('hail-clear', { pitchRatio: 0.75, pulseRate: 0.75, brightness: 0.48, phase: 225, position: chamber.target })
+
+    expect(chamber.staticBloom).toMatchObject({ minBrightness: 0.42 })
+    expect(staticBloomState(chamber, [weakSeed])).toMatchObject({
+      clear: false,
+      masked: true,
+      maskedSeeds: [expect.objectContaining({ id: 'hail-weak', brightness: 0.3 })],
+    })
+    expect(evaluateResonance(chamber, [weakSeed]).missing).toContain('Raise weak seed brightness until static bloom stops masking it.')
+    expect(staticBloomState(chamber, [clearSeed])).toMatchObject({ clear: true, masked: false })
+    expect(evaluateResonance(chamber, [clearSeed]).solved).toBe(true)
   })
 
   it('summarizes resource efficiency from saved chamber material spend', () => {
