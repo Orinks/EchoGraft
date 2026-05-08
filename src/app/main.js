@@ -957,6 +957,7 @@ function library() {
   shell(`
     <main class="screen" aria-labelledby="library-title">
       <h1 id="library-title">Seed Library</h1>
+      <p>${seedCarryText(inventory, selectedSeedIndex)}</p>
       <p>Selected tuning: ${tuningLabel(currentTuningParameter())}. Materials: ${materialsText()}.</p>
       <section aria-labelledby="appraisal-title">
         <h2 id="appraisal-title">Seed Collection Appraisal</h2>
@@ -984,10 +985,12 @@ function library() {
         <p>${seedFamilies.length} known families and ${graftDiscoveryCatalog.length} possible graft discoveries. ${seedFamilies.map((family) => `${family.name}: ${family.affinity}`).join('; ')}.</p>
       </section>
       <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
-      <button data-action="previewSeed">Preview selected seed</button>
-      <button data-action="graft">Graft first two seeds</button>
-      <button data-action="atlas">Atlas</button>
-      <button data-action="game">Back to chamber</button>
+      <nav aria-label="Seed library actions">
+        <button data-action="previewSeed">Preview selected seed</button>
+        <button data-action="graft">Graft first two seeds</button>
+        <button data-action="atlas">Atlas</button>
+        <button data-action="game">Back to chamber</button>
+      </nav>
       <section class="log" aria-label="Caption and event log" aria-live="polite">
         <h2>Caption Log</h2>
         <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>

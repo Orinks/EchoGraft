@@ -125,7 +125,10 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('button', { name: 'Accept work order' }).nth(2)).toBeDisabled()
   await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeVisible()
 
-  await page.getByRole('button', { name: 'Seed library' }).click()
+  await page.getByRole('button', { name: 'Research grafts' }).click()
+  await expect(page.getByRole('heading', { name: 'Seed Library' })).toBeVisible()
+  await expect(page.getByRole('navigation', { name: 'Seed library actions' })).toBeVisible()
+  await expect(page.locator('p').filter({ hasText: /Selected seed: Sol phonoseed\. Seed carry limit: \d+ of \d+ carried/ })).toBeVisible()
   await expect(page.getByText(/Selected seed DNA: Seed name: Sol phonoseed; catalog id sol/)).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Seed family: Sol; affinity oxygen and stable pitch; discovered origin Intake lung/ })).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Selected seed DNA: .*Ecological affinity: oxygen and stable pitch; restoration role for Sol ecology/ })).toBeVisible()
