@@ -249,6 +249,40 @@ export function restorationIdentityQuestionState(save = {}) {
   }
 }
 
+export function preservationPathState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const requiredSystemsOnline = (save.restoredSystems ?? []).filter((system) => ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'].includes(system)).length
+  const adaptivePressure = (save.unlockedGraftMechanics?.length ?? 0) + (save.wildMutationIds?.length ?? 0) + (save.customSeeds?.length ?? 0)
+  const philosophyAligned = save.restorationPhilosophy === 'preservation'
+  const heartReady = solved.has('heart-atria') || solved.has('finale') || save.postgameUnlocked
+  const stage = philosophyAligned && heartReady && requiredSystemsOnline >= 6
+    ? 'as-designed'
+    : philosophyAligned && carefulRestorations > adaptivePressure
+      ? 'recovering-design'
+      : adaptivePressure > carefulRestorations
+        ? 'strained'
+        : 'foundation'
+  const recommendation = stage === 'as-designed'
+    ? 'Preservation is ready: original systems, careful ratings, and Heart stewardship can carry the designed Ark forward.'
+    : stage === 'recovering-design'
+      ? 'Preservation is on course: keep restoring original systems with Stable or Resonant outcomes before final revival.'
+      : stage === 'strained'
+        ? 'Preservation is strained by hybrid or Wild pressure; stabilize original chambers before claiming the designed path.'
+        : 'Preservation foundation set: restore required systems and careful ratings to make the original design legible.'
+
+  return {
+    adaptivePressure,
+    carefulRestorations,
+    heartReady,
+    philosophyAligned,
+    requiredSystemsOnline,
+    stage,
+    text: `Preservation path: ${stage}; systems online ${requiredSystemsOnline}/6, careful restorations ${carefulRestorations}, adaptive pressure ${adaptivePressure}, philosophy ${philosophyAligned ? 'preservation' : 'other'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation

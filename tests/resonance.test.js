@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -672,6 +672,25 @@ describe('resonance evaluation', () => {
     expect(restorationIdentityQuestionState(garden).role).toBe('garden')
     expect(restorationIdentityQuestionState(instrument).role).toBe('living-instrument')
     expect(restorationIdentityQuestionState(instrument).text).toContain('Restoration identity question')
+  })
+
+  it('tracks the preservation path for restoring the Ark as designed', () => {
+    const recovering = createDefaultSave()
+    recovering.ratings = { tutorial: 'Stable', direction: 'Resonant' }
+    recovering.restoredSystems = ['Intake', 'Navigation']
+    const strained = createDefaultSave()
+    strained.ratings = { tutorial: 'Stable' }
+    strained.unlockedGraftMechanics = ['hybrid resonance planting', 'FM pressure grafting']
+    const designed = createDefaultSave()
+    designed.restoredSystems = ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart']
+    designed.ratings = { tutorial: 'Stable', direction: 'Resonant', pitch: 'Stable' }
+    designed.solvedChambers = ['heart-atria']
+
+    expect(preservationPathState(createDefaultSave()).stage).toBe('foundation')
+    expect(preservationPathState(recovering).stage).toBe('recovering-design')
+    expect(preservationPathState(strained).stage).toBe('strained')
+    expect(preservationPathState(designed).stage).toBe('as-designed')
+    expect(preservationPathState(recovering).text).toContain('Preservation path')
   })
 
   it('recovers ending reflections for each finale resolution path', () => {
