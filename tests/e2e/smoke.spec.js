@@ -195,6 +195,32 @@ test('does not request external audio files', async ({ page }) => {
   expect(requests.filter((url) => /\.(mp3|wav|ogg|flac|m4a)(\?|$)/i.test(url))).toEqual([])
 })
 
+test('supports a no-vision keyboard play path through first restoration', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await expect(page.locator('.a-game--status')).toHaveCount(0)
+  await expect(page.locator('.a-game--inventory')).toHaveCount(0)
+
+  await page.keyboard.press('o')
+  await expect(eventLog.getByText(/Objective: .* Current system: Intake/)).toBeVisible()
+  await page.keyboard.press('p')
+  await expect(eventLog.getByText(/Position: .* Progress: 0 of \d+ contracts restored/)).toBeVisible()
+  await page.keyboard.press('i')
+  await expect(eventLog.getByText(/Inventory: Selected seed: Sol phonoseed/)).toBeVisible()
+  await page.keyboard.press('Space')
+  await expect(eventLog.getByText(/Objective scan: heart is/)).toBeVisible()
+  await page.keyboard.press('ArrowUp')
+  await expect(eventLog.getByText(/Movement audio: spatial footstep/)).toBeVisible()
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+  await expect(eventLog.getByText(/Meaningful position: within .* chamber heart/)).toBeVisible()
+  await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Choose next contract' })).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

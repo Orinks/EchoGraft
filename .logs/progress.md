@@ -252,3 +252,4 @@
 - Continued with `omx ultragoal complete-goals` for `G222-codex-perceptions`. Added Codex perception recovery status and semantic actions for Atlas, Seed Library, and chamber return routing.
 - Continued with `omx ultragoal complete-goals` for `G223-settings`. Expanded Settings with a current audio/display status summary, clearer volume labels, grouped controls, and semantic actions navigation.
 - Continued with `omx ultragoal complete-goals` for `G224-manual`. Updated `MANUAL.md` to match the current controls, no-vision info commands, functions menus, Atlas, Seed Library, Codex, Settings, materials, and chamber families.
+- Continued with `omx ultragoal complete-goals` for `G225-no-vision-complete-play-path`. Added a dedicated e2e keyboard/no-HUD path that uses info commands, scan, movement, planting, caption-log feedback, and first-chamber restoration.
