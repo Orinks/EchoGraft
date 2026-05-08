@@ -184,6 +184,40 @@ export function originalMissionQuestionState(save = {}) {
   }
 }
 
+export function restoredEcologyQuestionState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const adaptiveSignals = (save.unlockedGraftMechanics?.length ?? 0) + (save.wildMutationIds?.length ?? 0) + (save.customSeeds?.length ?? 0) + (save.endlessMutationSeeds?.length ?? 0)
+  const releasePrepared = solved.has('optional-heart-root') || save.endgameResolution === 'release'
+  const preservedEvidence = carefulRestorations + (save.restorationPhilosophy === 'preservation' ? 1 : 0)
+  const adaptedEvidence = adaptiveSignals + (save.restorationPhilosophy === 'adaptation' ? 1 : 0)
+  const stance = releasePrepared
+    ? 'defer-to-release'
+    : preservedEvidence >= adaptedEvidence + 2
+      ? 'preserve'
+      : adaptedEvidence >= preservedEvidence + 2
+        ? 'adapt'
+        : 'balance'
+  const recommendation = stance === 'defer-to-release'
+    ? 'Delay the preserve/adapt vote until launch garden dispersal decides which ecologies must travel.'
+    : stance === 'preserve'
+      ? 'Preserve the restored ecology as a legible greenhouse baseline, with adaptation held as a later tool.'
+      : stance === 'adapt'
+        ? 'Adapt the restored ecology around hybrid seed lines and changed Ark conditions.'
+        : 'Keep both paths viable: preserve stable chamber baselines while testing adaptation in optional gardens.'
+
+  return {
+    adaptedEvidence,
+    carefulRestorations,
+    preservedEvidence,
+    recommendation,
+    releasePrepared,
+    stance,
+    text: `Restored ecology question: ${stance}; preserved evidence ${preservedEvidence}, adapted evidence ${adaptedEvidence}, release prepared ${releasePrepared ? 'yes' : 'no'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation

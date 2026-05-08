@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G280-should-the-restored-ecology-be-prese`. Added a Restored Ecology Question state that recommends preserving, adapting, balancing, or deferring to release based on careful restoration evidence, hybrid/adaptive signals, and launch garden readiness, then surfaced it in the Atlas and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G279-should-the-sleeping-crew-be-awakened`. Added a Crew Awakening Question state that reports not-ready, unchanged, consent-first, changed-context, or deferred wake recommendations from Heart, memory, release, and adaptation evidence.
 - Continued with `omx ultragoal complete-goals` for `G278-should-the-ark-return-to-its-origina`. Added an Original Mission Question state that weighs careful restorations, adaptation signals, and release preparation, then surfaces return/revise/release recommendations in the Atlas and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G277-was-the-ark-abandoned-sabotaged-or-p`. Added an Ark Origin Mystery evidence model that tracks abandoned, sabotaged, and protected readings from recovered records, keeps sabotage unproven when the crew evidence says so, and surfaces the mystery in the Atlas and Codex.

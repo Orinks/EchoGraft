@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionSpecificEnding, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1032,6 +1032,7 @@ function atlas() {
   const canopyDoors = canopyDoorState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
+  const restoredEcology = restoredEcologyQuestionState(save)
   const arkOrigin = arkOriginMysteryState(save)
   const originalMission = originalMissionQuestionState(save)
   const embersapMutations = embersapEndgameMutationState(save)
@@ -1130,6 +1131,7 @@ function atlas() {
       <section aria-labelledby="final-ecology-title">
         <h2 id="final-ecology-title">Final Ecology Philosophy</h2>
         <p>${finalEcology.text}</p>
+        <p>${restoredEcology.text}</p>
         <p>${originalMission.text}</p>
         <p>${embersapMutations.text}</p>
       </section>
@@ -1440,6 +1442,7 @@ function ending() {
   const embersapMutations = embersapEndgameMutationState(save)
   const alternateEndings = alternateEndingPaths(save)
   const originalMission = originalMissionQuestionState(save)
+  const restoredEcology = restoredEcologyQuestionState(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -1452,6 +1455,7 @@ function ending() {
       <p>${crewWakeCycle.text}</p>
       <p>${crewAwakening.text}</p>
       <p>${launchGarden.text}</p>
+      <p>${restoredEcology.text}</p>
       <p>${originalMission.text}</p>
       <p>${embersapMutations.text}</p>
       <section aria-labelledby="alternate-endings-title">
