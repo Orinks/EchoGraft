@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G292-8-to-10-chambers`. Added a Prototype Chamber Slice summary that counts Season 1 playable chambers separately from the training contract, keeping the milestone in the 8 to 10 chamber range while preserving the full authored campaign.
 - Continued with `omx ultragoal complete-goals` for `G291-avoid-dead-end-resource-states`. Added a Resource Dead-End Guard that reports required-progress safety, future material reward sources, free tuning when spores are empty, and reset recovery for chamber-local spend penalties, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G290-always-provide-scan-log-feedback`. Added a reusable scan-log feedback guard for objective, boundary, seed, hazard, memory, and network scan modes so every scan action produces readable event-log text, including fallback feedback for unexpected scan modes.
 - Continued with `omx ultragoal complete-goals` for `G289-always-allow-reset-without-punishmen`. Moved reset into a no-punishment save helper that clears planted seeds, seed moves, and chamber-local spend penalties while preserving Ark clock, materials, ratings, solved contracts, and codex, then updated reset feedback to say so explicitly.

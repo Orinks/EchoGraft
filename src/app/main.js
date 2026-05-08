@@ -1,7 +1,7 @@
 import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
-import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
+import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -1018,6 +1018,7 @@ function atlas() {
   const available = new Set(unlockedContracts().map((item) => item.id))
   const plan = restorationPlanningSession(chambers, save.solvedChambers, { min: 20, max: 40 }, save.arkClock)
   const campaign = firstFullCampaignEstimate(campaignScope)
+  const milestoneSlice = milestoneChamberSlice(chambers, 1)
   const stewardship = stewardshipSummary(chambers, save)
   const resourceGuard = resourceDeadEndState(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
@@ -1067,6 +1068,10 @@ function atlas() {
       ${activeCycle ? `<p>Active chamber cycle: ${activeCycle.text}</p>` : ''}
       ${activeWeatherWindow ? `<p>Active weather window: ${activeWeatherWindow.text}</p>` : ''}
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
+      <section aria-labelledby="milestone-slice-title">
+        <h2 id="milestone-slice-title">Prototype Chamber Slice</h2>
+        <p>${milestoneSlice.text}</p>
+      </section>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>
         <ul>

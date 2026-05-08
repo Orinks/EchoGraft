@@ -155,6 +155,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Resource dead-end prevention: safe/)).toBeVisible()
   await expect(page.getByText(/Systems online: Intake/)).toBeVisible()
   await expect(page.getByText(/Environmental changes: Intake: Training Contract: First Breath stabilized with Resonant resonance/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Prototype Chamber Slice' })).toBeVisible()
+  await expect(page.getByText(/Prototype chamber slice: 10 playable chamber\(s\) in Season 1, plus 1 training contract\(s\); target 8 to 10/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Major Ark Systems' })).toBeVisible()
   await expect(page.getByText(/Heart: network resonance and endgame resolutions/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()

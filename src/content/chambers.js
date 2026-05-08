@@ -239,6 +239,27 @@ export const campaignScope = {
   ],
 }
 
+export function milestoneChamberSlice(chamberList = chambers, season = 1, target = { min: 8, max: 10 }) {
+  const seasonChambers = chamberList.filter((chamber) => chamber.season === season)
+  const training = seasonChambers.filter((chamber) => chamber.contractType === 'training')
+  const playable = seasonChambers.filter((chamber) => chamber.contractType !== 'training')
+  const required = playable.filter((chamber) => !chamber.optional)
+  const optional = playable.filter((chamber) => chamber.optional)
+  const inRange = playable.length >= target.min && playable.length <= target.max
+
+  return {
+    count: playable.length,
+    inRange,
+    optional,
+    playable,
+    required,
+    season,
+    target,
+    text: `Prototype chamber slice: ${playable.length} playable chamber(s) in Season ${season}, plus ${training.length} training contract(s); target ${target.min} to ${target.max}. ${inRange ? 'Inside target.' : 'Outside target.'}`,
+    training,
+  }
+}
+
 export const majorArkSystems = [
   { id: 'intake', name: 'Intake', unlock: 'longer scan range and pressure awareness' },
   { id: 'navigation', name: 'Navigation', unlock: 'atlas previews, objective scan, and chamber compass cues' },
