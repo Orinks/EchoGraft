@@ -198,7 +198,7 @@ function createSpatialVoicePrototype() {
       seed,
       tone,
     } = {}) {
-      this.synth = createSynthForTone(tone, seed)
+      this.synth = applyEffectChain(createSynthForTone(tone, seed), tone.effectChain)
         .filtered({
           frequency: syngen.utility.lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)),
           Q: 1 + clamp(seed?.fmAmount ?? 0) * 7,
@@ -235,6 +235,46 @@ export function seedSynthFactoryName(seed = {}, tone = {}) {
   if (seed?.oscillatorType === 'am' || tone.mode === 'am') return 'am'
   if (seed?.oscillatorType === 'noise-kissed' || tone.mode === 'noise') return 'amBuffer'
   return 'additive'
+}
+
+export function chamberEffectChain(chamber = {}) {
+  const system = String(chamber.system ?? '').toLowerCase()
+  const mechanic = String(chamber.mechanic ?? '').toLowerCase()
+  const id = String(chamber.id ?? '').toLowerCase()
+  const chain = []
+
+  if (system.includes('water') || mechanic.includes('current') || mechanic.includes('rain')) chain.push('feedbackDelay')
+  if (system.includes('canopy') || mechanic.includes('brightness') || mechanic.includes('prism')) chain.push('phaser')
+  if (system.includes('memory') || mechanic.includes('echo') || mechanic.includes('record') || mechanic.includes('loop')) chain.push('multitapDelay')
+  if (system.includes('heart') || mechanic.includes('finale') || mechanic.includes('network')) chain.push('pingPongDelay')
+  if (mechanic.includes('phase') || id.includes('phase')) chain.push('phaser')
+  if ((chamber.hazards?.length ?? 0) > 0) chain.push('feedbackDelay')
+
+  return Array.from(new Set(chain))
+}
+
+function createEffectPlugin(effect) {
+  if (effect === 'feedbackDelay') return syngen.effect.feedbackDelay({ delay: 0.18, feedback: 0.28, wet: 0.18 })
+  if (effect === 'multitapDelay') {
+    return syngen.effect.multitapDelay({
+      tap: [
+        { delay: 0.12, feedback: 0.18, gain: 0.36 },
+        { delay: 0.28, feedback: 0.12, gain: 0.2 },
+      ],
+      wet: 0.22,
+    })
+  }
+  if (effect === 'phaser') return syngen.effect.phaser({ depth: 0.0008, delay: 0.006, feedback: 0.12, frequency: 0.18, wet: 0.2 })
+  if (effect === 'pingPongDelay') return syngen.effect.pingPongDelay({ delay: 0.24, feedback: 0.2, wet: 0.16 })
+  return undefined
+}
+
+function applyEffectChain(synth, effects = []) {
+  for (const effect of effects) {
+    const plugin = createEffectPlugin(effect)
+    if (plugin) synth.chain(plugin)
+  }
+  return synth
 }
 
 function createSynthForTone(tone, seed) {
@@ -299,6 +339,7 @@ export class AudioEngine {
     this.buses = {}
     this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
+    this.chamberEffectChain = []
     this.music = {
       chamber: null,
       enabled: true,
@@ -421,22 +462,26 @@ export class AudioEngine {
     tone,
   }) {
     if (!this.enabled || !this.hasAudioStack) return
+    const activeTone = {
+      ...tone,
+      effectChain: tone.effectChain ?? (category === 'ui' ? [] : this.chamberEffectChain),
+    }
     const bus = this.bus(category)
     if (!spatial) {
-      const synth = createSynthForTone(tone, seed)
+      const synth = applyEffectChain(createSynthForTone(activeTone, seed), activeTone.effectChain)
         .filtered({
-          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)),
+          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)),
           Q: 0.8 + clamp(seed?.fmAmount ?? 0) * 6,
-          type: tone.filterType ?? 'lowpass',
+          type: activeTone.filterType ?? 'lowpass',
         })
       connectVoice(synth, bus)
       scheduleEnvelope(synth, {
-        attack: seed?.envelope?.attack ?? tone.attack,
-        decay: seed?.envelope?.decay ?? tone.decay,
+        attack: seed?.envelope?.attack ?? activeTone.attack,
+        decay: seed?.envelope?.decay ?? activeTone.decay,
         duration,
         gain,
-        release: seed?.envelope?.release ?? tone.release,
-        sustain: seed?.envelope?.sustain ?? tone.sustain,
+        release: seed?.envelope?.release ?? activeTone.release,
+        sustain: seed?.envelope?.sustain ?? activeTone.sustain,
       })
       return
     }
@@ -448,7 +493,7 @@ export class AudioEngine {
       duration,
       gain,
       seed,
-      tone,
+      tone: activeTone,
       voiceRole: spatialVoiceRoleForCategory(category),
       x,
       y,
@@ -855,6 +900,7 @@ export class AudioEngine {
 
   chamber(chamber, plantedSeeds = []) {
     this.setMusicScene('game', { chamber, plantedSeeds })
+    this.chamberEffectChain = chamberEffectChain(chamber)
     this.syncSeedObjects(chamber.id, plantedSeeds)
     const ecology = plantedSeeds.length ? plantedSeeds : [{ ...chamber.target, waveform: 'sine', oscillatorType: 'am', fmAmount: 0.1, amAmount: 0.2, noiseAmount: 0.05 }]
     ecology.forEach((seed, index) => {

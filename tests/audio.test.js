@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, chamberEffectChain, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -15,6 +15,14 @@ function movementVoices(player, previous, chamber) {
 }
 
 describe('audio movement cues', () => {
+  it('selects Syngen effect chains for chamber identity and mechanics', () => {
+    expect(chamberEffectChain({ system: 'Water', mechanic: 'water current navigation' })).toEqual(['feedbackDelay'])
+    expect(chamberEffectChain({ system: 'Canopy', mechanic: 'high-brightness prism focus' })).toEqual(['phaser'])
+    expect(chamberEffectChain({ system: 'Memory', mechanic: 'phase echo mapping' })).toEqual(['multitapDelay', 'phaser'])
+    expect(chamberEffectChain({ system: 'Heart', mechanic: 'multi-chamber network finale' })).toEqual(['pingPongDelay'])
+    expect(chamberEffectChain({ hazards: [{ message: 'mold' }] })).toEqual(['feedbackDelay'])
+  })
+
   it('maps seed DNA synth types to Syngen synth factories', () => {
     expect(seedSynthFactoryName({ oscillatorType: 'fm' })).toBe('fm')
     expect(seedSynthFactoryName({ oscillatorType: 'am' })).toBe('am')

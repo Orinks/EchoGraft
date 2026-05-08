@@ -59,6 +59,10 @@ const modernRequired = [
   'syngen.audio.buffer.impulse',
   'syngen.sound.extend',
   'syngen.sound.instantiate',
+  'syngen.effect.feedbackDelay',
+  'syngen.effect.multitapDelay',
+  'syngen.effect.phaser',
+  'syngen.effect.pingPongDelay',
 ]
 const modernMissing = modernRequired.filter((needle) => !appAudioSource.includes(needle))
 
