@@ -7,6 +7,13 @@ describe('syngen input state', () => {
 
     expect(snapshot.keyboard.KeyW).toBe(true)
     expect(inputIntentFromSnapshot(snapshot)).toEqual({ action: 'move', dx: 0, dy: 1, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ArrowUp: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 0, dy: 1, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyS: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 0, dy: -1, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ArrowDown: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 0, dy: -1, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyA: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: -1, dy: 0, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ArrowLeft: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: -1, dy: 0, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyD: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ArrowRight: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'keyboard' })
   })
 
   it('normalizes gamepad state into game intents', () => {

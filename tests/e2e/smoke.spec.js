@@ -304,6 +304,18 @@ test('supports optional text-only chamber hints', async ({ page }) => {
   await expect(page.getByText(/Objective: Move, scan the chamber heart, plant Sol/)).toBeVisible()
 })
 
+test('moves with WASD and arrow keys', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('w')
+  await expect(eventLog.getByText(/Moved to .* Movement audio: spatial footstep/)).toBeVisible()
+  await page.keyboard.press('ArrowDown')
+  await expect(eventLog.locator('li').filter({ hasText: /Movement audio: spatial footstep/ })).toHaveCount(2)
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({
