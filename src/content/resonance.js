@@ -637,6 +637,37 @@ export function allMenusAccessibleState(save = {}) {
   }
 }
 
+export const manualCompleteSections = [
+  { id: 'sound-play', title: 'How to Play by Sound', text: 'Start by scanning for the chamber heart, move by spatial footsteps, plant phonoseeds, tune DNA, graft when needed, and restore only when resonance checks are satisfied.' },
+  { id: 'no-vision-reference', title: 'No-Vision Reference', text: 'O, P, I, L, Shift+L, X, V, C, and ? expose objective, position, inventory, logs, boundaries, planted voices, codex recovery, and controls without requiring the visual layer.' },
+  { id: 'functions-menus', title: 'Functions Menus', text: 'Escape and menu buttons route to active chamber, Restoration Atlas, Seed Library, Codex, Settings, Help, Main menu, and postgame surfaces when unlocked.' },
+  { id: 'atlas-planning', title: 'Restoration Atlas', text: 'The Atlas explains work orders, dependencies, ratings, materials, optional returns, codex rewards, system progress, philosophy, endings, and planning windows.' },
+  { id: 'seed-library', title: 'Seed Library and Grafting', text: 'The Seed Library covers carried and reserve seeds, seed DNA, tuning, material costs, trait locking, graft inheritance, failed graft recovery, and preview audio.' },
+  { id: 'codex', title: 'Codex and Perceptions', text: 'The Codex organizes recovered records, memory echoes, first records, completion progress, authored catalog completeness, and the Ark-origin mystery.' },
+  { id: 'settings-accessibility', title: 'Settings and Accessibility', text: 'Settings include independent audio mix controls, reduced motion, minimal visual mode, high contrast, scan verbosity, text-only hints, remappable keyboard, and gamepad support.' },
+  { id: 'materials', title: 'Materials', text: 'Materials explain biomass, crystal, spores, resin, mycelium, glass pollen, archive loam, dream compost, embersap, and memory as restoration resources.' },
+  { id: 'chamber-guide', title: 'Chamber Guide', text: 'The chamber guide covers training, intake, navigation, water, rootworks, canopy, memory, emergency, optional, finale, and conservatory contracts.' },
+  { id: 'endings-postgame', title: 'Endings and Postgame', text: 'Ending guidance explains preservation, adaptation, release, and conservatory outcomes, then points players to postgame collection, composition, and mutation play.' },
+]
+
+export function manualCompleteState(sections = manualCompleteSections) {
+  const missing = sections.filter((section) => !section.id || !section.title || !section.text)
+  const requiredIds = manualCompleteSections.map((section) => section.id)
+  const coveredIds = new Set(sections.map((section) => section.id))
+  const omitted = requiredIds.filter((id) => !coveredIds.has(id))
+  const ready = missing.length === 0 && omitted.length === 0
+
+  return {
+    missing,
+    omitted,
+    ready,
+    sections,
+    text: ready
+      ? `Manual complete: ${sections.length} section(s) cover sound-first play, no-vision commands, menus, atlas planning, seed/graft systems, codex, settings accessibility, materials, chamber guide, endings, and postgame.`
+      : `Manual incomplete: missing content in ${missing.map((section) => section.id).join(', ') || 'none'}; omitted ${omitted.join(', ') || 'none'}.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))

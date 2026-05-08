@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G318-manual-complete`. Expanded the in-game Help into a complete manual audit with ten playable sections, aligned `MANUAL.md` with settings/accessibility and postgame guidance, and covered the manual completion surface with unit plus e2e checks.
 - Continued with `omx ultragoal complete-goals` for `G317-audio-mix-and-accessibility-pass`. Added a Settings audit for the audio mix/accessibility pass, normalized independent Syngen bus gain settings, and covered the pass with unit plus Playwright assertions.
 - Continued with `omx ultragoal complete-goals` for `G316-codex-complete`. Added a Codex Complete audit that verifies 88 authored records are in the 80 to 120 target, every contract reward record id resolves, and eight navigable record trees cover the full codex.
 - Continued with `omx ultragoal complete-goals` for `G315-full-seed-graft-catalog`. Expanded the graft discovery catalog from the earlier 96-entry cap to the full 276 two-family pairings across 24 seed families, added a Full Seed/Graft Catalog audit, and surfaced the complete catalog status in the Seed Library.

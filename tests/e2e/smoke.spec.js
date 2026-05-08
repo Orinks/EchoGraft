@@ -97,6 +97,10 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Gamepad: left stick or D-pad moves, south button plants\/interacts, east button scans, west button cycles seeds, north button interacts\/confirms, shoulder buttons tune, hold either trigger plus D-pad/)).toBeVisible()
   await page.keyboard.press('h')
   await expect(page.getByRole('heading', { name: 'Help' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Manual Complete' })).toBeVisible()
+  await expect(page.getByText(/Manual complete: 10 section\(s\) cover sound-first play, no-vision commands, menus, atlas planning, seed\/graft systems, codex, settings accessibility, materials, chamber guide, endings, and postgame/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seed Library and Grafting' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Endings and Postgame' })).toBeVisible()
   await expect(page.getByText(/Main campaign chambers never require reflex timing/)).toBeVisible()
   await page.getByRole('button', { name: 'Back to game' }).click()
 

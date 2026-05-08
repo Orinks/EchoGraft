@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
@@ -1564,12 +1564,18 @@ function settings() {
 
 function help() {
   audio.setMusicScene(screen === 'game' ? 'game' : 'menu', { chamber, plantedSeeds, resonance: lastResult })
+  const manual = manualCompleteState()
   shell(`
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
       <p>${controlsText()}</p>
+      <section aria-labelledby="manual-complete-title">
+        <h2 id="manual-complete-title">Manual Complete</h2>
+        <p>${manual.text}</p>
+      </section>
       <p>Main campaign chambers never require reflex timing. Scan, read the caption log, tune, reset, and plant at your own pace.</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
+      ${manual.sections.map((section) => `<section aria-labelledby="manual-${section.id}"><h2 id="manual-${section.id}">${section.title}</h2><p>${section.text}</p></section>`).join('')}
       <button data-action="game">Back to game</button>
       ${captionLogHtml()}
     </main>

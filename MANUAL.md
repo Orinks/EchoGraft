@@ -28,7 +28,7 @@ The Seed Library is the seed, tuning, and grafting surface. It shows carried and
 
 The Codex tracks recovered perceptions and record trees. It reports current recovery count, next available perception, memory echoes, and recovered record text.
 
-Settings contains independent volume controls for master, ambience, music, UI, seed voices, hazards, and scans, plus reduced-motion and minimal-visual modes.
+Settings contains independent volume controls for master, ambience, music, UI, seed voices, hazards, and scans. It also includes reduced motion, minimal visual mode, high contrast, scan verbosity, text-only chamber hints, remappable keyboard controls, and Syngen gamepad support notes.
 
 ## Materials
 - Biomass supports basic restoration growth and repair work.
@@ -50,3 +50,6 @@ Settings contains independent volume controls for master, ambience, music, UI, s
 - Memory and Research contracts teach codex recovery, phase, hidden echoes, ancestry, rare seed lines, and graft discovery.
 - Emergency contracts introduce hazards such as forbidden intervals, drought pockets, static bloom, phase fog, and soft planning pressure without reflex-timing requirements.
 - Finale contracts combine restored systems, seed voices, grafts, materials, codex records, and restoration philosophy into the Verdancy Ark ending network.
+
+## Endings and Postgame
+The finale resolves toward Preservation, Adaptation, Release, or Conservatory based on restored systems, seed voices, codex recovery, and restoration philosophy. After the finale, postgame play opens the Conservatory for free composition, remaining record collection, optional return contracts, and endless mutation garden experiments.
