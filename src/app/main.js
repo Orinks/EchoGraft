@@ -2,7 +2,7 @@ import { AudioEngine, audioMixAccessibilityPassState } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneContractStructureState, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, playerRoleQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1089,6 +1089,7 @@ function atlas() {
   const finalEcology = finalEcologyPhilosophySummary(save)
   const restoredEcology = restoredEcologyQuestionState(save)
   const restorationIdentity = restorationIdentityQuestionState(save)
+  const playerRole = playerRoleQuestionState(save)
   const preservationPath = preservationPathState(save)
   const adaptationPath = adaptationPathState(save)
   const arkOrigin = arkOriginMysteryState(save)
@@ -1279,6 +1280,7 @@ function atlas() {
       <section aria-labelledby="final-ecology-title">
         <h2 id="final-ecology-title">Final Ecology Philosophy</h2>
         <p>${finalEcology.text}</p>
+        <p>${playerRole.text}</p>
         <p>${restoredEcology.text}</p>
         <p>${restorationIdentity.text}</p>
         <p>${preservationPath.text}</p>
@@ -1730,6 +1732,7 @@ function ending() {
   const originalMission = originalMissionQuestionState(save)
   const restoredEcology = restoredEcologyQuestionState(save)
   const restorationIdentity = restorationIdentityQuestionState(save)
+  const playerRole = playerRoleQuestionState(save)
   const preservationPath = preservationPathState(save)
   const adaptationPath = adaptationPathState(save)
   shell(`
@@ -1750,6 +1753,7 @@ function ending() {
       <p>${crewAwakening.text}</p>
       <p>${launchGarden.text}</p>
       <p>${releasePath.text}</p>
+      <p>${playerRole.text}</p>
       <p>${restoredEcology.text}</p>
       <p>${restorationIdentity.text}</p>
       <p>${preservationPath.text}</p>

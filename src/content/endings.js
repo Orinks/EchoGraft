@@ -286,6 +286,35 @@ export function restorationIdentityQuestionState(save = {}) {
   }
 }
 
+export function playerRoleQuestionState(save = {}) {
+  const codex = new Set(save.codexIds ?? [])
+  const crewStillAsleep = !(save.postgameUnlocked || (save.solvedChambers ?? []).includes('finale'))
+  const caretakerEvidence = [
+    'the interface begins with system stewardship rather than a body wake scene',
+    codex.has('story-payoff-01') ? 'Story Payoff 01 names the player as the Ark caretaker' : undefined,
+    codex.has('crew-message-10') ? 'Crew Message 10 defers revival until consent can be remembered' : undefined,
+    (save.restoredSystems?.length ?? 0) > 0 ? 'restored systems respond directly to the player as maintenance authority' : undefined,
+  ].filter(Boolean)
+  const humanGardenerEvidence = [
+    codex.has('gardener-note-01') ? 'gardener notes teach the work as inherited practice' : undefined,
+    codex.has('crew-message-12') ? 'Crew Message 12 says the Ark sang back to a junior gardener' : undefined,
+  ].filter(Boolean)
+  const awakenedCrewEvidence = [
+    crewStillAsleep ? undefined : 'finale/postgame state can wake the crew after restoration',
+    codex.has('crew-message-07') ? 'Crew Message 07 confirms the crew entered preservation sleep before the final mission decision' : undefined,
+  ].filter(Boolean)
+
+  return {
+    candidates: [
+      { id: 'ark-caretaker-intelligence', selected: true, evidence: caretakerEvidence },
+      { id: 'human-gardener', selected: false, evidence: humanGardenerEvidence },
+      { id: 'awakened-crew-member', selected: false, evidence: awakenedCrewEvidence },
+    ],
+    role: 'ark-caretaker-intelligence',
+    text: `Player role question: Ark caretaker intelligence. The player is the Ark's listening caretaker process, borrowing gardener practice through records but not waking as crew; caretaker evidence ${caretakerEvidence.length}, human gardener echoes ${humanGardenerEvidence.length}, awakened crew evidence ${awakenedCrewEvidence.length}.`,
+  }
+}
+
 export function preservationPathState(save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const ratings = Object.values(save.ratings ?? {})

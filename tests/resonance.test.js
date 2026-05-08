@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneContractStructureState, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, playerRoleQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, performancePassState, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState, workingRestorationCampaignState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -1050,6 +1050,22 @@ describe('resonance evaluation', () => {
     expect(restorationIdentityQuestionState(garden).role).toBe('garden')
     expect(restorationIdentityQuestionState(instrument).role).toBe('living-instrument')
     expect(restorationIdentityQuestionState(instrument).text).toContain('Restoration identity question')
+  })
+
+  it('answers whether the player is human gardener crew or Ark caretaker intelligence', () => {
+    const early = playerRoleQuestionState(createDefaultSave())
+    const evidenced = createDefaultSave()
+    evidenced.codexIds = ['story-payoff-01', 'crew-message-10', 'gardener-note-01', 'crew-message-07']
+    evidenced.restoredSystems = ['Intake']
+    const state = playerRoleQuestionState(evidenced)
+
+    expect(early.role).toBe('ark-caretaker-intelligence')
+    expect(state.role).toBe('ark-caretaker-intelligence')
+    expect(state.candidates.find((candidate) => candidate.id === 'ark-caretaker-intelligence').selected).toBe(true)
+    expect(state.candidates.find((candidate) => candidate.id === 'human-gardener').selected).toBe(false)
+    expect(state.candidates.find((candidate) => candidate.id === 'awakened-crew-member').selected).toBe(false)
+    expect(state.text).toContain('Player role question: Ark caretaker intelligence')
+    expect(state.text).toContain('not waking as crew')
   })
 
   it('tracks the preservation path for restoring the Ark as designed', () => {

@@ -244,6 +244,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/First endings locked: finish the finale to play the first ending/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Final Ecology Philosophy' })).toBeVisible()
   await expect(page.getByText(/Original mission question: return/)).toBeVisible()
+  await expect(page.getByText(/Player role question: Ark caretaker intelligence\. The player is the Ark's listening caretaker process/)).toBeVisible()
   await expect(page.getByText(/Restored ecology question: preserve/)).toBeVisible()
   await expect(page.getByText(/Restoration identity question: living-instrument/)).toBeVisible()
   await expect(page.getByText(/Preservation path: recovering-design/)).toBeVisible()
