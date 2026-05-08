@@ -1170,6 +1170,10 @@ export class AudioEngine {
       duration: beatDuration * phrase.sustain,
       gain: phrase.gain,
       position: phrase.position,
+      seed: {
+        musicLayer: true,
+        restoredSystemLayers: phrase.restoredSystemLayers,
+      },
       spatial: false,
       tone: {
         brightness,
@@ -1254,6 +1258,10 @@ export class AudioEngine {
     const chamber = this.music.chamber ?? { id: 'default', target: { brightness: 0.5, phase: 0, pitchRatio: 1, pulseRate: 1, x: 0, y: 0 } }
     const target = chamber.target
     const planted = this.music.plantedSeeds ?? []
+    const restoredSystems = this.music.restoredSystems ?? []
+    const restoredLayers = restoredSystems
+      .map((system) => ({ ...(systemDroneProfiles[system] ?? systemDroneProfiles[`${system}`]), system }))
+      .filter((layer) => layer.ratio)
     const score = this.music.resonance?.score ?? 0
     const seedRatios = planted.length ? planted.map((seed) => seed.pitchRatio) : [target.pitchRatio]
     const seedPulses = planted.length ? planted.map((seed) => seed.pulseRate) : [target.pulseRate]
@@ -1266,6 +1274,7 @@ export class AudioEngine {
         clamp(target.brightness * 0.8 + score * 0.2),
         clamp(target.brightness + hazard),
         clamp((planted[0]?.brightness ?? target.brightness) * 0.9),
+        ...restoredLayers.map((layer) => clamp(layer.brightness)),
       ],
       counterline: {
         brightness: clamp(target.brightness * 0.6),
@@ -1278,7 +1287,7 @@ export class AudioEngine {
         type: chamber.hazards?.length ? 'sawtooth' : 'sine',
       },
       gain: dbGain(-20 + score * 6),
-      harmonics: [1, target.pitchRatio, chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
+      harmonics: [1, target.pitchRatio, ...restoredLayers.map((layer) => layer.ratio), chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
       mode: chamber.hazards?.length ? 'fm' : planted.length ? 'additive' : 'am',
       octaveSpan: chamber.ending ? 5 : 3,
       phase: target.phase,
@@ -1286,11 +1295,12 @@ export class AudioEngine {
       position: target,
       pulses: [target.pulseRate, ...seedPulses].map((pulse) => Math.max(0.4, pulse)),
       ratios: [target.pitchRatio, ...seedRatios, target.pitchRatio * (chamber.harmonic ? 1.5 : 1.25)],
+      restoredSystemLayers: restoredLayers.map((layer) => layer.system),
       rootMidi: 38 + Math.round(target.brightness * 12),
       spacing: clamp(1.2 - score * 0.45, 0.55, 1.3),
       sustain: chamber.hazards?.length ? 0.8 : 1.45 + score,
       tempo: 44 + target.pulseRate * 14 + score * 10,
-      waveforms: planted.length ? planted.map((seed) => seed.waveform) : ['sine', 'triangle'],
+      waveforms: [...(planted.length ? planted.map((seed) => seed.waveform) : ['sine', 'triangle']), ...restoredLayers.map((layer) => layer.type)],
     }
   }
 
@@ -1441,8 +1451,8 @@ export class AudioEngine {
     new MemoryVoice({ record, position }).play(this)
   }
 
-  chamber(chamber, plantedSeeds = []) {
-    this.setMusicScene('game', { chamber, plantedSeeds })
+  chamber(chamber, plantedSeeds = [], options = {}) {
+    this.setMusicScene('game', { chamber, plantedSeeds, restoredSystems: options.restoredSystems ?? [] })
     this.chamberEffectChain = chamberEffectChain(chamber)
     this.syncSeedObjects(chamber.id, plantedSeeds)
     const ecology = plantedSeeds.length ? plantedSeeds : [{ ...chamber.target, waveform: 'sine', oscillatorType: 'am', fmAmount: 0.1, amAmount: 0.2, noiseAmount: 0.05 }]

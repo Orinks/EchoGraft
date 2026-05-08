@@ -247,6 +247,18 @@ describe('audio movement cues', () => {
     expect(payload.duration).toBeGreaterThan(1)
   })
 
+  it('adds restored system layers to chamber music phrases', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const audio = new AudioEngine()
+
+    audio.setMusicScene('game', { chamber, restoredSystems: ['Water', 'Canopy'] })
+    const phrase = audio.createChamberMusicPhrase()
+
+    expect(phrase.restoredSystemLayers).toEqual(['Water', 'Canopy'])
+    expect(phrase.harmonics).toEqual(expect.arrayContaining([1.2, 1.5]))
+    expect(phrase.waveforms).toEqual(expect.arrayContaining(['sine', 'triangle']))
+  })
+
   it('models player movement feedback as a named StepVoice', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)

@@ -229,3 +229,4 @@
 - Continued with `omx ultragoal complete-goals` for `G199-scan-response-layer`. Audited the existing `ScanPulse` implementation and added explicit scan response layer markers for both the short ping and delay-trail payloads.
 - Continued with `omx ultragoal complete-goals` for `G200-success-cadence`. Audited the solved-resonance audio route and added explicit success cadence metadata to restored `HeartVoice` payloads while preserving the restored system drone layer.
 - Continued with `omx ultragoal complete-goals` for `G201-optional-memory-whisper-formant`. Audited the existing `MemoryVoice` talkbox route and added explicit optional memory whisper/formant markers to its seed and tone payloads.
+- Continued with `omx ultragoal complete-goals` for `G202-restored-systems-add-layers`. Wired restored Ark systems into the chamber music scene so their drone profiles add harmonic brightness and waveform layers after restoration.
