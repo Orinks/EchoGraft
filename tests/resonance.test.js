@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -204,6 +204,18 @@ describe('resonance evaluation', () => {
     expect(hazardContainmentSummary(chamber, [breachedSeed]).band).toBe('breached')
     expect(evaluateResonance(chamber, [breachedSeed]).missing).toContain(hazard.message)
     expect(hazardContainmentSummary(chamber, [safeSeed]).band).toBe('contained')
+  })
+
+  it('drains pulse stability inside drought pockets', () => {
+    const chamber = chambers.find((item) => item.id === 'root-reservoir')
+    const drainedSeed = createSeedDNA('drought-drain', { pitchRatio: 0.75, pulseRate: 0.4, brightness: 0.35, phase: 45, position: chamber.target })
+    const stableSeed = createSeedDNA('drought-stable', { pitchRatio: 0.75, pulseRate: 0.75, brightness: 0.35, phase: 45, position: chamber.target })
+
+    expect(chamber.droughtPockets).toMatchObject({ minStablePulseRate: 0.65 })
+    expect(droughtPocketState(chamber, [drainedSeed])).toMatchObject({ drained: true, pulseRate: 0.4, stable: false })
+    expect(evaluateResonance(chamber, [drainedSeed]).missing).toContain('Raise pulse until drought pockets stop draining stability.')
+    expect(droughtPocketState(chamber, [stableSeed])).toMatchObject({ drained: false, pulseRate: 0.75, stable: true })
+    expect(evaluateResonance(chamber, [stableSeed]).solved).toBe(true)
   })
 
   it('summarizes resource efficiency from saved chamber material spend', () => {

@@ -86,6 +86,24 @@ export function pressureSailState(chamber, plantedSeeds) {
   }
 }
 
+export function droughtPocketState(chamber, plantedSeeds) {
+  if (!chamber.droughtPockets) return undefined
+
+  const ecology = averageSeeds(plantedSeeds)
+  const { minStablePulseRate } = chamber.droughtPockets
+  const drained = ecology.pulseRate < minStablePulseRate
+
+  return {
+    drained,
+    minStablePulseRate,
+    pulseRate: Number(ecology.pulseRate.toFixed(2)),
+    stable: !drained,
+    text: drained
+      ? `Drought pockets draining pulse stability at ${ecology.pulseRate.toFixed(2)}; raise pulse to at least ${minStablePulseRate}.`
+      : `Drought pockets contained at pulse ${ecology.pulseRate.toFixed(2)}; ${chamber.droughtPockets.text}.`,
+  }
+}
+
 export function timbrePuzzleState(chamber, plantedSeeds) {
   if (!chamber.timbrePuzzle) return undefined
 
@@ -356,6 +374,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   const photosynthesis = photosynthesisState(chamber, plantedSeeds)
   const thermalShutters = thermalShutterState(chamber, plantedSeeds)
   const pressureSails = pressureSailState(chamber, plantedSeeds)
+  const droughtPockets = droughtPocketState(chamber, plantedSeeds)
   const timbrePuzzle = timbrePuzzleState(chamber, plantedSeeds)
   const checks = [
     ['position', distance(ecology.position, chamber.target), chamber.tolerances.position, 'Move planted seed position closer to the heart.'],
@@ -371,6 +390,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
   if (photosynthesis && !photosynthesis.active) missing.push('Raise brightness until the photosynthetic canopy opens.')
   if (thermalShutters && !thermalShutters.open) missing.push('Tune brightness until the thermal shutters open without overheating.')
   if (pressureSails && !pressureSails.steady) missing.push('Tune pulse until the pressure sails hold steady.')
+  if (droughtPockets?.drained) missing.push('Raise pulse until drought pockets stop draining stability.')
   if (timbrePuzzle && !timbrePuzzle.active) missing.push('Use a bright edged timbre to open the brightness/timbre puzzle.')
   if (chamber.plantingPattern) {
     const coverage = plantingCoverage(chamber, plantedSeeds)
@@ -395,6 +415,7 @@ export function evaluateResonance(chamber, plantedSeeds) {
     hazardContainment: hazardContainmentSummary(chamber, plantedSeeds),
     missing,
     ecology,
+    droughtPockets,
     photosynthesis,
     pressureSails,
     thermalShutters,

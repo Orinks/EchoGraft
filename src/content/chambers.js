@@ -397,6 +397,7 @@ export const chambers = [
     start: { x: -2, y: -4, facing: 0 },
     target: { x: -1, y: 2, pitchRatio: 0.75, pulseRate: 0.75, brightness: 0.35, phase: 45 },
     requiredSeeds: 1,
+    droughtPockets: { minStablePulseRate: 0.65, text: 'root mesh pulse remains stable when slow water does not drop into dry pockets' },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.4, pitchRatio: 0.12, pulseRate: 0.18, brightness: 0.16, phase: 50 },
     requires: ['finale'],
