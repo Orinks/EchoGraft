@@ -148,6 +148,6 @@ export function createWorldLayoutIndex(chambers = [], seed = 'echograft-world') 
     retrieve(rect = {}) {
       return tree.retrieve(rect)
     },
-    text: `World layout index: ${points.length} chamber point(s) indexed with Syngen vector, quadtree, generator, and noise tools.`,
+    text: `World layout index: ${points.length} chamber point(s) indexed with spatial vectors, chamber lookup, generators, and noise fields.`,
   }
 }

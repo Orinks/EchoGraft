@@ -788,6 +788,13 @@ export function packagingDeploymentState(config = {}) {
   })
     .filter(([, present]) => !present)
     .map(([name]) => name)
+  const artifactLabels = {
+    'dist/index.html': 'static game index',
+    'dist/vendor/syngen.js': 'packaged audio runtime',
+    'electron/main.cjs': 'Electron main process',
+    'electron/preload.cjs': 'Electron preload bridge',
+  }
+  const missingArtifactLabels = missingArtifacts.map((artifact) => artifactLabels[artifact] ?? artifact)
   const ready = missingScripts.length === 0 && missingArtifacts.length === 0 && electron.loadsDist === true
 
   return {
@@ -800,8 +807,8 @@ export function packagingDeploymentState(config = {}) {
       { id: 'electron', role: 'first-class packaged release target that loads the canonical dist build' },
     ],
     text: ready
-      ? 'Packaging and deployment ready: Electron is a first-class packaged release target while browser/static remains the canonical runtime; build, preview, packaging checks, Electron directory packaging, dist index, packaged Syngen runtime, and Electron preload/main files are aligned.'
-      : `Packaging and deployment incomplete: missing scripts ${missingScripts.join(', ') || 'none'}; missing artifacts ${missingArtifacts.join(', ') || 'none'}; Electron loads dist ${electron.loadsDist === true ? 'yes' : 'no'}.`,
+      ? 'Packaging and deployment ready: Electron is a first-class packaged release target while browser/static remains the canonical runtime; build, preview, packaging checks, Electron directory packaging, dist index, packaged audio runtime, and Electron preload/main files are aligned.'
+      : `Packaging and deployment incomplete: missing scripts ${missingScripts.join(', ') || 'none'}; missing artifacts ${missingArtifactLabels.join(', ') || 'none'}; Electron loads dist ${electron.loadsDist === true ? 'yes' : 'no'}.`,
   }
 }
 

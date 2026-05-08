@@ -987,7 +987,7 @@ function splash() {
       <div>
         <p class="eyebrow">Accessible procedural audio game</p>
         <h1 id="splash-title">EchoGraft</h1>
-        <p>Interact to unlock Syngen audio, then listen through the Verdancy Ark.</p>
+        <p>Interact to unlock audio, then listen through the Verdancy Ark.</p>
       </div>
       <button class="begin-button" data-action="begin" type="button" autofocus>Interact to Begin</button>
     </main>
@@ -1667,7 +1667,7 @@ function settings() {
         </fieldset>
         <fieldset>
           <legend>Gamepad support</legend>
-          <p>Syngen gamepad input supports left stick or D-pad movement, south button plant/interact, east button primary scan, west button seed cycling, north button interact/confirm, shoulder tuning, either trigger plus D-pad for objective, position, inventory, and latest log, and menu/start pause.</p>
+          <p>Gamepad input supports left stick or D-pad movement, south button plant/interact, east button primary scan, west button seed cycling, north button interact/confirm, shoulder tuning, either trigger plus D-pad for objective, position, inventory, and latest log, and menu/start pause.</p>
         </fieldset>
       </form>
       <nav aria-label="Settings actions">
@@ -1725,7 +1725,7 @@ function credits() {
   shell(`
     <main class="screen" aria-labelledby="credits-title">
       <h1 id="credits-title">Credits</h1>
-      <p>EchoGraft v0.1.0. Built as a procedural Syngen/Web Audio game. No external audio assets are used.</p>
+      <p>EchoGraft v0.1.0. Built as a procedural audio game. No external audio assets are used.</p>
       <button data-action="menu">Main menu</button>
     </main>
   `)

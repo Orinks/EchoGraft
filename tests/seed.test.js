@@ -75,13 +75,13 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['sine']).matchesRequirement).toBe(false)
   })
 
-  it('reports synth type as Syngen routing metadata', () => {
+  it('reports synth type as seed voice routing metadata', () => {
     const seed = createSeedDNA('synth-report', { oscillatorType: 'fm' })
     const state = seedSynthTypeState(seed)
 
     expect(state.oscillatorType).toBe('fm')
-    expect(state.routing).toBe('frequency-modulated Syngen voice')
-    expect(state.text).toBe('Synth type: fm; routes to frequency-modulated Syngen voice.')
+    expect(state.routing).toBe('frequency-modulated seed voice')
+    expect(state.text).toBe('Synth type: fm; routes to frequency-modulated seed voice.')
     expect(createSeedDNA('bad-synth', { oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
     expect(seedSynthTypeState({ oscillatorType: 'wrong' }).oscillatorType).toBe('pure')
   })
@@ -131,14 +131,14 @@ describe('seed DNA', () => {
 
     expect(state.noiseAmount).toBe(0.25)
     expect(state.texture).toBe('compost hiss')
-    expect(state.synthRoute).toBe('noise-kissed Syngen buffer voice')
+    expect(state.synthRoute).toBe('noise-kissed procedural buffer voice')
     expect(state.text).toContain('breath, compost, and masking texture')
     expect(seedNoiseProfileState({ noiseAmount: 0 }).texture).toBe('clean tone')
     expect(seedNoiseProfileState({ noiseAmount: 0.1 }).texture).toBe('breath trace')
     expect(seedNoiseProfileState({ noiseAmount: 0.6 }).texture).toBe('dense masking bed')
     expect(seedNoiseProfileState({ noiseAmount: 2, oscillatorType: 'pure' })).toMatchObject({
       noiseAmount: 1,
-      synthRoute: 'additive or modulated Syngen voice with harmonic noise color',
+      synthRoute: 'additive or modulated procedural voice with harmonic noise color',
       texture: 'dense masking bed',
     })
   })
@@ -274,7 +274,7 @@ describe('seed DNA', () => {
       waveform: 'sine',
     })
     expect(seedModulationProfileState(seed)).toMatchObject({ dominantLayer: 'FM', fmAmount: 0.35, noiseAmount: 0.25 })
-    expect(seedNoiseProfileState(seed)).toMatchObject({ noiseAmount: 0.25, synthRoute: 'noise-kissed Syngen buffer voice', texture: 'compost hiss' })
+    expect(seedNoiseProfileState(seed)).toMatchObject({ noiseAmount: 0.25, synthRoute: 'noise-kissed procedural buffer voice', texture: 'compost hiss' })
     expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'twining' })
   })
 

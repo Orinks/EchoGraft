@@ -50,7 +50,7 @@ const modernRequired = [
   'syngen.loop.on',
   'syngen.position.setVector',
   'syngen.position.setEuler',
-  'syngen.audio.mixer.createBus',
+  'audioMixer()?.createBus',
   'syngen.synth.additive',
   'syngen.synth.am',
   'syngen.synth.amBuffer',

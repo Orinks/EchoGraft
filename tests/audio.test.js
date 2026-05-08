@@ -138,7 +138,7 @@ describe('audio movement cues', () => {
     expect([...audio.seedLoops.values()][0].nextBeat).toBeCloseTo(12.3)
   })
 
-  it('reports persistent planted Syngen sound object sync state', () => {
+  it('reports persistent planted seed voice sync state', () => {
     const audio = new AudioEngine()
     audio.enabled = true
     audio.audioTime = () => 5
@@ -150,7 +150,7 @@ describe('audio movement cues', () => {
 
     expect(state.ready).toBe(true)
     expect(state.activeCount).toBe(2)
-    expect(state.text).toContain('Persistent planted Syngen sound objects active: 2 SeedVoice loop(s) for tutorial')
+    expect(state.text).toContain('Persistent planted seed voices active: 2 SeedVoice loop(s) for tutorial')
     expect(state.voices.map((voice) => voice.seedName)).toEqual(['Sol phonoseed', 'Lumen phonoseed'])
 
     const stale = plantedSeedSoundObjectState('different-chamber', [sol], audio.seedLoops)

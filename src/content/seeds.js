@@ -426,10 +426,10 @@ export function seedWaveformState(seed, requiredWaveforms = []) {
 export function seedSynthTypeState(seed) {
   const oscillatorType = oscillatorTypes.includes(seed.oscillatorType) ? seed.oscillatorType : 'pure'
   const routingByType = {
-    am: 'amplitude-modulated Syngen voice',
-    fm: 'frequency-modulated Syngen voice',
-    'noise-kissed': 'buffer-noise kissed Syngen voice',
-    pure: 'additive Syngen voice',
+    am: 'amplitude-modulated seed voice',
+    fm: 'frequency-modulated seed voice',
+    'noise-kissed': 'buffer-noise kissed seed voice',
+    pure: 'additive seed voice',
   }
   const routing = routingByType[oscillatorType]
 
@@ -485,8 +485,8 @@ export function seedNoiseProfileState(seed) {
         ? 'breath trace'
         : 'clean tone'
   const synthRoute = seed.oscillatorType === 'noise-kissed'
-    ? 'noise-kissed Syngen buffer voice'
-    : 'additive or modulated Syngen voice with harmonic noise color'
+    ? 'noise-kissed procedural buffer voice'
+    : 'additive or modulated procedural voice with harmonic noise color'
 
   return {
     noiseAmount,

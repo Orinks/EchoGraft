@@ -46,7 +46,7 @@ export function audioMixAccessibilityPassState(settings = {}, surfaces = {}) {
     mix,
     ready,
     text: ready
-      ? `Audio mix/accessibility pass ready: ${audioMixCategories.length} independent Syngen bus control(s) normalized; ${accessibilitySurfaces.map((surface) => surface.label).join(', ')} remain surfaced with captioned feedback.`
+      ? `Audio mix/accessibility pass ready: ${audioMixCategories.length} independent audio mix control(s) normalized; ${accessibilitySurfaces.map((surface) => surface.label).join(', ')} remain surfaced with captioned feedback.`
       : `Audio mix/accessibility pass incomplete: missing mix ${missingMix.join(', ') || 'none'}; missing accessibility surfaces ${missingSurfaces.map((surface) => surface.label).join(', ') || 'none'}.`,
   }
 }
@@ -68,8 +68,19 @@ function dbGain(decibels) {
   return syngen?.utility?.fromDb ? syngen.utility.fromDb(decibels) : 10 ** (decibels / 20)
 }
 
+function lerp(min, max, value) {
+  return syngen?.utility?.lerp ? syngen.utility.lerp(min, max, value) : min + (max - min) * value
+}
+
+function midiToFrequency(midi) {
+  return syngen?.utility?.midiToFrequency ? syngen.utility.midiToFrequency(midi) : 440 * 2 ** ((midi - 69) / 12)
+}
+
+function zeroGain() {
+  return syngen?.const?.zeroGain ?? 0.000001
+}
+
 function ratioToFrequency(ratio, rootMidi = 48) {
-  const midiToFrequency = syngen?.utility?.midiToFrequency ?? ((midi) => 440 * 2 ** ((midi - 69) / 12))
   return midiToFrequency(rootMidi) * ratio
 }
 
@@ -94,6 +105,23 @@ function panFromPosition(position = {}) {
 
 function durationFromPulse(pulseRate) {
   return clamp(0.65 / Math.max(pulseRate, 0.25), 0.08, 0.85)
+}
+
+function audioContext() {
+  return syngen?.audio?.context?.() ?? syngen?.context?.()
+}
+
+function audioMixer() {
+  return syngen?.audio?.mixer ?? syngen?.mixer
+}
+
+function audioTime() {
+  return syngen?.audio?.time?.() ?? syngen?.time?.() ?? Date.now() / 1000
+}
+
+function startAudioContext() {
+  syngen?.audio?.start?.()
+  return audioContext()?.resume?.()
 }
 
 function fallbackShape(values = [-1, 0, 1]) {
@@ -336,16 +364,17 @@ function seedHarmonics(seed) {
 }
 
 function scheduleEnvelope(synth, { attack = 0.02, decay = 0.08, duration = 0.2, gain = 0.1, release = 0.08, sustain = 0.6 }) {
-  const now = syngen.audio.time()
+  const now = audioTime()
   const peakTime = now + Math.max(attack, 0.001)
   const decayTime = Math.min(now + duration, peakTime + Math.max(decay, 0))
   const releaseStart = Math.max(decayTime, now + duration)
   const stopTime = releaseStart + Math.max(release, 0.001)
-  const sustainGain = Math.max(syngen.const.zeroGain, gain * clamp(sustain, 0.1, 1))
-  synth.param.gain.setValueAtTime(syngen.const.zeroGain, now)
-  synth.param.gain.exponentialRampToValueAtTime(Math.max(syngen.const.zeroGain, gain), peakTime)
+  const floor = zeroGain()
+  const sustainGain = Math.max(floor, gain * clamp(sustain, 0.1, 1))
+  synth.param.gain.setValueAtTime(floor, now)
+  synth.param.gain.exponentialRampToValueAtTime(Math.max(floor, gain), peakTime)
   synth.param.gain.exponentialRampToValueAtTime(sustainGain, decayTime)
-  synth.param.gain.exponentialRampToValueAtTime(syngen.const.zeroGain, stopTime)
+  synth.param.gain.exponentialRampToValueAtTime(floor, stopTime)
   synth.stop(stopTime)
 }
 
@@ -367,7 +396,7 @@ function createSpatialVoicePrototype() {
     } = {}) {
       this.synth = applyEffectChain(createSynthForTone(tone, seed), tone.effectChain, tone)
         .filtered({
-          frequency: syngen.utility.lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)) * seedShapeTimbreProfile(seed, tone).brightnessTilt,
+          frequency: lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)) * seedShapeTimbreProfile(seed, tone).brightnessTilt,
           Q: 1 + clamp(seed?.fmAmount ?? seedShapeTimbreProfile(seed, tone).mutationSpread) * 7,
           type: tone.filterType ?? 'lowpass',
         })
@@ -502,8 +531,8 @@ export function plantedSeedSoundObjectState(chamberId = 'unknown', plantedSeeds 
     ready: missingKeys.length === 0 && staleKeys.length === 0,
     staleKeys,
     text: missingKeys.length || staleKeys.length
-      ? `Persistent planted Syngen sound objects need sync: ${missingKeys.length} missing, ${staleKeys.length} stale.`
-      : `Persistent planted Syngen sound objects active: ${activeVoices.length} SeedVoice loop(s) for ${chamberId}.`,
+      ? `Persistent planted seed voices need sync: ${missingKeys.length} missing, ${staleKeys.length} stale.`
+      : `Persistent planted seed voices active: ${activeVoices.length} SeedVoice loop(s) for ${chamberId}.`,
     voices: activeVoices.map((voice) => ({
       interval: voice.interval,
       key: voice.key,
@@ -994,7 +1023,7 @@ function applyEffectChain(synth, effects = [], tone = {}) {
 
 function createSynthForTone(tone, seed) {
   const frequency = tone.frequency
-  const gain = syngen.const.zeroGain
+  const gain = zeroGain()
   const factory = seedSynthFactoryName(seed, tone)
   const shape = seedShapeTimbreProfile(seed, tone)
 
@@ -1025,7 +1054,7 @@ function createSynthForTone(tone, seed) {
       gain,
       modDepth: clamp((seed?.noiseAmount ?? 0.2) + shape.mutationSpread, 0.05, 0.9),
       modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1) * shape.pulseAccent,
-      playbackRate: clamp(frequency / syngen.utility.midiToFrequency(48), 0.25, 4),
+      playbackRate: clamp(frequency / midiToFrequency(48), 0.25, 4),
     })
   }
 
@@ -1053,7 +1082,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.buffer?.whiteNoise && syngen?.buffer?.pinkNoise && syngen?.buffer?.brownNoise && syngen?.buffer?.impulse && syngen?.shape?.distort && syngen?.shape?.pulse && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
+    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && audioMixer()?.createBus && syngen?.buffer?.whiteNoise && syngen?.buffer?.pinkNoise && syngen?.buffer?.brownNoise && syngen?.buffer?.impulse && syngen?.shape?.distort && syngen?.shape?.pulse && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.chamberEffectChain = []
     this.music = {
@@ -1102,9 +1131,9 @@ export class AudioEngine {
       this.enabled = true
       return true
     }
-    syngen.audio.start()
-    await syngen.audio.context().resume()
+    await startAudioContext()
     if (!syngen.loop.isRunning()) syngen.loop.start()
+    syngen.loop.resume()
     this.createBuses()
     this.applySettings()
     this.startFrameLoop()
@@ -1113,7 +1142,7 @@ export class AudioEngine {
   }
 
   audioTime() {
-    return this.hasAudioStack ? syngen.audio.time() : Date.now() / 1000
+    return this.hasAudioStack ? audioTime() : Date.now() / 1000
   }
 
   startFrameLoop() {
@@ -1129,11 +1158,17 @@ export class AudioEngine {
   createBuses() {
     if (!this.hasAudioStack) return
     if (Object.keys(this.buses).length) return
+    const mixer = audioMixer()
     for (const key of Object.values(categoryBus)) {
-      this.buses[key] = syngen.audio.mixer.createBus()
+      this.buses[key] = mixer.createBus()
     }
-    syngen.audio.mixer.auxiliary.reverb.setImpulse(generatedImpulseBuffer({ channels: 2, duration: 2, power: 2 }))
-    syngen.audio.mixer.auxiliary.reverb.param.delay.value = 1 / 12
+    const reverb = mixer.auxiliary?.reverb ?? mixer.reverb
+    if (reverb?.setImpulse) {
+      reverb.setImpulse(generatedImpulseBuffer({ channels: 2, duration: 2, power: 2 }))
+    }
+    if (reverb?.param?.delay) {
+      reverb.param.delay.value = 1 / 12
+    }
   }
 
   setSettings(settings) {
@@ -1143,7 +1178,9 @@ export class AudioEngine {
 
   applySettings() {
     if (!this.hasAudioStack) return
-    syngen.audio.mixer.master.param.gain.value = this.settings.master ?? 1
+    const mixer = audioMixer()
+    const masterGain = mixer.master?.param?.gain ?? mixer.param?.gain
+    if (masterGain) masterGain.value = this.settings.master ?? 1
     for (const [key, bus] of Object.entries(this.buses)) {
       bus.gain.value = this.settings[key] ?? 1
     }
@@ -1188,7 +1225,7 @@ export class AudioEngine {
       const shape = seedShapeTimbreProfile(seed, activeTone)
       const synth = applyEffectChain(createSynthForTone(activeTone, seed), activeTone.effectChain, activeTone)
         .filtered({
-          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)) * shape.brightnessTilt,
+          frequency: lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)) * shape.brightnessTilt,
           Q: 0.8 + clamp(seed?.fmAmount ?? shape.mutationSpread) * 6,
           type: activeTone.filterType ?? 'lowpass',
         })

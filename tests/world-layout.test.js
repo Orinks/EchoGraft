@@ -22,7 +22,7 @@ describe('world layout', () => {
     const nearby = layout.retrieve({ height: 12, width: 12, x: first.x - 1, y: first.y - 1 })
     const chunk = layout.chunkAt(first)
 
-    expect(layout.text).toContain('Syngen vector, quadtree, generator, and noise tools')
+    expect(layout.text).toContain('spatial vectors, chamber lookup, generators, and noise fields')
     expect(nearest?.chamberId).toBe(first.chamberId)
     expect(nearby.map((point) => point.chamberId)).toContain(first.chamberId)
     expect(chunk.text).toContain('generated resonance field')
