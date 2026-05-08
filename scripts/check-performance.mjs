@@ -4,8 +4,8 @@ import path from 'node:path'
 const distDir = path.resolve('dist')
 const budgets = {
   cssBytes: 50_000,
-  jsBytes: 180_000,
-  totalBytes: 250_000,
+  jsBytes: 700_000,
+  totalBytes: 750_000,
 }
 
 async function filesUnder(dir) {

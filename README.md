@@ -34,6 +34,7 @@ Manual screen reader testing is still recommended before formal accessibility cl
 npm install
 npm run dev
 npm run check
+npm run check:packaging
 npm run check:performance
 npm run test:e2e
 ```
@@ -43,6 +44,8 @@ npm run test:e2e
 npm run build
 npm run preview
 ```
+
+`npm run build` produces the deployable `dist` package, including the packaged Syngen runtime used by browser preview and Electron.
 
 ## Electron
 ```sh
@@ -55,7 +58,8 @@ Packaging directory build:
 npm run package:electron
 ```
 
-Platform signing and installer publishing are not configured for v0.1.0.
+Platform signing and installer publishing are not configured for v0.1.0; the directory package intentionally disables Windows executable signing/editing.
 
 ## Deploy
 Upload the `dist` folder to any static host, or use the Electron build instructions above for desktop packaging.
+Run `npm run check:packaging` before publishing to confirm the static package, preview command, and Electron directory package are aligned.

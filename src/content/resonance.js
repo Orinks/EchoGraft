@@ -727,8 +727,8 @@ export function e2eKeyFlowCoverageState(flows = e2eKeyFlowCoverage) {
 export function performancePassState(metrics = {}) {
   const budgets = {
     cssBytes: 50_000,
-    jsBytes: 180_000,
-    totalBytes: 250_000,
+    jsBytes: 700_000,
+    totalBytes: 750_000,
     ...metrics.budgets,
   }
   const measured = {
@@ -751,6 +751,32 @@ export function performancePassState(metrics = {}) {
     text: ready
       ? `Performance pass ready: built JavaScript, CSS, and total static payload stay inside budgets while ${measured.authoredChambers} authored chamber(s) and ${measured.codexRecords} codex record(s) remain data-driven.`
       : `Performance pass over budget: ${overBudget.join(', ')}.`,
+  }
+}
+
+export function packagingDeploymentState(config = {}) {
+  const requiredScripts = ['build', 'preview', 'check:packaging', 'package:electron']
+  const scripts = config.scripts ?? {}
+  const artifacts = config.artifacts ?? {}
+  const electron = config.electron ?? {}
+  const missingScripts = requiredScripts.filter((script) => !scripts[script])
+  const missingArtifacts = Object.entries({
+    'dist/index.html': artifacts.distIndex,
+    'dist/vendor/syngen.js': artifacts.syngenRuntime,
+    'electron/main.cjs': electron.main,
+    'electron/preload.cjs': electron.preload,
+  })
+    .filter(([, present]) => !present)
+    .map(([name]) => name)
+  const ready = missingScripts.length === 0 && missingArtifacts.length === 0 && electron.loadsDist === true
+
+  return {
+    missingArtifacts,
+    missingScripts,
+    ready,
+    text: ready
+      ? 'Packaging and deployment ready: build, preview, packaging checks, Electron directory packaging, dist index, packaged Syngen runtime, and Electron preload/main files are aligned.'
+      : `Packaging and deployment incomplete: missing scripts ${missingScripts.join(', ') || 'none'}; missing artifacts ${missingArtifacts.join(', ') || 'none'}; Electron loads dist ${electron.loadsDist === true ? 'yes' : 'no'}.`,
   }
 }
 

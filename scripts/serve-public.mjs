@@ -5,7 +5,8 @@ import { extname, join, normalize } from 'node:path'
 const host = '127.0.0.1'
 const portIndex = process.argv.indexOf('--port')
 const port = Number(portIndex >= 0 ? process.argv[portIndex + 1] : process.env.PORT) || 4177
-const root = process.cwd()
+const rootIndex = process.argv.indexOf('--root')
+const root = rootIndex >= 0 ? join(process.cwd(), process.argv[rootIndex + 1] ?? '.') : process.cwd()
 
 const types = {
   '.css': 'text/css',
@@ -34,5 +35,5 @@ createServer((request, response) => {
   response.writeHead(200, {'content-type': types[extname(path)] ?? 'application/octet-stream'})
   createReadStream(path).pipe(response)
 }).listen(port, host, () => {
-  console.log(`Serving public at http://${host}:${port}/`)
+  console.log(`Serving ${root} at http://${host}:${port}/`)
 })

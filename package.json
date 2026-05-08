@@ -4,20 +4,22 @@
   "private": true,
   "type": "module",
   "description": "Accessible audio-first puzzle-strategy game set in the Verdancy Ark.",
+  "author": "Orinks",
   "main": "electron/main.cjs",
   "scripts": {
-    "dev": "npm run build && node scripts/serve-public.mjs",
-    "build": "gulp --gulpfile Gulpfile.cjs build",
-    "preview": "node scripts/serve-public.mjs",
+    "dev": "npm run build && node scripts/serve-public.mjs --root dist",
+    "build": "node scripts/build-static.mjs",
+    "preview": "node scripts/serve-public.mjs --root dist",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check:audio-assets": "node scripts/check-audio-assets.mjs",
+    "check:packaging": "node scripts/check-packaging.mjs",
     "check:performance": "node scripts/check-performance.mjs",
     "check:syngen-audio": "node scripts/check-syngen-audio.mjs",
-    "check": "npm run check:audio-assets && npm run check:syngen-audio && npm run test && npm run build && npm run check:performance",
+    "check": "npm run check:audio-assets && npm run check:syngen-audio && npm run test && npm run build && npm run check:performance && npm run check:packaging",
     "electron": "electron .",
-    "package:electron": "electron-builder --dir"
+    "package:electron": "electron-builder --dir --config.win.signAndEditExecutable=false"
   },
   "dependencies": {},
   "devDependencies": {
@@ -34,6 +36,7 @@
     "gulp-uglify-es": "^3.0.0",
     "jsdom": "^24.1.1",
     "syngen": "^2.0.0-beta.3",
+    "vite": "^5.4.21",
     "yargs": "^18.0.0",
     "vitest": "^1.6.0"
   },
