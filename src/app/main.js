@@ -458,16 +458,16 @@ function plantOrPickUp() {
   if (existing >= 0) {
     const [seed] = plantedSeeds.splice(existing, 1)
     recordSeedMove()
-    log(`Picked up ${seed.name}.`)
+    const soundState = audio.syncSeedObjects(chamber.id, plantedSeeds)
+    log(`Picked up ${seed.name}. ${soundState.text}`)
   } else {
     const planted = plantedSeed(currentSeed(), { x: player.x, y: player.y }, chamber, plantedSeeds)
     const seed = planted.seed
     plantedSeeds.push(seed)
     recordSeedMove()
-    audio.seed(seed)
-    log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${planted.assessment.text}`)
+    const soundState = audio.syncSeedObjects(chamber.id, plantedSeeds)
+    log(`Planted ${seed.name} at ${player.x}, ${player.y}. ${planted.assessment.text} ${soundState.text}`)
   }
-  audio.syncSeedObjects(chamber.id, plantedSeeds)
   evaluate()
 }
 
