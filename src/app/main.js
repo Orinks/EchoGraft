@@ -670,7 +670,8 @@ function evaluate() {
     log(`Ending reflections recovered: ${reflectionRewards.recordIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
     persist()
     audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory, { restoredSystems: save.restoredSystems, solvedChambers: save.solvedChambers })
-    screen = 'ending'
+    log('Restoration atlas functions menu opened after Verdancy Heart completion. Ending resolution, Conservatory, Codex, Seed Library, and return contracts are available.', 'success')
+    screen = 'atlas'
     render()
   }
 }
@@ -1297,6 +1298,20 @@ function atlas() {
         <button data-action="library">Research grafts</button>
         <button data-action="advanceClock">Advance Ark clock</button>
       </section>
+      ${save.postgameUnlocked ? `
+      <section aria-labelledby="post-finale-functions-title">
+        <h2 id="post-finale-functions-title">Post-Finale Functions Menu</h2>
+        <p>Verdancy Heart completion now returns here instead of leaving the player inside the final chamber. Choose ending resolution, Conservatory, Codex, Seed Library, return contracts, or another Atlas work order.</p>
+        <nav aria-label="Post-finale functions">
+          <button data-action="ending">Ending resolution</button>
+          <button data-action="conservatory">Conservatory</button>
+          <button data-action="codex">Codex</button>
+          <button data-action="library">Seed library</button>
+          <button data-action="game">Back to chamber</button>
+          <button data-action="menu">Main menu</button>
+        </nav>
+      </section>
+      ` : ''}
       <section aria-labelledby="planning-title">
         <h2 id="planning-title">Suggested Planning Session</h2>
         <p>${plan.min} to ${plan.max} minutes across ${plan.contracts.length} upcoming contracts.</p>

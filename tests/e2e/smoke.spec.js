@@ -612,3 +612,46 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await expect(page.getByText(/Conservatory composition saved: Balanced Chord with 5 voice/)).toBeVisible()
   await expect(page.getByText(/Compose: playing 5 recovered seed voice/)).toBeVisible()
 })
+
+test('routes final chamber completion to atlas functions instead of staying in chamber', async ({ page }) => {
+  const finaleSeed = {
+    brightness: 0.75,
+    family: 'Lumen',
+    graftAncestry: ['Sol', 'Lumen'],
+    grafted: true,
+    id: 'finale-graft',
+    name: 'Finale graft',
+    phase: 90,
+    pitchRatio: 1.5,
+    position: { x: 2, y: 1 },
+    pulseRate: 2.5,
+    waveform: 'triangle',
+  }
+  await page.addInitScript((seed) => {
+    localStorage.setItem('echograft-save-v1', JSON.stringify({
+      version: 1,
+      currentChamberId: 'finale',
+      codexIds: ['first-breath'],
+      customSeeds: [],
+      inventoryIds: ['sol', 'lumen', 'umbra', 'spire'],
+      materials: { biomass: 3, crystal: 2, memory: 2 },
+      plantedByChamber: { finale: [seed, { ...seed, id: 'finale-graft-b', name: 'Finale graft B' }] },
+      ratings: {},
+      settings: {},
+      solvedChambers: ['tutorial', 'direction', 'binaural', 'pitch', 'rhythm', 'timbre', 'phase', 'mold'],
+    }))
+  }, finaleSeed)
+
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await page.keyboard.press('n')
+
+  await expect(page.getByRole('heading', { name: 'Restoration Atlas' })).toBeVisible()
+  await expect(page.getByLabel('Caption and event log').getByText(/Restoration atlas functions menu opened after Verdancy Heart completion/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Post-Finale Functions Menu' })).toBeVisible()
+  await expect(page.getByText(/Verdancy Heart completion now returns here instead of leaving the player inside the final chamber/)).toBeVisible()
+  const functionsMenu = page.getByLabel('Post-finale functions')
+  await expect(functionsMenu.getByRole('button', { name: 'Ending resolution' })).toBeVisible()
+  await expect(functionsMenu.getByRole('button', { name: 'Conservatory' })).toBeVisible()
+})
