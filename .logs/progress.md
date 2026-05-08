@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G273-conservatory-composition`. Added saved Conservatory composition snapshots so postgame compositions record mode, voice count, voice names, and readable playback text while preserving the live Syngen ending chord.
 - Repository was empty except `.omx`; initialized a Vite/Electron source layout based on the requested `app`, `engine`, and `content` organization.
 - Started with mandatory design, audio, accessibility, and test documents before implementation.
 - Implemented deterministic seed DNA, grafting, tuning, chamber data, resonance evaluation, save/load, accessible event log, keyboard controls, settings, help, credits, pause, ending, and procedural Web Audio/Syngen audio hooks.

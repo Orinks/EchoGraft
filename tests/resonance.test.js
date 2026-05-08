@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -695,6 +695,14 @@ describe('resonance evaluation', () => {
     expect(network.unlocked).toBe(true)
     expect(network.mode.title).toBe('Network Braid')
     expect(network.playableVoices.map((voice) => voice.name)).toEqual(['Sol compose voice', 'Lumen compose voice'])
+
+    const snapshot = conservatoryCompositionSnapshot(save, inventory, 'network')
+    expect(snapshot).toMatchObject({
+      unlocked: true,
+      voiceCount: 2,
+    })
+    expect(snapshot.id).toBe('composition-network-sol-compose-voice-lumen-compose-voice')
+    expect(snapshot.text).toContain('Conservatory composition saved: Network Braid')
   })
 
   it('keeps codex records and perceptions in the 80 to 120 band', () => {

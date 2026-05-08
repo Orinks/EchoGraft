@@ -847,6 +847,27 @@ export function freeCompositionConservatory(save, inventory = [], modeId = 'bala
   }
 }
 
+export function conservatoryCompositionSnapshot(save, inventory = [], modeId = 'balanced') {
+  const composition = freeCompositionConservatory(save, inventory, modeId)
+  const voiceNames = composition.playableVoices.map((voice) => voice.name)
+  const voiceSlug = voiceNames
+    .join('-')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'silent'
+
+  return {
+    id: `composition-${composition.mode.id}-${voiceSlug}`,
+    mode: composition.mode,
+    playableVoices: composition.playableVoices,
+    unlocked: composition.unlocked,
+    voiceCount: composition.playableVoices.length,
+    text: composition.unlocked
+      ? `Conservatory composition saved: ${composition.mode.title} with ${voiceNames.length} voice(s): ${voiceNames.join(', ') || 'no voices'}.`
+      : 'Conservatory composition locked until postgame restoration opens.',
+  }
+}
+
 export function stewardshipSummary(chambers, save) {
   const restored = chambers.filter((chamber) => save.solvedChambers.includes(chamber.id))
   const lowRated = restored.filter((chamber) => ['Dormant', 'Restored'].includes(save.ratings[chamber.id] ?? 'Restored'))

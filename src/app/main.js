@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
@@ -537,6 +537,23 @@ function acceptWildInstability() {
 
 function composeConservatory() {
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
+  const snapshot = conservatoryCompositionSnapshot(save, inventory, conservatoryMode)
+  const compositions = save.conservatoryCompositions ?? []
+  if (snapshot.unlocked) {
+    save.conservatoryCompositions = [
+      ...compositions,
+      {
+        id: `${snapshot.id}-${compositions.length + 1}`,
+        modeId: snapshot.mode.id,
+        modeTitle: snapshot.mode.title,
+        text: snapshot.text,
+        voiceCount: snapshot.voiceCount,
+        voices: snapshot.playableVoices.map((voice) => voice.name),
+      },
+    ]
+    persist()
+    log(snapshot.text, 'success')
+  }
   audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory, { restoredSystems: save.restoredSystems, solvedChambers: save.solvedChambers })
   log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord. Mode ${composition.mode.title}: ${composition.mode.text}`)
 }
@@ -1239,6 +1256,8 @@ function codex() {
 function conservatory() {
   audio.setMusicScene('ending', { inventory })
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
+  const savedCompositions = save.conservatoryCompositions ?? []
+  const latestComposition = savedCompositions.at(-1)
   shell(`
     <main class="screen" aria-labelledby="conservatory-title">
       <h1 id="conservatory-title">Conservatory</h1>
@@ -1250,6 +1269,7 @@ function conservatory() {
       <section aria-labelledby="composition-title">
         <h2 id="composition-title">Composition Palette</h2>
         <p>${composition.text}</p>
+        <p>Saved compositions: ${savedCompositions.length}${latestComposition ? `. Latest: ${latestComposition.modeTitle} with ${latestComposition.voiceCount} voice(s).` : '.'}</p>
         <p>${inventory.map((seed) => seed.name).join(', ')}.</p>
         ${composition.modes.map((mode) => `<button data-action="compositionMode" data-mode="${mode.id}"${mode.id === composition.mode.id ? ' aria-pressed="true"' : ''}>${mode.title}</button>`).join('')}
       </section>

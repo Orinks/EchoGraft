@@ -471,5 +471,6 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await expect(page.getByText(/Postgame restoration is open/)).toBeVisible()
   await expect(page.getByText(/Composition Palette/)).toBeVisible()
   await page.getByRole('button', { name: 'Compose conservatory chord' }).click()
+  await expect(page.getByText(/Conservatory composition saved: Balanced Chord with 4 voice/)).toBeVisible()
   await expect(page.getByText(/Compose: playing 4 recovered seed voice/)).toBeVisible()
 })

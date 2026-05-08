@@ -21,6 +21,14 @@ describe('save system', () => {
     save.environmentalChanges.push('Intake stabilized')
     save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
     save.postgameUnlocked = true
+    save.conservatoryCompositions.push({
+      id: 'composition-balanced-sol-1',
+      modeId: 'balanced',
+      modeTitle: 'Balanced Chord',
+      text: 'Conservatory composition saved: Balanced Chord with 1 voice(s): Sol.',
+      voiceCount: 1,
+      voices: ['Sol'],
+    })
     save.unlockedGraftMechanics.push('hybrid resonance planting')
     save.bonusContractIds.push('bonus-sol-myco')
     save.graftRatingBoosts.push('rating-sol-myco')
@@ -42,6 +50,7 @@ describe('save system', () => {
     expect(loadSave(storage).environmentalChanges).toEqual(['Intake stabilized'])
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
     expect(loadSave(storage).postgameUnlocked).toBe(true)
+    expect(loadSave(storage).conservatoryCompositions).toHaveLength(1)
     expect(loadSave(storage).unlockedGraftMechanics).toEqual(['hybrid resonance planting'])
     expect(loadSave(storage).bonusContractIds).toEqual(['bonus-sol-myco'])
     expect(loadSave(storage).graftRatingBoosts).toEqual(['rating-sol-myco'])
@@ -71,6 +80,7 @@ describe('save system', () => {
     expect(loaded.graftDiscoveryIds).toEqual([])
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)
+    expect(loaded.conservatoryCompositions).toEqual([])
     expect(loaded.unlockedGraftMechanics).toEqual([])
     expect(loaded.bonusContractIds).toEqual([])
     expect(loaded.graftRatingBoosts).toEqual([])
