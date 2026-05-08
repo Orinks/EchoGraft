@@ -145,6 +145,47 @@ aside {
   color: #b7ff8a;
 }
 
+.high-contrast {
+  background: #000000;
+  color: #ffffff;
+}
+
+.high-contrast button {
+  background: #000000;
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+.high-contrast button:focus,
+.high-contrast input:focus {
+  outline-color: #ffff00;
+}
+
+.high-contrast .hud,
+.high-contrast .inventory,
+.high-contrast .log,
+.high-contrast aside,
+.high-contrast .radar {
+  background: #000000;
+  border-color: #ffffff;
+}
+
+.high-contrast .heart {
+  background: #ffff00;
+  box-shadow: 0 0 0 4px #ffffff;
+}
+
+.high-contrast .player {
+  background: #00a2ff;
+  border-color: #ffffff;
+}
+
+.high-contrast .seed,
+.high-contrast .success {
+  background: #00ff66;
+  color: #000000;
+}
+
 .minimal-visual .radar {
   display: none;
 }

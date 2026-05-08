@@ -49,6 +49,7 @@ const settingLabels = {
   scans: 'Scan pulse volume',
   reducedMotion: 'Reduced motion',
   minimalVisual: 'Minimal visual mode',
+  highContrast: 'High contrast',
 }
 
 function buildInventory() {
@@ -349,7 +350,7 @@ function atlasStatusText() {
 }
 
 function settingsStatusText() {
-  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}.`
+  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}; high contrast ${save.settings.highContrast ? 'on' : 'off'}.`
 }
 
 function graftingBenchText() {
@@ -606,7 +607,7 @@ async function beginFromSplash() {
 }
 
 function updateSetting(key, value) {
-  const parsed = key === 'reducedMotion' || key === 'minimalVisual' ? value : Number(value)
+  const parsed = ['reducedMotion', 'minimalVisual', 'highContrast'].includes(key) ? value : Number(value)
   save.settings[key] = parsed
   audio.setSettings(save.settings)
   persist()
@@ -744,7 +745,7 @@ app.addEventListener('input', (event) => {
 })
 
 function shell(content) {
-  const classes = [save.settings.reducedMotion ? 'reduced-motion' : '', save.settings.minimalVisual ? 'minimal-visual' : ''].join(' ')
+  const classes = [save.settings.reducedMotion ? 'reduced-motion' : '', save.settings.minimalVisual ? 'minimal-visual' : '', save.settings.highContrast ? 'high-contrast' : ''].join(' ')
   app.className = classes
   app.innerHTML = content
 }
@@ -1150,8 +1151,10 @@ function settings() {
           <legend>Display options</legend>
           <p>Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback.</p>
           <p>Minimal visual mode hides the abstract radar and keeps the chamber playable through text, controls, and audio feedback.</p>
+          <p>High contrast increases border, focus, radar, and feedback contrast for players who inspect the visual layer.</p>
           <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
           <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
+          <label><input data-setting="highContrast" type="checkbox" ${save.settings.highContrast ? 'checked' : ''} /> High contrast</label>
         </fieldset>
       </form>
       <nav aria-label="Settings actions">

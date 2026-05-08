@@ -49,6 +49,7 @@ export function createDefaultSave() {
       scans: 0.75,
       reducedMotion: false,
       minimalVisual: false,
+      highContrast: false,
     },
   }
 }
