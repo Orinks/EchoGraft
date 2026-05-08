@@ -375,6 +375,47 @@ test('supports a no-vision keyboard play path through first restoration', async 
   await expect(page.getByRole('button', { name: 'Choose next contract' })).toBeVisible()
 })
 
+test('keeps no-HUD info commands current across gated progression', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await expect(page.locator('.a-game--status')).toHaveCount(0)
+  await expect(page.locator('.a-game--inventory')).toHaveCount(0)
+
+  await page.keyboard.press('n')
+  await expect(eventLog.getByText(/Restore: Training Contract: First Breath is not ready/)).toBeVisible()
+  await page.keyboard.press('o')
+  await expect(eventLog.getByText(/Objective: .* Contract Available\. Plant 1 more seed/)).toBeVisible()
+  await page.keyboard.press('c')
+  await expect(eventLog.getByText(/Codex: no records recovered yet\. Perception updates: Codex recovery: 0 recovered/)).toBeVisible()
+  await page.keyboard.press('?')
+  await expect(eventLog.getByText(/Controls: .* restore or advance n; objective o, position p, inventory i, latest log l, recent log Shift\+L, boundaries x, planted voices v, codex c, controls \?/)).toBeVisible()
+
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+  await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
+  await page.keyboard.press('p')
+  await expect(eventLog.getByText(/Position: .* Progress: 1 of \d+ contracts restored; 1 of \d+ Ark systems online/)).toBeVisible()
+  await page.keyboard.press('c')
+  await expect(eventLog.getByText(/Codex: First Breath, Gardener Note 01, Crew Message 12, Plant Memory 01, Seed Ancestry 01, Story Payoff 01/)).toBeVisible()
+  await expect(eventLog.getByText(/Codex completion: 6 of 96 records recovered/)).toBeVisible()
+
+  await page.keyboard.press('n')
+  await expect(eventLog.getByText(/Ark clock advanced to cycle 1/)).toBeVisible()
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('heading', { name: 'Pause Functions' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Ending resolution' })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Conservatory' })).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Atlas' }).click()
+  await expect(page.getByText(/All menus accessible: 9 available menu surface\(s\).*2 gated postgame menu\(s\) disclose their lock state/)).toBeVisible()
+  await expect(page.getByText(/Heart network resonance locked/)).toBeVisible()
+  await expect(page.getByText(/First endings locked: finish the finale to play the first ending/)).toBeVisible()
+})
+
 test('supports concise scan verbosity', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({
