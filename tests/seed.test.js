@@ -317,6 +317,28 @@ describe('seed DNA', () => {
     expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'breathing' })
   })
 
+  it('gives Ember seeds a distortion heat archetype', () => {
+    const seed = createSeedDNA('ember-coal')
+
+    expect(seed).toMatchObject({
+      brightness: 0.82,
+      ecologicalAffinity: 'heat and thermal shutters',
+      family: 'Ember',
+      fmAmount: 0.48,
+      growthBehavior: 'steady',
+      noiseAmount: 0.5,
+      oscillatorType: 'fm',
+      phase: 30,
+      pitchRatio: 1.75,
+      pulseRate: 2.25,
+      waveform: 'sawtooth',
+    })
+    expect(seedBrightnessState(seed, 0.75)).toMatchObject({ brightness: 0.82, targetDelta: 0.07 })
+    expect(seedModulationProfileState(seed)).toMatchObject({ dominantLayer: 'noise', fmAmount: 0.48, noiseAmount: 0.5 })
+    expect(seedNoiseProfileState(seed)).toMatchObject({ noiseAmount: 0.5, texture: 'dense masking bed' })
+    expect(seedWaveformState(seed, ['sawtooth'])).toMatchObject({ matchesRequirement: true, waveform: 'sawtooth' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)

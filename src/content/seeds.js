@@ -105,6 +105,17 @@ const seedFamilyDefaults = {
     pulseRate: 1.75,
     waveform: 'sine',
   },
+  ember: {
+    brightness: 0.82,
+    fmAmount: 0.48,
+    growthBehavior: 'steady',
+    noiseAmount: 0.5,
+    oscillatorType: 'fm',
+    phase: 30,
+    pitchRatio: 1.75,
+    pulseRate: 2.25,
+    waveform: 'sawtooth',
+  },
   umbra: {
     brightness: 0.25,
     growthBehavior: 'twining',

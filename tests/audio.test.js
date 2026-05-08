@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { createSeedDNA } from '../src/content/seeds.js'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
 import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
@@ -57,6 +58,18 @@ describe('audio movement cues', () => {
     })
     expect(mutation.distortionDrive).toBeGreaterThan(brightPulse.distortionDrive)
     expect(mutation.text).toContain('distortion distort, pulse pulse, brightness equalFadeOut, mutation crush8')
+  })
+
+  it('maps Ember seed DNA to a distorted thermal Syngen shape', () => {
+    const ember = createSeedDNA('ember-coal')
+    const profile = seedShapeTimbreProfile(ember, { mode: ember.oscillatorType })
+
+    expect(profile).toMatchObject({
+      brightnessCurve: 'equalFadeIn',
+      distortionCurve: 'distort',
+      mutationCurve: 'crush8',
+    })
+    expect(profile.distortionDrive).toBeGreaterThan(1)
   })
 
   it('chooses generated Syngen buffer noise beds without external files', () => {
