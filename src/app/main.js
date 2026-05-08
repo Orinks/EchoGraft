@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1061,6 +1061,7 @@ function atlas() {
   const openingMix = seasonOneOpeningContractMix(chambers)
   const rootworksSeason = seasonTwoRootworksState(chambers)
   const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
+  const endToEnd = endToEndProgressionState(chambers, save)
   const stewardship = stewardshipSummary(chambers, save)
   const firstRatingImprovement = firstChamberRatingImprovementState(chambers, save)
   const persistentChanges = persistentChamberChangesState(chambers, save)
@@ -1146,6 +1147,12 @@ function atlas() {
         <ol>
           ${atlasV1.checklist.map((item) => `<li>${item.text}</li>`).join('')}
         </ol>
+      </section>
+      <section aria-labelledby="progression-title">
+        <h2 id="progression-title">End-to-End Progression</h2>
+        <p>${endToEnd.text}</p>
+        <p>Current live next contract: ${endToEnd.nextLive?.title ?? 'all authored contracts complete'}.</p>
+        <ol>${endToEnd.mainPath.map((item) => `<li>${item.title}: Season ${item.season}, ${item.contractType}, ${item.system}.</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>

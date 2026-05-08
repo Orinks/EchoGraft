@@ -566,6 +566,49 @@ export function availableChambers(chambers, solvedIds) {
   })
 }
 
+export function endToEndProgressionState(chambers, save = {}) {
+  const mainPath = []
+  const solved = new Set()
+  let guard = 0
+
+  while (guard < chambers.length) {
+    guard += 1
+    const next = availableChambers(chambers, Array.from(solved))
+      .find((chamber) => !solved.has(chamber.id) && !chamber.optional)
+    if (!next) break
+    mainPath.push(next)
+    solved.add(next.id)
+  }
+
+  const blockedMain = chambers.filter((chamber) => !chamber.optional && !solved.has(chamber.id))
+  const authoredSolved = new Set(save.solvedChambers ?? [])
+  const nextLive = availableChambers(chambers, save.solvedChambers ?? [])
+    .find((chamber) => !authoredSolved.has(chamber.id))
+  const finale = chambers.find((chamber) => chamber.contractType === 'finale')
+  const heartAtria = chambers.find((chamber) => chamber.id === 'heart-atria')
+  const postgame = chambers.find((chamber) => chamber.contractType === 'conservatory')
+  const finaleReachable = Boolean(finale && mainPath.some((chamber) => chamber.id === finale.id))
+  const heartReachable = Boolean(heartAtria && mainPath.some((chamber) => chamber.id === heartAtria.id))
+  const postgameReachable = Boolean(postgame && (postgame.requires ?? []).every((id) => solved.has(id) || id === finale?.id))
+  const ready = blockedMain.length === 0 && finaleReachable && heartReachable && postgameReachable
+
+  return {
+    blockedMain,
+    finale,
+    finaleReachable,
+    heartAtria,
+    heartReachable,
+    mainPath,
+    nextLive,
+    postgame,
+    postgameReachable,
+    ready,
+    text: ready
+      ? `End-to-end progression ready: ${mainPath.length} main-path contract(s) connect ${mainPath[0].title} through ${heartAtria.title}; finale ${finale.title} and postgame ${postgame.title} are reachable.`
+      : `End-to-end progression incomplete: ${blockedMain.map((chamber) => chamber.title).join(', ') || 'finale or postgame handoff'} blocked.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
