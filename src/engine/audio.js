@@ -727,7 +727,9 @@ export class MemoryVoice {
         fmAmount: 0.12,
         memoryVoice: true,
         oscillatorType: 'am',
+        optionalMemoryWhisperFormant: true,
         pulseRate: this.profile.pulseRate,
+        role: 'optional-memory-whisper-formant',
         waveform: 'triangle',
       },
       tone: {
@@ -735,6 +737,7 @@ export class MemoryVoice {
         effectChain: ['talkbox', 'multitapDelay'],
         formantMix: this.profile.formantMix,
         formantPair: this.profile.formantPair,
+        formantWhisper: true,
         frequency: ratioToFrequency(this.profile.pitchRatio, 44),
         mode: 'am',
         pulseRate: this.profile.pulseRate,

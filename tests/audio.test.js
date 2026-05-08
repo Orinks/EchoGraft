@@ -221,9 +221,10 @@ describe('audio movement cues', () => {
     expect(payload).toMatchObject({
       category: 'ambience',
       position: { x: 1, y: 2 },
-      seed: { memoryVoice: true, oscillatorType: 'am' },
+      seed: { memoryVoice: true, optionalMemoryWhisperFormant: true, oscillatorType: 'am', role: 'optional-memory-whisper-formant' },
       tone: {
         effectChain: ['talkbox', 'multitapDelay'],
+        formantWhisper: true,
         formantPair: ['createI', 'createE'],
         mode: 'am',
         type: 'triangle',
