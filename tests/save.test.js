@@ -29,6 +29,7 @@ describe('save system', () => {
       voiceCount: 1,
       voices: ['Sol'],
     })
+    save.lowCycleChallengeIds.push('tutorial')
     save.unlockedGraftMechanics.push('hybrid resonance planting')
     save.bonusContractIds.push('bonus-sol-myco')
     save.graftRatingBoosts.push('rating-sol-myco')
@@ -51,6 +52,7 @@ describe('save system', () => {
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
     expect(loadSave(storage).postgameUnlocked).toBe(true)
     expect(loadSave(storage).conservatoryCompositions).toHaveLength(1)
+    expect(loadSave(storage).lowCycleChallengeIds).toEqual(['tutorial'])
     expect(loadSave(storage).unlockedGraftMechanics).toEqual(['hybrid resonance planting'])
     expect(loadSave(storage).bonusContractIds).toEqual(['bonus-sol-myco'])
     expect(loadSave(storage).graftRatingBoosts).toEqual(['rating-sol-myco'])
@@ -81,6 +83,7 @@ describe('save system', () => {
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.conservatoryCompositions).toEqual([])
+    expect(loaded.lowCycleChallengeIds).toEqual([])
     expect(loaded.unlockedGraftMechanics).toEqual([])
     expect(loaded.bonusContractIds).toEqual([])
     expect(loaded.graftRatingBoosts).toEqual([])

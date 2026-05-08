@@ -319,6 +319,49 @@ export function resourceEfficiencySummary(chamber, save = {}) {
   }
 }
 
+export function lowCycleRestorationChallenge(chamber, save = {}) {
+  const targetCycles = chamber.lowCycleChallenge?.targetCycles ?? (chamber.contractType === 'challenge' ? 2 : chamber.optional ? 3 : 4)
+  const currentCycle = Math.max(0, save.arkClock ?? 0)
+  const solved = save.solvedChambers?.includes(chamber.id) ?? false
+  const achievedIds = save.lowCycleChallengeIds ?? []
+  const achieved = achievedIds.includes(chamber.id)
+  const eligible = !solved && currentCycle <= targetCycles
+  const remainingCycles = Math.max(0, targetCycles - currentCycle)
+
+  if (achieved) {
+    return {
+      achieved,
+      currentCycle,
+      eligible: false,
+      remainingCycles: 0,
+      targetCycles,
+      text: `Low-cycle challenge achieved: ${chamber.title} was restored within ${targetCycles} Ark cycle(s).`,
+    }
+  }
+
+  if (eligible) {
+    return {
+      achieved,
+      currentCycle,
+      eligible,
+      remainingCycles,
+      targetCycles,
+      text: `Low-cycle challenge active: restore ${chamber.title} by Ark cycle ${targetCycles}; ${remainingCycles} cycle(s) remain.`,
+    }
+  }
+
+  return {
+    achieved,
+    currentCycle,
+    eligible: false,
+    remainingCycles,
+    targetCycles,
+    text: solved
+      ? `Low-cycle challenge closed: ${chamber.title} was restored without a low-cycle record.`
+      : `Low-cycle challenge missed: Ark cycle ${currentCycle} is beyond the ${targetCycles}-cycle target for ${chamber.title}.`,
+  }
+}
+
 export function optionalRecordRecoverySummary(chamber, save = {}) {
   const recordIds = chamber.rewards?.codex ?? []
   const recovered = recordIds.filter((id) => save.codexIds?.includes(id))

@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
@@ -583,9 +583,13 @@ function evaluate() {
   }
   const firstSolve = !save.solvedChambers.includes(chamber.id)
   const rating = save.wildChamberIds?.includes(chamber.id) ? 'Wild' : restorationRating(lastResult)
+  const lowCycleChallenge = lowCycleRestorationChallenge(chamber, save)
   if (firstSolve) save.solvedChambers.push(chamber.id)
   if (firstSolve && !save.restoredSystems.includes(chamber.system)) save.restoredSystems.push(chamber.system)
   if (firstSolve) audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems, solved: true })
+  if (firstSolve && lowCycleChallenge.eligible) {
+    save.lowCycleChallengeIds = Array.from(new Set([...(save.lowCycleChallengeIds ?? []), chamber.id]))
+  }
   const environmentalChange = `${chamber.system}: ${chamber.title} stabilized with ${rating} resonance`
   if (firstSolve && !save.environmentalChanges.includes(environmentalChange)) save.environmentalChanges.push(environmentalChange)
   const gatheredSeedNames = (chamber.rewards?.seeds ?? []).filter((id) => !save.inventoryIds.includes(id)).map((id) => chamberSeeds[id]?.name ?? id)
@@ -601,6 +605,7 @@ function evaluate() {
     log(lastResult.graftStability.text, 'success')
     log(lastResult.hazardContainment.text, 'success')
     log(resourceEfficiencySummary(chamber, save).text, 'success')
+    log(lowCycleRestorationChallenge(chamber, save).text, 'success')
     log(optionalRecordRecoverySummary(chamber, save).text, 'success')
   }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
@@ -1013,6 +1018,7 @@ function atlas() {
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
   const activeWeatherWindow = weatherWindowState(chamber, save.arkClock)
+  const lowCycleChallenge = lowCycleRestorationChallenge(chamber, save)
   shell(`
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
@@ -1025,6 +1031,7 @@ function atlas() {
       <p>Systems online: ${save.restoredSystems.join(', ') || 'none yet'}.</p>
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
       <p>Ark clock: cycle ${save.arkClock}.</p>
+      <p>${lowCycleChallenge.text}</p>
       ${activeCycle ? `<p>Active chamber cycle: ${activeCycle.text}</p>` : ''}
       ${activeWeatherWindow ? `<p>Active weather window: ${activeWeatherWindow.text}</p>` : ''}
       <p>Full campaign target: ${campaign.min} to ${campaign.max} hours across ${campaign.seasons} seasons, ${campaign.requiredContracts} required contracts, and ${campaign.optionalContracts} optional contracts.</p>
@@ -1142,6 +1149,7 @@ function atlas() {
             ${finaleContractSummary(item) ? `<p>${finaleContractSummary(item).text}</p>` : ''}
             <p>${knownHazardsSummary(item).text}</p>
             <p>${rewardSummary(item).text}</p>
+            <p>${lowCycleRestorationChallenge(item, save).text}</p>
             <p>${item.objective}</p>
             <button data-action="contract" data-contract="${item.id}"${disabled}>Accept work order</button>
           </li>`
