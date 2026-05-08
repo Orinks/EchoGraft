@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G286-teach-one-new-axis-at-a-time`. Added contract teaching-axis summaries that mark one new mechanic axis for ordinary contracts and no new axis for finale combinations, then surfaced the teaching line in the Restoration Atlas contract list.
 - Continued with `omx ultragoal complete-goals` for `G285-conservatory-keep-the-ark-as-a-livin`. Added a Conservatory Path state that reports sealed, cataloguing, open, or living-archive status from codex recovery, memory archive readiness, saved compositions, postgame state, and conservatory resolution selection, then surfaced it in the Atlas, Conservatory, and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G284-release-disperse-seed-libraries-inst`. Added a Release Path state that reports sealed, catalogued, armed, or dispersed status from seed-library evidence, Heart Root readiness, release selection, and crew-wake deferral, then surfaced it in the Launch Garden and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G283-adaptation-evolve-the-ark-for-a-new`. Added an Adaptation Path state that reports dormant, experimental, evolving, or new-world status from graft mechanics, custom or mutation lineages, Heart graft readiness, careful restorations, and philosophy alignment, then surfaced it in the Atlas and ending screen.

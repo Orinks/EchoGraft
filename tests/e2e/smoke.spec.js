@@ -187,6 +187,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByLabel('Caption and event log').getByText(/Ark clock advanced to cycle 1/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Accept work order' }).nth(1)).toBeEnabled()
   await expect(page.getByRole('button', { name: 'Accept work order' }).nth(2)).toBeDisabled()
+  await expect(page.getByText(/Teaching axis: chamber heart scan; introduces one new axis/)).toBeVisible()
   await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Research grafts' }).click()

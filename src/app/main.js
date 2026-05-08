@@ -1,7 +1,7 @@
 import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
-import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -1186,6 +1186,7 @@ function atlas() {
             ${emergencyContractSummary(item) ? `<p>${emergencyContractSummary(item).text}</p>` : ''}
             ${conservatoryContractSummary(item) ? `<p>${conservatoryContractSummary(item).text}</p>` : ''}
             ${finaleContractSummary(item) ? `<p>${finaleContractSummary(item).text}</p>` : ''}
+            <p>${teachingAxisSummary(item).text}</p>
             <p>${knownHazardsSummary(item).text}</p>
             <p>${rewardSummary(item).text}</p>
             <p>${lowCycleRestorationChallenge(item, save).text}</p>

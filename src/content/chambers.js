@@ -52,6 +52,21 @@ export function rewardSummary(chamber) {
   }
 }
 
+export function teachingAxisSummary(chamber) {
+  const axis = chamber.teachingAxis ?? chamber.training?.focus ?? chamber.mechanic
+  const combinesMasteredAxes = chamber.contractType === 'finale' || /combination|finale/.test(chamber.mechanic ?? '')
+  const newAxisCount = combinesMasteredAxes ? 0 : 1
+
+  return {
+    axis,
+    combinesMasteredAxes,
+    newAxisCount,
+    text: combinesMasteredAxes
+      ? `Teaching axis: combines mastered axes through ${axis}; no new axis introduced.`
+      : `Teaching axis: ${axis}; introduces one new axis before combination.`,
+  }
+}
+
 export function chamberCycleState(chamber, arkClock = 0) {
   if (!chamber.cycle?.states?.length) return undefined
 

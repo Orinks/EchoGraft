@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
+import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -1073,6 +1073,17 @@ describe('resonance evaluation', () => {
     expect(training.training.text).toContain('Teaches one safe mechanic')
     expect(training.hazards ?? []).toHaveLength(0)
     expect(training.solveTimeMinutes.max).toBeLessThanOrEqual(6)
+  })
+
+  it('teaches one new axis at a time before finale combinations', () => {
+    const earlyContracts = ['tutorial', 'direction', 'binaural', 'pitch', 'rhythm', 'timbre']
+      .map((id) => chambers.find((chamber) => chamber.id === id))
+    const finale = chambers.find((chamber) => chamber.id === 'finale')
+
+    expect(earlyContracts.every((contract) => teachingAxisSummary(contract).newAxisCount === 1)).toBe(true)
+    expect(teachingAxisSummary(chambers.find((chamber) => chamber.id === 'tutorial')).axis).toBe('chamber heart scan')
+    expect(teachingAxisSummary(finale)).toMatchObject({ combinesMasteredAxes: true, newAxisCount: 0 })
+    expect(teachingAxisSummary(earlyContracts[1]).text).toContain('introduces one new axis')
   })
 
   it('authors Navigation Grove as a direction and distance contract', () => {
