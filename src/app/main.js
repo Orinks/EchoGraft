@@ -1142,7 +1142,8 @@ function settings() {
       <p>${settingsStatusText()}</p>
       <form aria-label="Settings controls">
         <fieldset>
-          <legend>Audio volumes</legend>
+          <legend>Independent volume controls</legend>
+          <p>Adjust master, ambience, music, UI, seed voice, hazard voice, and scan pulse levels independently.</p>
           ${sliders}
         </fieldset>
         <fieldset>
