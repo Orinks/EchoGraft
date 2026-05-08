@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState, workingRestorationCampaignState } from '../content/resonance.js'
+import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasOpeningFreedomState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState, workingRestorationCampaignState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanModeLabels, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
@@ -1057,6 +1057,7 @@ function atlas() {
   const openingMix = seasonOneOpeningContractMix(chambers)
   const rootworksSeason = seasonTwoRootworksState(chambers)
   const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
+  const openingFreedom = restorationAtlasOpeningFreedomState(chambers, save, save.arkClock)
   const endToEnd = endToEndProgressionState(chambers, save)
   const menuAccessibility = allMenusAccessibleState(save)
   const saveLoad = saveLoadCompletenessState(save)
@@ -1158,6 +1159,15 @@ function atlas() {
       <section aria-labelledby="opening-contract-mix-title">
         <h2 id="opening-contract-mix-title">Season 1 Opening Contract Mix</h2>
         <p>${openingMix.text}</p>
+      </section>
+      <section aria-labelledby="opening-freedom-title">
+        <h2 id="opening-freedom-title">Opening Atlas Freedom</h2>
+        <p>${openingFreedom.text}</p>
+        <ol>
+          ${openingFreedom.readyRequired.map((item) => `<li>Ready required: ${item.title}.</li>`).join('')}
+          ${openingFreedom.queued.map((item) => `<li>Queued dependency preview: ${item.title}.</li>`).join('')}
+          ${openingFreedom.seasonOneOptional.map((item) => `<li>Optional branch preview: ${item.title}.</li>`).join('')}
+        </ol>
       </section>
       <section aria-labelledby="season-one-structure-title">
         <h2 id="season-one-structure-title">Season 1 Contract Structure</h2>

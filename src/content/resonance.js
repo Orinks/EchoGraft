@@ -832,6 +832,34 @@ export function restorationAtlasV1State(chambers, save = {}, arkClock = 0) {
   }
 }
 
+export function restorationAtlasOpeningFreedomState(chambers, save = {}, arkClock = 0) {
+  const solvedIds = save.solvedChambers ?? []
+  const solved = new Set(solvedIds)
+  const available = availableChambers(chambers, solvedIds).filter((chamber) => !solved.has(chamber.id))
+  const readyRequired = available.filter((chamber) => !chamber.optional)
+  const readyOptional = available.filter((chamber) => chamber.optional)
+  const plan = restorationPlanningSession(chambers, solvedIds, { min: 20, max: 40 }, arkClock)
+  const queued = plan.contracts.filter((chamber) => !available.some((item) => item.id === chamber.id))
+  const seasonOneOptional = chambers.filter((chamber) => chamber.season === 1 && chamber.optional)
+  const startOfCampaign = solved.size === 0
+  const guided = startOfCampaign && readyRequired.length === 1 && readyOptional.length === 0 && plan.contracts.length >= 4
+  const policy = guided ? 'guided-freedom' : readyRequired.length > 1 || readyOptional.length ? 'branching-freedom' : 'linear-recovery'
+
+  return {
+    available,
+    guided,
+    policy,
+    queued,
+    readyOptional,
+    readyRequired,
+    seasonOneOptional,
+    startOfCampaign,
+    text: guided
+      ? `Opening atlas freedom: guided-freedom. Start with one ready required work order, show the next ${queued.length} queued dependency step(s), preview ${seasonOneOptional.length} optional Season 1 branch(es), and unlock broader choice after restored systems come online.`
+      : `Opening atlas freedom: ${policy}. ${readyRequired.length} ready required work order(s), ${readyOptional.length} ready optional branch(es), ${queued.length} queued dependency step(s), and ${seasonOneOptional.length} Season 1 optional branch preview(s).`,
+  }
+}
+
 export function resourceDeadEndState(chambers, save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const available = availableChambers(chambers, save.solvedChambers ?? [])
