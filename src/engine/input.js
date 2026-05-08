@@ -51,11 +51,13 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (gamepadDown(gamepad, 0, 3)) return { action: 'plant', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Tab') && keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight')) return { action: 'previousSeed', source: 'keyboard' }
   if (keyboardDown(keyboard, 'Tab')) return { action: 'cycleSeed', source: 'keyboard' }
-  if (gamepadDown(gamepad, 2, 5)) return { action: 'cycleSeed', source: 'gamepad' }
+  if (gamepadDown(gamepad, 2)) return { action: 'cycleSeed', source: 'gamepad' }
   if (keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight') && keyboardDigitIndex(keyboard) >= 0) return { action: 'selectTuningParameter', index: keyboardDigitIndex(keyboard), source: 'keyboard' }
   if (keyboardDigitIndex(keyboard, 4) >= 0) return { action: 'selectSeed', index: keyboardDigitIndex(keyboard, 4), source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketLeft', 'Minus')) return { action: 'tuneDown', source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketRight', 'Equal')) return { action: 'tuneUp', source: 'keyboard' }
+  if (gamepadDown(gamepad, 4)) return { action: 'tuneDown', source: 'gamepad' }
+  if (gamepadDown(gamepad, 5)) return { action: 'tuneUp', source: 'gamepad' }
   if (keyboardDown(keyboard, 'KeyG')) return { action: 'graft', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyN')) return { action: 'restoreAdvance', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyO')) return { action: 'objectiveInfo', source: 'keyboard' }
@@ -67,7 +69,6 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (keyboardDown(keyboard, 'KeyV')) return { action: 'plantedVoices', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyC')) return { action: 'codexInfo', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyZ')) return { action: 'cycleScanMode', source: 'keyboard' }
-  if (gamepadDown(gamepad, 4)) return { action: 'cycleScanMode', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Escape')) return { action: 'pause', source: 'keyboard' }
   if (gamepadDown(gamepad, 9)) return { action: 'pause', source: 'gamepad' }
   return undefined
