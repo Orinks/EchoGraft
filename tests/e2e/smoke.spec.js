@@ -282,6 +282,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('navigation', { name: 'Grafting screen actions' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Grafting Parent Pair' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Graft Catalog' })).toBeVisible()
+  await expect(page.getByText(/Graft genetics complexity: capped\. Keep 24 seed families, 10 tunable DNA axes, and 5 visible inheritance rule group\(s\)/)).toBeVisible()
+  await expect(page.getByText(/Discovery payoff: catalog record, unlocked mechanic, and optional rating lead/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Library Seed Selection' })).toBeVisible()
   await expect(page.getByText(/Parent A: Sol phonoseed, controls root pitch 1 and waveform sine\. Parent B: Lumen phonoseed/)).toBeVisible()
   await expect(page.getByText(/Full seed\/graft catalog ready: 24 seed family record\(s\), 276 of 276 possible two-family graft discovery record\(s\), 276 fully described discovery entry\(s\)/)).toBeVisible()

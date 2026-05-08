@@ -179,6 +179,35 @@ export function fullSeedGraftCatalogState(families = seedFamilies, catalog = gra
   }
 }
 
+export function graftGeneticsApproachabilityState(families = seedFamilies, catalog = graftDiscoveryCatalog, parameters = tuningParameters) {
+  const visibleRuleGroups = [
+    'Parent A: root pitch, waveform, and envelope',
+    'Parent B: synth type, modulation, noise, and growth behavior',
+    'Averaged traits: brightness, pulse, and phase',
+    'Material modifiers: resin, mycelium, glass pollen, and archive loam',
+    'Discovery payoff: catalog record, unlocked mechanic, and optional rating lead',
+  ]
+  const familyBandReady = families.length >= 24 && families.length <= 36
+  const parameterCapReady = parameters.length <= 10
+  const ruleCapReady = visibleRuleGroups.length <= 5
+  const catalogIsPayoff = catalog.length >= 80
+  const approachability = familyBandReady && parameterCapReady && ruleCapReady && catalogIsPayoff ? 'capped' : 'too-complex'
+
+  return {
+    approachability,
+    catalogIsPayoff,
+    familyBandReady,
+    familyCount: families.length,
+    parameterCapReady,
+    parameterCount: parameters.length,
+    ruleCapReady,
+    visibleRuleGroups,
+    text: approachability === 'capped'
+      ? `Graft genetics complexity: capped. Keep ${families.length} seed families, ${parameters.length} tunable DNA axes, and ${visibleRuleGroups.length} visible inheritance rule group(s); treat ${catalog.length} catalog pairings as discovery payoffs rather than mandatory planning math.`
+      : `Graft genetics complexity: too-complex. Families ${families.length}, tunable DNA axes ${parameters.length}, visible rule groups ${visibleRuleGroups.length}, catalog pairings ${catalog.length}; reduce active rules before asking players to plan grafts.`,
+  }
+}
+
 export function graftDiscoveryForFamilies(seedA, seedB) {
   const families = [seedA.family, seedB.family].filter(Boolean).sort()
   return graftDiscoveryCatalog.find((discovery) => [...discovery.families].sort().join('|') === families.join('|'))

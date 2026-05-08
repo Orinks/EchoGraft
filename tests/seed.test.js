@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftGeneticsApproachabilityState, graftSeeds, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -746,5 +746,17 @@ describe('seed DNA', () => {
     expect(state.catalog).toHaveLength(276)
     expect(state.completeEntries).toHaveLength(276)
     expect(state.text).toContain('Full seed/graft catalog ready')
+  })
+
+  it('caps graft genetics complexity before it harms approachability', () => {
+    const state = graftGeneticsApproachabilityState()
+
+    expect(state.approachability).toBe('capped')
+    expect(state.familyCount).toBe(24)
+    expect(state.parameterCount).toBe(10)
+    expect(state.visibleRuleGroups).toHaveLength(5)
+    expect(state.catalogIsPayoff).toBe(true)
+    expect(state.text).toContain('Graft genetics complexity: capped')
+    expect(state.text).toContain('discovery payoffs rather than mandatory planning math')
   })
 })

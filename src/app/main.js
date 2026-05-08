@@ -11,7 +11,7 @@ import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, cano
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanModeLabels, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftGeneticsApproachabilityState, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -1460,6 +1460,7 @@ function library() {
 function graftingScreen() {
   audio.setMusicScene('menu')
   const fullCatalog = fullSeedGraftCatalogState()
+  const graftComplexity = graftGeneticsApproachabilityState()
   const menuState = seedLibraryMenuState(inventory, save, selectedSeedIndex)
   shell(`
     <main class="screen" aria-labelledby="grafting-screen-title">
@@ -1474,6 +1475,8 @@ function graftingScreen() {
       ${graftingBenchV1Html()}
       <section aria-labelledby="grafting-catalog-title">
         <h2 id="grafting-catalog-title">Graft Catalog</h2>
+        <p>${graftComplexity.text}</p>
+        <ol>${graftComplexity.visibleRuleGroups.map((rule) => `<li>${rule}.</li>`).join('')}</ol>
         <p>${fullCatalog.text}</p>
         <p>Unlocked mechanics: ${save.unlockedGraftMechanics.length ? save.unlockedGraftMechanics.join(', ') : 'none yet'}.</p>
         <p>Known families: ${seedFamilies.map((family) => `${family.name}: ${family.affinity}`).join('; ')}.</p>
