@@ -609,6 +609,34 @@ export function endToEndProgressionState(chambers, save = {}) {
   }
 }
 
+export function allMenusAccessibleState(save = {}) {
+  const postgameOpen = Boolean(save.postgameUnlocked)
+  const menus = [
+    { id: 'main', title: 'Main menu', route: 'splash or Escape pause return', landmark: 'nav aria-label="Main menu"', feedback: 'current-save status' },
+    { id: 'pause', title: 'Pause functions menu', route: 'Escape', landmark: 'nav aria-label="Pause functions menu"', feedback: 'current-save status' },
+    { id: 'atlas', title: 'Restoration Atlas', route: 'main, pause, or post-restore', landmark: 'nav aria-label="Restoration atlas actions"', feedback: 'caption log plus atlas status' },
+    { id: 'library', title: 'Seed Library', route: 'main, pause, atlas, or research grafts', landmark: 'nav aria-label="Seed library actions"', feedback: 'caption log plus selected seed status' },
+    { id: 'grafting', title: 'Grafting Bench', route: 'Seed Library', landmark: 'section aria-labelledby="grafting-bench-title"', feedback: 'captioned graft action and unlocked mechanics' },
+    { id: 'materials', title: 'Materials Ledger', route: 'Restoration Atlas or Seed Library', landmark: 'section aria-labelledby materials title', feedback: 'material counts and crafting status' },
+    { id: 'codex', title: 'Codex perceptions', route: 'main, pause, atlas, or seed library', landmark: 'nav aria-label="Codex perception actions"', feedback: 'caption log plus recovery status' },
+    { id: 'settings', title: 'Settings', route: 'main or pause', landmark: 'form aria-label="Settings controls"', feedback: 'captioned setting updates' },
+    { id: 'manual', title: 'Manual/help', route: 'H key or main menu Help', landmark: 'main aria-labelledby="help-title"', feedback: 'controls and no-reflex campaign guidance' },
+    { id: 'conservatory', title: 'Conservatory', route: postgameOpen ? 'postgame menu and ending return' : 'locked until postgame', landmark: 'main aria-labelledby="conservatory-title"', feedback: 'composition status and caption log', gated: !postgameOpen },
+    { id: 'ending', title: 'Ending resolution', route: postgameOpen ? 'postgame menu' : 'locked until finale', landmark: 'main aria-labelledby="ending-title"', feedback: 'resolution summary', gated: !postgameOpen },
+  ]
+  const readyMenus = menus.filter((menu) => !menu.gated)
+  const ready = readyMenus.every((menu) => menu.title && menu.route && menu.landmark && menu.feedback)
+
+  return {
+    menus,
+    ready,
+    readyMenus,
+    text: ready
+      ? `All menus accessible: ${readyMenus.length} available menu surface(s) have headings, semantic landmarks, keyboard or button routes, and text/log feedback; ${menus.length - readyMenus.length} gated postgame menu(s) disclose their lock state.`
+      : `Menu accessibility incomplete: ${readyMenus.filter((menu) => !menu.title || !menu.route || !menu.landmark || !menu.feedback).map((menu) => menu.id).join(', ')} need accessible structure.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
