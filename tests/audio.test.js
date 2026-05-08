@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -98,6 +98,34 @@ describe('audio movement cues', () => {
     expect(played).toHaveLength(2)
     expect(played[1]).toMatchObject({ id: 'sol', persistent: true })
     expect([...audio.seedLoops.values()][0].nextBeat).toBeCloseTo(12.3)
+  })
+
+  it('models a planted seed as a named persistent SeedVoice', () => {
+    const audio = new AudioEngine()
+    const played = []
+    const seed = {
+      brightness: 0.45,
+      id: 'lumen',
+      name: 'Lumen',
+      pitchRatio: 1.25,
+      position: { x: 2, y: -1 },
+      pulseRate: 1.1,
+      waveform: 'triangle',
+    }
+    const voice = new SeedVoice({ chamberId: 'binaural', index: 2, seed, startedAt: 20 })
+
+    audio.seed = (payload) => played.push(payload)
+
+    expect(voice.key).toBe('binaural:lumen:2:-1:2')
+    expect(voice.interval).toBe(2)
+    expect(voice.nextBeat).toBe(22)
+    expect(voice.text).toContain('SeedVoice: Lumen persists at 2, -1')
+
+    expect(voice.tick(audio, 21.9)).toBe(false)
+    expect(played).toHaveLength(0)
+    expect(voice.tick(audio, 22)).toBe(true)
+    expect(played[0]).toMatchObject({ id: 'lumen', persistent: true, seedVoice: true })
+    expect(voice.nextBeat).toBe(24)
   })
 
   it('spatializes every footstep at the current player position', () => {

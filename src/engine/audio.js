@@ -410,6 +410,42 @@ export function memoryRecordVoiceProfile(record = {}) {
   }
 }
 
+export class SeedVoice {
+  constructor({ chamberId = 'unknown', index = 0, seed = {}, startedAt = 0 } = {}) {
+    this.chamberId = chamberId
+    this.index = index
+    this.interval = SeedVoice.intervalFor(seed)
+    this.key = SeedVoice.key(chamberId, seed, index)
+    this.nextBeat = startedAt + this.interval
+    this.seed = structuredClone({
+      ...seed,
+      persistent: true,
+      seedVoice: true,
+    })
+    this.text = `SeedVoice: ${this.seed.name ?? this.seed.id ?? 'planted seed'} persists at ${this.seed.position?.x ?? 0}, ${this.seed.position?.y ?? 0}; pulse interval ${this.interval.toFixed(2)} second(s).`
+  }
+
+  static intervalFor(seed = {}) {
+    return Math.max(0.9, 2.2 / Math.max(seed.pulseRate ?? 1, 0.25))
+  }
+
+  static key(chamberId, seed = {}, index = 0) {
+    const position = seed.position ?? { x: 0, y: 0 }
+    return `${chamberId}:${seed.id}:${position.x}:${position.y}:${index}`
+  }
+
+  play(engine) {
+    engine.seed(structuredClone(this.seed))
+  }
+
+  tick(engine, now = engine.audioTime()) {
+    if (now < this.nextBeat) return false
+    this.play(engine)
+    this.nextBeat = now + this.interval
+    return true
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -536,21 +572,17 @@ export class AudioEngine {
   }
 
   syncSeedObjects(chamberId, plantedSeeds = []) {
-    const active = new Set(plantedSeeds.map((seed, index) => `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`))
+    const active = new Set(plantedSeeds.map((seed, index) => SeedVoice.key(chamberId, seed, index)))
     for (const [key, loop] of this.seedLoops.entries()) {
       if (active.has(key)) continue
       this.seedLoops.delete(key)
     }
     plantedSeeds.forEach((seed, index) => {
-      const key = `${chamberId}:${seed.id}:${seed.position.x}:${seed.position.y}:${index}`
+      const key = SeedVoice.key(chamberId, seed, index)
       if (this.seedLoops.has(key)) return
-      const interval = Math.max(0.9, 2.2 / Math.max(seed.pulseRate ?? 1, 0.25))
-      this.seed({ ...seed, persistent: true })
-      this.seedLoops.set(key, {
-        interval,
-        nextBeat: this.audioTime() + interval,
-        seed,
-      })
+      const voice = new SeedVoice({ chamberId, index, seed, startedAt: this.audioTime() })
+      voice.play(this)
+      this.seedLoops.set(key, voice)
     })
     this.startFrameLoop()
   }
@@ -743,9 +775,7 @@ export class AudioEngine {
     if (!this.enabled || !this.seedLoops.size) return
     const now = this.audioTime()
     for (const loop of this.seedLoops.values()) {
-      if (now < loop.nextBeat) continue
-      this.seed({ ...loop.seed, persistent: true })
-      loop.nextBeat = now + loop.interval
+      loop.tick(this, now)
     }
   }
 
