@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -94,6 +94,32 @@ describe('scan pulse', () => {
     expect(boundary.text).toContain('Boundary scan: chamber edges west -5, east 5, south -7, north 3')
     expect(boundary.text).toContain('Exits: east door 5, -2')
     expect(boundary.text).toContain('Safe return point 0, -2')
+  })
+
+  it('summarizes boundary and objective scan v1 readiness', () => {
+    const state = boundaryObjectiveScanV1State(
+      { x: 0, y: -2 },
+      {
+        objective: 'Restore the intake heart.',
+        start: { x: 0, y: -2 },
+        target: { x: 0, y: 1 },
+        exits: [{ id: 'east-door', name: 'east door', position: { x: 5, y: -2 } }],
+      },
+      { restoredSystems: ['Intake'] },
+    )
+
+    expect(state.ready).toBe(true)
+    expect(state.objective.distance).toBe(3)
+    expect(state.range.range).toBe(12)
+    expect(state.sections.map((section) => section.id)).toEqual([
+      'heart-bearing',
+      'scan-range',
+      'chamber-boundaries',
+      'exits-and-return',
+      'navigation-context',
+      'captioned-actions',
+    ])
+    expect(state.text).toContain('Boundary/objective scan v1 ready')
   })
 
   it('summarizes planted seed positions and traits', () => {

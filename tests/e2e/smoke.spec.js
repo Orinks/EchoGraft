@@ -121,6 +121,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('ArrowUp')
   await expect(eventLog.getByText(/Movement audio: spatial footstep, wall .* current .* landmark heart/)).toBeVisible()
   await expect(eventLog.getByText(/No-sight movement cues: spatial footstep, directional placement, wall distance, exit presence, current status, heart landmark, surface timbre/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Boundary/Objective Scan V1' })).toBeVisible()
+  await expect(page.getByText(/Boundary\/objective scan v1 ready: heart bearing, scan range, chamber edges, exits, safe return, and captioned scan actions are available/)).toBeVisible()
   await page.keyboard.press('ArrowUp')
   await page.keyboard.press('Enter')
   await expect(eventLog.getByText(/Meaningful position: within .* chamber heart/)).toBeVisible()

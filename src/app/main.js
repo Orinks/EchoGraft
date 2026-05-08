@@ -8,7 +8,7 @@ import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
+import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -433,6 +433,17 @@ function textOnlyHintHtml() {
       <h2 id="text-hints-title">Text-Only Chamber Hints</h2>
       <p>Hint: ${requiredChangesText()}</p>
       <p>Objective: ${chamber.objective}</p>
+    </section>
+  `
+}
+
+function boundaryObjectiveScanV1Html() {
+  const state = boundaryObjectiveScanV1State(player, chamber, save)
+  return `
+    <section aria-labelledby="scan-v1-title">
+      <h2 id="scan-v1-title">Boundary/Objective Scan V1</h2>
+      <p>${state.text}</p>
+      <ol>${state.sections.map((section) => `<li>${section.text}</li>`).join('')}</ol>
     </section>
   `
 }
@@ -982,6 +993,7 @@ function game() {
         </div>
         <aside>
           ${textOnlyHintHtml()}
+          ${boundaryObjectiveScanV1Html()}
           <h2>Actions</h2>
           <button data-action="listen">Listen</button>
           <button data-action="locate">Locate heart</button>

@@ -126,6 +126,57 @@ export function boundaryScanState(player, chamber = {}) {
   }
 }
 
+export function boundaryObjectiveScanV1State(player, chamber = {}, save = {}) {
+  const range = scanRangeState(save)
+  const objective = heartScanState(player, chamber, range.range)
+  const boundary = boundaryScanState(player, chamber)
+  const navigation = navigationScanState(save)
+  const sections = [
+    {
+      id: 'heart-bearing',
+      ready: Number.isFinite(objective.distance),
+      text: `Objective bearing ready: ${objective.direction.side}, ${objective.distance.toFixed(1)} step(s) to heart.`,
+    },
+    {
+      id: 'scan-range',
+      ready: range.range >= 8,
+      text: range.text,
+    },
+    {
+      id: 'chamber-boundaries',
+      ready: Object.values(boundary.edges).every(Number.isFinite),
+      text: `Boundary edges ready: west ${boundary.edges.west}, east ${boundary.edges.east}, south ${boundary.edges.south}, north ${boundary.edges.north}.`,
+    },
+    {
+      id: 'exits-and-return',
+      ready: boundary.exits.length > 0 && Boolean(boundary.safeReturnPoint),
+      text: `Exit and return ready: ${boundary.exits.map((exit) => exit.name ?? exit.id ?? 'exit').join(', ')}; safe return ${boundary.safeReturnPoint.x}, ${boundary.safeReturnPoint.y}.`,
+    },
+    {
+      id: 'navigation-context',
+      ready: true,
+      text: navigation.text,
+    },
+    {
+      id: 'captioned-actions',
+      ready: true,
+      text: 'Scan v1 actions are captioned through objective scan, boundary scan, scan-mode menu, and X boundary info.',
+    },
+  ]
+  const incomplete = sections.filter((section) => !section.ready)
+
+  return {
+    boundary,
+    objective,
+    range,
+    ready: incomplete.length === 0,
+    sections,
+    text: incomplete.length
+      ? `Boundary/objective scan v1 incomplete: ${incomplete.map((section) => section.id).join(', ')}.`
+      : `Boundary/objective scan v1 ready: heart bearing, scan range, chamber edges, exits, safe return, and captioned scan actions are available.`,
+  }
+}
+
 export function seedPositionState(seed = {}, chamber = {}) {
   const position = seed.position ?? { x: 0, y: 0 }
   const target = chamber.target ?? { x: 0, y: 0 }
