@@ -55,6 +55,17 @@ const seedFamilyDefaults = {
     pulseRate: 2,
     waveform: 'triangle',
   },
+  myco: {
+    brightness: 0.38,
+    fmAmount: 0.35,
+    growthBehavior: 'twining',
+    noiseAmount: 0.25,
+    oscillatorType: 'noise-kissed',
+    phase: 135,
+    pitchRatio: 0.9,
+    pulseRate: 1.5,
+    waveform: 'sine',
+  },
   sol: {
     brightness: 0.45,
     growthBehavior: 'steady',

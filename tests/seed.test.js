@@ -257,6 +257,27 @@ describe('seed DNA', () => {
     expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'climbing' })
   })
 
+  it('gives Myco seeds a noise FM root-network archetype', () => {
+    const seed = createSeedDNA('myco-thread')
+
+    expect(seed).toMatchObject({
+      brightness: 0.38,
+      ecologicalAffinity: 'noise, compost, and root networks',
+      family: 'Myco',
+      fmAmount: 0.35,
+      growthBehavior: 'twining',
+      noiseAmount: 0.25,
+      oscillatorType: 'noise-kissed',
+      phase: 135,
+      pitchRatio: 0.9,
+      pulseRate: 1.5,
+      waveform: 'sine',
+    })
+    expect(seedModulationProfileState(seed)).toMatchObject({ dominantLayer: 'FM', fmAmount: 0.35, noiseAmount: 0.25 })
+    expect(seedNoiseProfileState(seed)).toMatchObject({ noiseAmount: 0.25, synthRoute: 'noise-kissed Syngen buffer voice', texture: 'compost hiss' })
+    expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'twining' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)
