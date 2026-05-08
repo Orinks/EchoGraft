@@ -296,6 +296,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.getByRole('button', { name: 'Codex' }).click()
   await expect(page.getByText(/Perception status: \d+ recovered\. Codex recovery:/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Codex Complete' })).toBeVisible()
+  await expect(page.getByText(/Codex complete ready: 88 authored record\(s\) target 80 to 120; \d+ contract reward record id\(s\) resolve; 8 record tree\(s\) cover 88 record\(s\)/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'First Codex Records' })).toBeVisible()
   await expect(page.getByText(/First Breath: The Ark still answers small acts of care/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Codex Completion' })).toBeVisible()

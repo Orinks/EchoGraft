@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -1119,6 +1119,27 @@ describe('resonance evaluation', () => {
     expect(records.length).toBeGreaterThanOrEqual(80)
     expect(records.length).toBeLessThanOrEqual(120)
     expect(records.every((record) => record.title && record.text)).toBe(true)
+  })
+
+  it('audits complete codex authorship, rewards, and trees', () => {
+    const state = codexCompleteState(chambers, codexRecords)
+
+    expect(state.ready).toBe(true)
+    expect(state.recordCount).toBe(88)
+    expect(state.inRange).toBe(true)
+    expect(state.missingRewardIds).toEqual([])
+    expect(state.trees.map((tree) => tree.id)).toEqual([
+      'gardener-notes',
+      'crew-messages',
+      'plant-memory',
+      'system-diagnostics',
+      'seed-ancestry',
+      'ending-reflections',
+      'perceptions',
+      'restoration-records',
+    ])
+    expect(state.treeRecordCount).toBe(88)
+    expect(state.text).toContain('Codex complete ready')
   })
 
   it('organizes recovered records into navigable record trees', () => {

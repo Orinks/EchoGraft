@@ -1,7 +1,7 @@
 import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
-import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -1416,12 +1416,17 @@ function codex() {
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const recovery = codexRecoverySummary(chambers, save)
   const completion = codexCompletionState(save, availableCodexRecords())
+  const codexComplete = codexCompleteState(chambers, codexRecords)
   const firstCodexRecords = firstCodexRecordsState(chambers, availableCodexRecords())
   const arkOrigin = arkOriginMysteryState(save)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
       <p>Perception status: ${save.codexIds.length} recovered. ${recovery.text}</p>
+      <section aria-labelledby="codex-complete-title">
+        <h2 id="codex-complete-title">Codex Complete</h2>
+        <p>${codexComplete.text}</p>
+      </section>
       <section aria-labelledby="first-codex-records-title">
         <h2 id="first-codex-records-title">First Codex Records</h2>
         <p>${firstCodexRecords.text}</p>

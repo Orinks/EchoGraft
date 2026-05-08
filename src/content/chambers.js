@@ -1347,3 +1347,28 @@ export function codexRecordTrees(records = codexRecords, unlockedIds = Object.ke
 
   return branches.filter((branch) => branch.records.length)
 }
+
+export function codexCompleteState(chamberList = chambers, records = codexRecords, target = { min: 80, max: 120 }) {
+  const recordIds = Object.keys(records)
+  const rewardIds = Array.from(new Set(chamberList.flatMap((chamber) => chamber.rewards?.codex ?? [])))
+  const missingRewardIds = rewardIds.filter((id) => !records[id])
+  const trees = codexRecordTrees(records, recordIds)
+  const treeRecordCount = trees.reduce((sum, tree) => sum + tree.records.length, 0)
+  const inRange = recordIds.length >= target.min && recordIds.length <= target.max
+  const treeComplete = treeRecordCount === recordIds.length && trees.length === codexRecordTreeBranches.length + 1
+  const ready = inRange && missingRewardIds.length === 0 && treeComplete
+
+  return {
+    inRange,
+    missingRewardIds,
+    ready,
+    recordCount: recordIds.length,
+    recordIds,
+    rewardIds,
+    target,
+    treeComplete,
+    treeRecordCount,
+    trees,
+    text: `Codex complete ${ready ? 'ready' : 'incomplete'}: ${recordIds.length} authored record(s) target ${target.min} to ${target.max}; ${rewardIds.length} contract reward record id(s) resolve; ${trees.length} record tree(s) cover ${treeRecordCount} record(s).`,
+  }
+}
