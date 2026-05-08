@@ -10,7 +10,7 @@ import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedCh
 import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
-import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
+import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
@@ -191,14 +191,7 @@ function exportRuntimeState() {
 }
 
 function hydrateRuntimeSave(nextSave = {}) {
-  const defaults = createDefaultSave()
-  return {
-    ...defaults,
-    ...nextSave,
-    materials: { ...defaults.materials, ...(nextSave.materials ?? {}) },
-    settings: { ...defaults.settings, ...(nextSave.settings ?? {}) },
-    keyboardBindings: { ...defaults.keyboardBindings, ...(nextSave.keyboardBindings ?? {}) },
-  }
+  return normalizeSave(nextSave)
 }
 
 function importRuntimeState(state = {}) {
@@ -1063,6 +1056,7 @@ function atlas() {
   const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
   const endToEnd = endToEndProgressionState(chambers, save)
   const menuAccessibility = allMenusAccessibleState(save)
+  const saveLoad = saveLoadCompletenessState(save)
   const stewardship = stewardshipSummary(chambers, save)
   const firstRatingImprovement = firstChamberRatingImprovementState(chambers, save)
   const persistentChanges = persistentChamberChangesState(chambers, save)
@@ -1160,6 +1154,11 @@ function atlas() {
         <h2 id="menu-accessibility-title">Menu Accessibility</h2>
         <p>${menuAccessibility.text}</p>
         <ol>${menuAccessibility.menus.map((item) => `<li>${item.title}: route ${item.route}; ${item.landmark}; feedback ${item.feedback}${item.gated ? '; currently gated' : ''}.</li>`).join('')}</ol>
+      </section>
+      <section aria-labelledby="save-load-title">
+        <h2 id="save-load-title">Save Load Complete</h2>
+        <p>${saveLoad.text}</p>
+        <p>Persistent fields: ${saveLoad.fields.join(', ')}.</p>
       </section>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>

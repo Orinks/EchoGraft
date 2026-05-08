@@ -121,29 +121,121 @@ export function createDefaultSave() {
   }
 }
 
+export const saveArrayFields = [
+  'alternateEndingIds',
+  'bonusContractIds',
+  'codexIds',
+  'conservatoryCompositions',
+  'customSeeds',
+  'endlessMutationSeeds',
+  'environmentalChanges',
+  'graftDiscoveryIds',
+  'graftRatingBoosts',
+  'graftRecords',
+  'inventoryIds',
+  'lowCycleChallengeIds',
+  'restoredSystems',
+  'solvedChambers',
+  'unlockedGraftMechanics',
+  'wildChamberIds',
+  'wildMutationIds',
+]
+
+export const saveObjectFields = [
+  'keyboardBindings',
+  'materials',
+  'plantedByChamber',
+  'ratings',
+  'resourcesSpentByChamber',
+  'seedMovesByChamber',
+  'settings',
+]
+
+export const persistentSaveFields = [
+  'alternateEndingIds',
+  'arkClock',
+  'bonusContractIds',
+  'codexIds',
+  'conservatoryCompositions',
+  'currentChamberId',
+  'customSeeds',
+  'endgameResolution',
+  'endlessMutationSeeds',
+  'environmentalChanges',
+  'graftDiscoveryIds',
+  'graftRatingBoosts',
+  'graftRecords',
+  'inventoryIds',
+  'keyboardBindings',
+  'lowCycleChallengeIds',
+  'materials',
+  'plantedByChamber',
+  'postgameUnlocked',
+  'proceduralSeed',
+  'ratings',
+  'resourcesSpentByChamber',
+  'restoredSystems',
+  'restorationPhilosophy',
+  'seedMovesByChamber',
+  'settings',
+  'solvedChambers',
+  'unlockedGraftMechanics',
+  'version',
+  'wildChamberIds',
+  'wildMutationIds',
+]
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+export function normalizeSave(parsed = {}) {
+  const defaults = createDefaultSave()
+  const source = isRecord(parsed) ? parsed : {}
+  const next = {
+    ...defaults,
+    ...source,
+    keyboardBindings: { ...defaults.keyboardBindings, ...(isRecord(source.keyboardBindings) ? source.keyboardBindings : {}) },
+    materials: { ...defaults.materials, ...(isRecord(source.materials) ? source.materials : {}) },
+    plantedByChamber: isRecord(source.plantedByChamber) ? source.plantedByChamber : defaults.plantedByChamber,
+    ratings: isRecord(source.ratings) ? source.ratings : defaults.ratings,
+    resourcesSpentByChamber: isRecord(source.resourcesSpentByChamber) ? source.resourcesSpentByChamber : defaults.resourcesSpentByChamber,
+    seedMovesByChamber: isRecord(source.seedMovesByChamber) ? source.seedMovesByChamber : defaults.seedMovesByChamber,
+    settings: { ...defaults.settings, ...(isRecord(source.settings) ? source.settings : {}) },
+  }
+
+  for (const field of saveArrayFields) {
+    next[field] = Array.isArray(source[field]) ? source[field] : defaults[field]
+  }
+
+  return next
+}
+
+export function saveLoadCompletenessState(save = createDefaultSave()) {
+  const normalized = normalizeSave(save)
+  const missing = persistentSaveFields.filter((field) => !Object.hasOwn(normalized, field))
+  const arrayReady = saveArrayFields.filter((field) => Array.isArray(normalized[field]))
+  const objectReady = saveObjectFields.filter((field) => isRecord(normalized[field]))
+  const complete = missing.length === 0 && arrayReady.length === saveArrayFields.length && objectReady.length === saveObjectFields.length
+
+  return {
+    arrayReady,
+    complete,
+    fields: persistentSaveFields,
+    missing,
+    normalized,
+    objectReady,
+    text: complete
+      ? `Save/load complete: ${persistentSaveFields.length} persistent field(s) hydrate with ${saveArrayFields.length} array collection(s), ${saveObjectFields.length} object map(s), settings, bindings, postgame state, and campaign progress.`
+      : `Save/load incomplete: missing ${missing.join(', ') || 'no named fields'}; arrays ${arrayReady.length}/${saveArrayFields.length}, object maps ${objectReady.length}/${saveObjectFields.length}.`,
+  }
+}
+
 export function loadSave(storage = globalThis.localStorage) {
   try {
     const raw = storage?.getItem(saveKey)
-    const defaults = createDefaultSave()
     const parsed = raw ? JSON.parse(raw) : {}
-    return {
-      ...defaults,
-      ...parsed,
-      materials: { ...defaults.materials, ...(parsed.materials ?? {}) },
-      settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
-      keyboardBindings: { ...defaults.keyboardBindings, ...(parsed.keyboardBindings ?? {}) },
-      alternateEndingIds: parsed.alternateEndingIds ?? defaults.alternateEndingIds,
-      conservatoryCompositions: parsed.conservatoryCompositions ?? defaults.conservatoryCompositions,
-      endlessMutationSeeds: parsed.endlessMutationSeeds ?? defaults.endlessMutationSeeds,
-      lowCycleChallengeIds: parsed.lowCycleChallengeIds ?? defaults.lowCycleChallengeIds,
-      bonusContractIds: parsed.bonusContractIds ?? defaults.bonusContractIds,
-      graftDiscoveryIds: parsed.graftDiscoveryIds ?? defaults.graftDiscoveryIds,
-      graftRatingBoosts: parsed.graftRatingBoosts ?? defaults.graftRatingBoosts,
-      wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,
-      wildMutationIds: parsed.wildMutationIds ?? defaults.wildMutationIds,
-      seedMovesByChamber: parsed.seedMovesByChamber ?? defaults.seedMovesByChamber,
-      resourcesSpentByChamber: parsed.resourcesSpentByChamber ?? defaults.resourcesSpentByChamber,
-    }
+    return normalizeSave(parsed)
   } catch {
     return createDefaultSave()
   }

@@ -190,6 +190,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Menu Accessibility' })).toBeVisible()
   await expect(page.getByText(/All menus accessible: 9 available menu surface\(s\) have headings, semantic landmarks, keyboard or button routes, and text\/log feedback; 2 gated postgame menu\(s\) disclose their lock state/)).toBeVisible()
   await expect(page.getByText(/Settings: route main or pause; form aria-label="Settings controls"; feedback captioned setting updates/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Save Load Complete' })).toBeVisible()
+  await expect(page.getByText(/Save\/load complete: \d+ persistent field\(s\) hydrate with \d+ array collection\(s\), \d+ object map\(s\), settings, bindings, postgame state, and campaign progress/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Major Ark Systems' })).toBeVisible()
   await expect(page.getByText(/Heart: network resonance and endgame resolutions/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Intake Navigation Water Canopy Systems' })).toBeVisible()

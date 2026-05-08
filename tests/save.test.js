@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultProceduralSeed } from '../src/content/rng.js'
-import { createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../src/content/save.js'
+import { createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../src/content/save.js'
 
 function memoryStorage() {
   const store = new Map()
@@ -102,6 +102,37 @@ describe('save system', () => {
     expect(loaded.restorationPhilosophy).toBe('preservation')
     expect(loaded.proceduralSeed).toBe(defaultProceduralSeed)
     expect(loaded.keyboardBindings).toEqual(defaultKeyboardBindings)
+  })
+
+  it('normalizes malformed partial saves and audits save/load completeness', () => {
+    const normalized = normalizeSave({
+      codexIds: 'first-breath',
+      customSeeds: null,
+      keyboardBindings: { scan: 's' },
+      materials: { biomass: 2 },
+      ratings: [],
+      resourcesSpentByChamber: { tutorial: { biomass: 1 } },
+      settings: { scanVerbosity: 'concise' },
+      solvedChambers: ['tutorial'],
+    })
+
+    expect(normalized.codexIds).toEqual([])
+    expect(normalized.customSeeds).toEqual([])
+    expect(normalized.keyboardBindings.scan).toBe('s')
+    expect(normalized.keyboardBindings.moveUp).toBe(defaultKeyboardBindings.moveUp)
+    expect(normalized.materials.biomass).toBe(2)
+    expect(normalized.materials.spores).toBe(0)
+    expect(normalized.ratings).toEqual({})
+    expect(normalized.resourcesSpentByChamber.tutorial).toEqual({ biomass: 1 })
+    expect(normalized.settings.scanVerbosity).toBe('concise')
+    expect(normalized.solvedChambers).toEqual(['tutorial'])
+
+    const state = saveLoadCompletenessState(normalized)
+    expect(state.complete).toBe(true)
+    expect(state.fields).toContain('postgameUnlocked')
+    expect(state.arrayReady).toContain('solvedChambers')
+    expect(state.objectReady).toContain('materials')
+    expect(state.text).toContain('Save/load complete')
   })
 
   it('tracks on-demand info command completeness', () => {
