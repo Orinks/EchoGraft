@@ -735,6 +735,61 @@ export class MemoryVoice {
   }
 }
 
+const systemDroneProfiles = {
+  Canopy: { brightness: 0.72, ratio: 1.5, type: 'triangle' },
+  Heart: { brightness: 0.8, ratio: 2, type: 'triangle' },
+  Intake: { brightness: 0.42, ratio: 1, type: 'sine' },
+  Memory: { brightness: 0.38, ratio: 0.75, type: 'triangle' },
+  Navigation: { brightness: 0.55, ratio: 1.25, type: 'sine' },
+  Water: { brightness: 0.48, ratio: 1.2, type: 'sine' },
+}
+
+export class SystemDrone {
+  constructor({ chamber = {}, restored = true } = {}) {
+    this.chamber = chamber
+    this.restored = restored
+    this.profile = systemDroneProfiles[chamber.system] ?? { brightness: 0.5, ratio: 1, type: 'sine' }
+    this.text = `SystemDrone: ${chamber.system ?? 'Ark'} ${restored ? 'restored' : 'preview'} layer for ${chamber.title ?? 'chamber'}.`
+  }
+
+  toVoicePayload() {
+    const target = this.chamber.target ?? { brightness: this.profile.brightness, pitchRatio: this.profile.ratio, pulseRate: 1, x: 0, y: 0 }
+    const pulseRate = Math.max(0.4, target.pulseRate ?? 1)
+    const brightness = clamp((target.brightness ?? this.profile.brightness) * (this.restored ? 1.05 : 0.75))
+
+    return {
+      category: 'music',
+      duration: durationFromPulse(pulseRate) * (this.restored ? 5 : 3),
+      gain: dbGain(this.restored ? -22 : -27),
+      position: target,
+      seed: {
+        brightness,
+        oscillatorType: 'am',
+        pulseRate,
+        systemDrone: true,
+        system: this.chamber.system,
+        waveform: this.profile.type,
+      },
+      tone: {
+        brightness,
+        effectChain: chamberEffectChain(this.chamber),
+        frequency: ratioToFrequency((target.pitchRatio ?? 1) * this.profile.ratio, 36),
+        harmonic: [
+          { coefficient: 1, gain: 1, type: this.profile.type },
+          { coefficient: 2, gain: this.restored ? 0.28 : 0.14, type: 'triangle' },
+        ],
+        mode: 'additive',
+        pulseRate,
+        type: this.profile.type,
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1211,6 +1266,7 @@ export class AudioEngine {
 
   resonance(result = {}, chamber = {}) {
     new HeartVoice({ chamber, result }).play(this)
+    if (result.solved) new SystemDrone({ chamber, restored: true }).play(this)
   }
 
   movement(player, previous, chamber = {}) {

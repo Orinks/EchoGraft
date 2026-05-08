@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -228,6 +228,21 @@ describe('audio movement cues', () => {
         type: 'triangle',
       },
     })
+  })
+
+  it('models restored systems as a named SystemDrone layer', () => {
+    const chamber = chambers.find((item) => item.system === 'Water')
+    const drone = new SystemDrone({ chamber, restored: true })
+    const payload = drone.toVoicePayload()
+
+    expect(drone.text).toContain('SystemDrone: Water restored layer')
+    expect(payload).toMatchObject({
+      category: 'music',
+      position: chamber.target,
+      seed: { systemDrone: true, system: 'Water' },
+      tone: { effectChain: ['feedbackDelay'], mode: 'additive' },
+    })
+    expect(payload.duration).toBeGreaterThan(1)
   })
 
   it('spatializes every footstep at the current player position', () => {
