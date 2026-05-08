@@ -290,6 +290,43 @@ export function mainChamberCatalogState(chamberList = chambers, target = 40) {
   }
 }
 
+export function optionalContentPassState(chamberList = chambers, target = { min: 15, max: 25 }) {
+  const optional = chamberList.filter((chamber) => chamber.optional)
+  const advanced = optional.filter((chamber) => {
+    const markers = optionalComplexitySummary(chamber).markers
+    return markers.length > 0 || ['challenge', 'conservatory', 'research', 'survey'].includes(chamber.contractType)
+  })
+  const rewarded = optional.filter((chamber) => {
+    const rewards = chamber.rewards ?? {}
+    return Boolean(rewards.codex?.length || rewards.seeds?.length || Object.values(rewards.materials ?? {}).some((value) => value > 0))
+  })
+  const gated = optional.filter((chamber) => (chamber.requires ?? []).length > 0)
+  const seasons = campaignScope.seasons.map((season) => {
+    const chambersForSeason = optional.filter((chamber) => chamber.season === season.id)
+    const systems = Array.from(new Set(chambersForSeason.map((chamber) => chamber.system))).filter(Boolean)
+
+    return {
+      ...season,
+      chambers: chambersForSeason,
+      systems,
+      text: `Season ${season.id} ${season.name}: ${chambersForSeason.length} optional content piece(s), systems ${systems.join(', ') || 'none'}.`,
+    }
+  })
+  const ready = optional.length >= target.min && optional.length <= target.max && advanced.length === optional.length && rewarded.length === optional.length && gated.length === optional.length
+
+  return {
+    advanced,
+    count: optional.length,
+    gated,
+    optional,
+    ready,
+    rewarded,
+    seasons,
+    target,
+    text: `Optional content pass ${ready ? 'ready' : 'incomplete'}: ${optional.length} optional contract(s) target ${target.min} to ${target.max}; ${advanced.length} advanced, ${rewarded.length} rewarded, ${gated.length} progression-gated across ${seasons.filter((season) => season.chambers.length).length} season(s).`,
+  }
+}
+
 export function seasonOneOpeningContractMix(chamberList = chambers, target = { required: 6, optional: 2 }) {
   const seasonChambers = chamberList.filter((chamber) => chamber.season === 1 && chamber.contractType !== 'training')
   const required = seasonChambers.filter((chamber) => !chamber.optional).slice(0, target.required)

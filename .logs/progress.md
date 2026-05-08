@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G314-optional-content-pass`. Added an Optional Content Pass audit that verifies 17 optional contracts stay within the 15 to 25 target, each has advanced mechanics, rewards, and progression gates, and surfaces the season/system breakdown in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G313-40-main-chambers`. Added a 40+ Main Chambers catalog audit that counts 40 authored campaign chambers across five seasons while excluding the tutorial and postgame conservatory, then surfaced the required/optional season breakdown in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G312-save-load-complete`. Added a normalized save hydration path and Save Load Complete audit so legacy or malformed partial saves restore campaign arrays, object maps, settings, bindings, postgame state, materials, and progression fields consistently.
 - Continued with `omx ultragoal complete-goals` for `G311-first-endings`. Added a First Endings state that verifies four authored resolution scenes, identifies the first playable finale resolution, reports available alternate paths, and surfaces locked/ready ending handoff text in the Atlas and Ending screen.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -667,6 +667,19 @@ describe('resonance evaluation', () => {
     expect(state.mainChambers.map((chamber) => chamber.id)).not.toContain('postgame-conservatory')
     expect(state.seasons.map((season) => season.chambers.length)).toEqual([10, 8, 8, 9, 5])
     expect(state.text).toContain('40+ main chambers ready')
+  })
+
+  it('audits the optional content pass across campaign seasons', () => {
+    const state = optionalContentPassState(chambers)
+
+    expect(state.ready).toBe(true)
+    expect(state.count).toBe(17)
+    expect(state.advanced).toHaveLength(17)
+    expect(state.rewarded).toHaveLength(17)
+    expect(state.gated).toHaveLength(17)
+    expect(state.seasons.map((season) => season.chambers.length)).toEqual([2, 3, 3, 4, 5])
+    expect(state.optional.map((chamber) => chamber.id)).toContain('postgame-conservatory')
+    expect(state.text).toContain('Optional content pass ready')
   })
 
   it('stages the Season 1 opening mix with 6 required contracts and 2 optional contracts', () => {
