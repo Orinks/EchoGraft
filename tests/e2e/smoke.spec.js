@@ -102,6 +102,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Screen Reader Testing' })).toBeVisible()
   await expect(page.getByText(/Screen reader testing pass ready: 6 simulated route\(s\) cover reading order, heading navigation, tab navigation, form navigation, live-region caption updates, and no-vision keyboard commands; real NVDA, JAWS, Narrator, or VoiceOver validation remains recommended/)).toBeVisible()
   await expect(page.getByText(/form navigation: Settings controls/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'E2E Coverage' })).toBeVisible()
+  await expect(page.getByText(/E2E key-flow coverage ready: 8 flow\(s\) cover new game, no-vision restoration, settings accessibility, scan modes, seed\/graft, atlas\/codex, save\/load, and postgame/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Seed Library and Grafting' })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Endings and Postgame' })).toBeVisible()
   await expect(page.getByText(/Main campaign chambers never require reflex timing/)).toBeVisible()
@@ -389,6 +391,28 @@ test('supports optional text-only chamber hints', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Text-Only Chamber Hints' })).toBeVisible()
   await expect(page.getByText(/Hint: Plant 1 more seed/)).toBeVisible()
   await expect(page.getByText(/Objective: Move, scan the chamber heart, plant Sol/)).toBeVisible()
+})
+
+test('persists restored progress through reload and continue', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+  await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
+
+  await page.reload()
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await expect(page.getByText(/Current save: 1 of \d+ contracts restored; 1 of \d+ Ark systems online/)).toBeVisible()
+  await page.getByRole('button', { name: 'Continue' }).click()
+  await expect(page.getByRole('heading', { name: /Training Contract: First Breath/ })).toBeVisible()
+  await expect(page.getByText(/Status: Solved; Resonance accuracy 100 percent/)).toBeVisible()
+  await expect(page.getByLabel('Caption and event log').getByText(/Training Contract: First Breath\. Move, scan the chamber heart/)).toBeVisible()
+  await page.keyboard.press('p')
+  await expect(page.getByLabel('Caption and event log').getByText(/Position: .* Progress: 1 of \d+ contracts restored; 1 of \d+ Ark systems online/)).toBeVisible()
 })
 
 test('moves with WASD and arrow keys', async ({ page }) => {

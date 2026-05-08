@@ -695,6 +695,35 @@ export function screenReaderTestingState(routes = screenReaderTestRoutes) {
   }
 }
 
+export const e2eKeyFlowCoverage = [
+  { id: 'new-game', flow: 'splash to main menu to new game', assertion: 'first chamber renders with accessible controls' },
+  { id: 'no-vision-restore', flow: 'keyboard scan, move, plant, restore', assertion: 'caption log mirrors audio-first completion' },
+  { id: 'settings-accessibility', flow: 'settings sliders, toggles, remapping', assertion: 'controls are labeled and setting changes are captioned' },
+  { id: 'scan-modes', flow: 'objective, boundary, seed, hazard, memory, network, material, chamber scans', assertion: 'each scan mode produces text feedback' },
+  { id: 'seed-graft', flow: 'seed library tuning, grafting, preview', assertion: 'seed DNA, graft discovery, and preview feedback appear' },
+  { id: 'atlas-codex', flow: 'restore to atlas to codex', assertion: 'planning, systems, records, and completion audits are visible' },
+  { id: 'save-load', flow: 'reload saved tutorial restoration and continue', assertion: 'restored contracts, materials, and current chamber survive reload' },
+  { id: 'postgame', flow: 'ending to conservatory composition and mutation garden', assertion: 'postgame surfaces are reachable from an unlocked save' },
+]
+
+export function e2eKeyFlowCoverageState(flows = e2eKeyFlowCoverage) {
+  const required = e2eKeyFlowCoverage.map((flow) => flow.id)
+  const covered = new Set(flows.map((flow) => flow.id))
+  const missing = required.filter((id) => !covered.has(id))
+  const incomplete = flows.filter((flow) => !flow.id || !flow.flow || !flow.assertion)
+  const ready = missing.length === 0 && incomplete.length === 0
+
+  return {
+    flows,
+    incomplete,
+    missing,
+    ready,
+    text: ready
+      ? `E2E key-flow coverage ready: ${flows.length} flow(s) cover new game, no-vision restoration, settings accessibility, scan modes, seed/graft, atlas/codex, save/load, and postgame.`
+      : `E2E key-flow coverage incomplete: missing ${missing.join(', ') || 'none'}; incomplete ${incomplete.map((flow) => flow.id).join(', ') || 'none'}.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))

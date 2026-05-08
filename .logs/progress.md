@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G320-e2e-coverage-for-key-flows`. Added an E2E key-flow coverage audit for new game, no-vision restoration, settings accessibility, scan modes, seed/graft, atlas/codex, save/load, and postgame, then added a Playwright reload/continue test to cover persisted restored progress.
 - Continued with `omx ultragoal complete-goals` for `G319-screen-reader-testing`. Added a screen-reader testing simulation matrix covering reading order, heading navigation, tab flow, form navigation, live-region caption updates, and no-vision command routes while preserving the README caveat that real NVDA/JAWS/Narrator/VoiceOver validation is still needed for formal claims.
 - Continued with `omx ultragoal complete-goals` for `G318-manual-complete`. Expanded the in-game Help into a complete manual audit with ten playable sections, aligned `MANUAL.md` with settings/accessibility and postgame guidance, and covered the manual completion surface with unit plus e2e checks.
 - Continued with `omx ultragoal complete-goals` for `G317-audio-mix-and-accessibility-pass`. Added a Settings audit for the audio mix/accessibility pass, normalized independent Syngen bus gain settings, and covered the pass with unit plus Playwright assertions.
