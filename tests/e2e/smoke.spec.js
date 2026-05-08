@@ -35,6 +35,9 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Master volume set to/)).toBeVisible()
   await expect(page.getByLabel('Ambience volume')).toHaveValue('0.55')
   await page.getByLabel('Reduced motion').check()
+  await expect(page.locator('#app')).toHaveClass(/reduced-motion/)
+  await expect(page.getByText(/Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback/)).toBeVisible()
+  await expect(page.locator('.screen').first()).toHaveCSS('transition-duration', '0s')
   await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Reduced motion set to on/)).toBeVisible()
   await page.getByRole('button', { name: 'Back to game' }).click()
 
