@@ -218,6 +218,37 @@ export function restoredEcologyQuestionState(save = {}) {
   }
 }
 
+export function restorationIdentityQuestionState(save = {}) {
+  const codex = new Set(save.codexIds ?? [])
+  const systemEvidence = (save.restoredSystems?.length ?? 0) + Object.values(save.ratings ?? {}).filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const gardenEvidence = (save.solvedChambers?.length ?? 0) + [...codex].filter((id) => id.startsWith('plant-memory') || id.startsWith('seed-ancestry')).length + (save.endlessMutationSeeds?.length ?? 0)
+  const instrumentRecords = [...codex].filter((id) => ['crew-message-12', 'perception-02', 'perception-04', 'ending-reflection-04'].includes(id)).length
+  const instrumentEvidence = (save.unlockedGraftMechanics?.length ?? 0) + (save.customSeeds?.length ?? 0) + (save.conservatoryCompositions?.length ?? 0) + (instrumentRecords * 3)
+  const role = instrumentEvidence >= Math.max(systemEvidence, gardenEvidence) && instrumentEvidence > 0
+    ? 'living-instrument'
+    : gardenEvidence >= systemEvidence && gardenEvidence > 0
+      ? 'garden'
+      : systemEvidence > 0
+        ? 'machine'
+        : 'undecided'
+  const recommendation = role === 'living-instrument'
+    ? 'Treat restoration as tuning a living instrument: every system repair, seed voice, and captioned cue becomes part of the Ark-wide chord.'
+    : role === 'garden'
+      ? 'Treat restoration as garden stewardship: living lineages, plant memories, and return paths matter as much as repaired hardware.'
+      : role === 'machine'
+        ? 'Treat restoration as machine repair for now: bring Ark systems online before asking the garden to answer.'
+        : 'Keep listening before naming the work; the Ark has not shown enough machine, garden, or instrument evidence yet.'
+
+  return {
+    gardenEvidence,
+    instrumentEvidence,
+    recommendation,
+    role,
+    systemEvidence,
+    text: `Restoration identity question: ${role}; machine evidence ${systemEvidence}, garden evidence ${gardenEvidence}, instrument evidence ${instrumentEvidence}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation

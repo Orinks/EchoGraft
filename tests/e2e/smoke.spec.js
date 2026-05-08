@@ -172,6 +172,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Final Ecology Philosophy' })).toBeVisible()
   await expect(page.getByText(/Original mission question: return/)).toBeVisible()
   await expect(page.getByText(/Restored ecology question: preserve/)).toBeVisible()
+  await expect(page.getByText(/Restoration identity question: living-instrument/)).toBeVisible()
   await expect(page.getByText(/Final ecology philosophy support aligned/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Crew Wake Cycle' })).toBeVisible()
   await expect(page.getByText(/Crew awakening question: not-ready/)).toBeVisible()
