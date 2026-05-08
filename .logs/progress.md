@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G305-materials-and-crafting`. Added a Materials and Crafting state that audits spore tuning, resin locks, mycelium graft support, glass pollen, archive loam, dream compost, and embersap recipe paths across the Atlas and Seed Library.
 - Continued with `omx ultragoal complete-goals` for `G304-season-2-rootworks`. Added a Season 2 Rootworks state that audits required and optional Rootworks contracts, mechanics, objectives, and timing, then surfaced the season block in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G303-first-chamber-rating-improvements`. Added a first chamber rating improvement state that explains how to revisit the training contract, reduce seed moves, improve resonance accuracy, recover optional records, and conserve materials toward a Resonant rating.
 - Continued with `omx ultragoal complete-goals` for `G302-first-material-loop`. Added a First Material Loop state that ties the tutorial's biomass/spores rewards to seed tuning, repair stock, and reset-safe material persistence, then surfaced it in the Restoration Atlas materials ledger.

@@ -890,6 +890,30 @@ export function firstMaterialLoopState(chambers, save = {}) {
   }
 }
 
+export function materialsCraftingState(save = {}) {
+  const materials = save.materials ?? {}
+  const recipes = [
+    { id: 'spore-tuning', material: 'spores', text: 'spores tune seed DNA when available' },
+    { id: 'resin-lock', material: 'resin', text: 'resin locks seed traits before tuning or grafting' },
+    { id: 'mycelium-graft', material: 'mycelium', text: 'mycelium boosts graft stability' },
+    { id: 'glass-pollen', material: 'glassPollen', text: 'glass pollen unlocks brightness and timbre traits' },
+    { id: 'archive-loam', material: 'archiveLoam', text: 'archive loam reveals hidden ancestry' },
+    { id: 'dream-compost', material: 'dreamCompost', text: 'dream compost recovers useful failed grafts' },
+    { id: 'embersap', material: 'embersap', text: 'embersap powers endgame mutations' },
+  ]
+  const knownMaterials = Object.keys(materials)
+  const ready = recipes.every((recipe) => knownMaterials.includes(recipe.material))
+
+  return {
+    knownMaterials,
+    ready,
+    recipes,
+    text: ready
+      ? `Materials and crafting ready: ${recipes.length} recipe path(s) cover ${recipes.map((recipe) => recipe.text).join('; ')}.`
+      : `Materials and crafting incomplete: missing ${recipes.filter((recipe) => !knownMaterials.includes(recipe.material)).map((recipe) => recipe.material).join(', ')}.`,
+  }
+}
+
 export function firstChamberRatingImprovementState(chambers, save = {}) {
   const firstContract = chambers.find((chamber) => chamber.id === 'tutorial') ?? chambers[0]
   const currentRating = save.ratings?.[firstContract.id] ?? 'Unrated'

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -290,6 +290,15 @@ describe('resonance evaluation', () => {
     expect(empty.text).toContain('earn 1 biomass, 1 spores')
     expect(gathered.gatheredEntries).toEqual([['biomass', 1], ['spores', 1]])
     expect(gathered.text).toContain('2 starter material type')
+  })
+
+  it('summarizes materials and crafting recipe paths', () => {
+    const state = materialsCraftingState(createDefaultSave())
+
+    expect(state.ready).toBe(true)
+    expect(state.recipes.map((recipe) => recipe.id)).toEqual(['spore-tuning', 'resin-lock', 'mycelium-graft', 'glass-pollen', 'archive-loam', 'dream-compost', 'embersap'])
+    expect(state.text).toContain('Materials and crafting ready')
+    expect(state.text).toContain('resin locks seed traits')
   })
 
   it('describes first chamber rating improvement paths', () => {

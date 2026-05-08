@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1061,6 +1061,7 @@ function atlas() {
   const firstRatingImprovement = firstChamberRatingImprovementState(chambers, save)
   const resourceGuard = resourceDeadEndState(chambers, save)
   const firstMaterialLoop = firstMaterialLoopState(chambers, save)
+  const crafting = materialsCraftingState(save)
   const returnContracts = optionalReturnContracts(chambers, save)
   const codexRecovery = codexRecoverySummary(chambers, save)
   const firstCodexRecords = firstCodexRecordsState(chambers, codexRecords)
@@ -1099,6 +1100,7 @@ function atlas() {
         <h2 id="materials-title">Materials Ledger</h2>
         ${materialLedgerHtml()}
         <p>${firstMaterialLoop.text}</p>
+        <p>${crafting.text}</p>
       </section>
       <section aria-labelledby="resource-guard-title">
         <h2 id="resource-guard-title">Resource Dead-End Guard</h2>
@@ -1294,6 +1296,7 @@ function library() {
   audio.setMusicScene('menu')
   const appraisal = seedCollectionAppraisal(inventory, save, currentSeed())
   const menuState = seedLibraryMenuState(inventory, save, selectedSeedIndex)
+  const crafting = materialsCraftingState(save)
   const dreamCompost = dreamCompostSummary(save)
   const glassPollenTraits = glassPollenUnlockedTraits(save)
   const pollinatorVault = pollinatorVaultSummary(save)
@@ -1310,6 +1313,7 @@ function library() {
       <section aria-labelledby="library-materials-title">
         <h2 id="library-materials-title">Materials Ledger</h2>
         ${materialLedgerHtml()}
+        <p>${crafting.text}</p>
       </section>
       <section aria-labelledby="appraisal-title">
         <h2 id="appraisal-title">Seed Collection Appraisal</h2>
