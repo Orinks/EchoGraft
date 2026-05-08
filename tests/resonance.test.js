@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
 import { chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, conservatoryCompositionModes, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -1063,8 +1063,27 @@ describe('resonance evaluation', () => {
     expect(appraisal.identifiedFamilies).toEqual(['Sol', 'Lumen'])
     expect(appraisal.curatedSeed).toBe(inventory[1].name)
     expect(appraisal.playableVoices).toEqual(inventory.map((seed) => seed.name))
+    expect(appraisal.rareHunting.text).toContain('Rare seed hunting')
     expect(appraisal.restorationUse).toContain('Exchange 2 biomass')
     expect(appraisal.commerceBoundary).toContain('restoration support')
+  })
+
+  it('tracks rare seed hunting leads from the collection', () => {
+    const inventory = [
+      createSeedDNA('prism-shard', { family: 'Prism' }),
+      createSeedDNA('loam-memory', { family: 'Loam' }),
+    ]
+    const hunting = rareSeedHuntingState(inventory, { rareSeedIds: ['resin'] })
+
+    expect(hunting).toMatchObject({
+      complete: false,
+      foundCount: 3,
+      total: 12,
+    })
+    expect(hunting.foundFamilies).toEqual(['Prism', 'Loam', 'Resin'])
+    expect(hunting.missingFamilies).toContain('Pollen')
+    expect(hunting.nextLead).toMatchObject({ name: 'Pollen', origin: 'Rain return' })
+    expect(hunting.text).toContain('next lead Pollen from Rain return')
   })
 
   it('summarizes stewardship progress and next care action', () => {

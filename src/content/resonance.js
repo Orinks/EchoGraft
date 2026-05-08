@@ -1,5 +1,6 @@
 import { weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
+import { seedFamilies } from './seeds.js'
 import { createWorldLayoutIndex } from './world-layout.js'
 
 function distance(a, b) {
@@ -561,15 +562,41 @@ export function firstFullCampaignEstimate(scope) {
 export function seedCollectionAppraisal(inventory, save, selectedSeed = inventory[0]) {
   const families = Array.from(new Set(inventory.map((seed) => seed.family ?? 'unknown')))
   const materials = Object.entries(save.materials ?? {}).filter(([, value]) => value > 0)
+  const rareHunting = rareSeedHuntingState(inventory, save)
   return {
     gathered: inventory.length,
     identifiedFamilies: families,
     curatedSeed: selectedSeed?.name ?? 'No seed selected',
     playableVoices: inventory.map((seed) => seed.name),
+    rareHunting,
     restorationUse: materials.length
       ? `Exchange ${materials.map(([key, value]) => `${value} ${key}`).join(', ')} for tuning and restoration work.`
       : 'Restore contracts to gather tuning exchange materials.',
     commerceBoundary: 'Exchange remains restoration support, not museum commerce.',
+  }
+}
+
+export function rareSeedHuntingState(inventory = [], save = {}) {
+  const rareFamilyIds = new Set(['prism', 'loam', 'resin', 'pollen', 'chorus', 'drift', 'veil', 'pulse', 'bloom', 'anchor', 'vow', 'hybrid'])
+  const targets = seedFamilies.filter((family) => rareFamilyIds.has(family.id))
+  const known = new Set([
+    ...(save.rareSeedIds ?? []),
+    ...inventory.flatMap((seed) => [seed.id, seed.family, seed.name]).filter(Boolean),
+  ].map((value) => String(value).toLowerCase()))
+  const found = targets.filter((family) => known.has(family.id) || known.has(family.name.toLowerCase()))
+  const missing = targets.filter((family) => !found.includes(family))
+  const nextLead = missing[0]
+
+  return {
+    complete: missing.length === 0,
+    foundCount: found.length,
+    foundFamilies: found.map((family) => family.name),
+    missingFamilies: missing.map((family) => family.name),
+    nextLead,
+    total: targets.length,
+    text: missing.length
+      ? `Rare seed hunting: ${found.length} of ${targets.length} rare families found; next lead ${nextLead.name} from ${nextLead.origin}, affinity ${nextLead.affinity}.`
+      : `Rare seed hunting complete: all ${targets.length} rare families are catalogued for graft and conservatory play.`,
   }
 }
 

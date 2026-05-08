@@ -1160,6 +1160,7 @@ function library() {
         <h2 id="appraisal-title">Seed Collection Appraisal</h2>
         <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
         <p>Curated seed: ${appraisal.curatedSeed}. Playable voices: ${appraisal.playableVoices.join(', ')}.</p>
+        <p>${appraisal.rareHunting.text}</p>
         <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
         <p>${dreamCompost.text}</p>
         <p>${pollinatorVault.text}</p>
