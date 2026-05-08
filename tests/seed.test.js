@@ -221,6 +221,24 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['square'])).toMatchObject({ matchesRequirement: true, waveform: 'square' })
   })
 
+  it('gives Verdant seeds a pulse rhythm growth archetype', () => {
+    const seed = createSeedDNA('verdant-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.55,
+      ecologicalAffinity: 'growth rhythm and pulse timing',
+      family: 'Verdant',
+      growthBehavior: 'breathing',
+      oscillatorType: 'am',
+      phase: 45,
+      pitchRatio: 1.25,
+      pulseRate: 2.5,
+      waveform: 'sine',
+    })
+    expect(seedPulseRateState(seed, 1)).toMatchObject({ pulseRate: 2.5, targetDelta: 1.5 })
+    expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'breathing' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)

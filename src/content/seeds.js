@@ -74,6 +74,15 @@ const seedFamilyDefaults = {
     pulseRate: 0.75,
     waveform: 'square',
   },
+  verdant: {
+    brightness: 0.55,
+    growthBehavior: 'breathing',
+    oscillatorType: 'am',
+    phase: 45,
+    pitchRatio: 1.25,
+    pulseRate: 2.5,
+    waveform: 'sine',
+  },
 }
 
 export const graftDiscoveryCatalog = seedFamilies.flatMap((familyA, index) =>
