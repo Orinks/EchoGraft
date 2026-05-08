@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasOpeningFreedomState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState, workingRestorationCampaignState } from '../content/resonance.js'
+import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasOpeningFreedomState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, visualPresentationState, waterRootRoutingState, workingRestorationCampaignState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanModeLabels, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
@@ -997,6 +997,7 @@ function splash() {
 
 function game() {
   const carry = currentCarry()
+  const visualPresentation = visualPresentationState(save)
   const scanModeButtons = scanLogModes.map((mode) => `<button data-action="scanMode" data-mode="${mode}" aria-pressed="${scanMode === mode ? 'true' : 'false'}">${scanModeLabels[mode]}</button>`).join('')
   shell(`
     <main class="game" aria-labelledby="chamber-title">
@@ -1007,11 +1008,17 @@ function game() {
       </section>
       <section class="layout">
         <div class="radar" role="img" aria-label="Abstract chamber radar. Player and planted seeds are also described in text.">
+          <div class="greenhouse-visual" aria-hidden="true">
+            <div class="greenhouse-canopy"></div>
+            <div class="greenhouse-current"></div>
+            <div class="greenhouse-roots"></div>
+          </div>
           <div class="heart" style="left:${50 + chamber.target.x * 8}%;top:${50 - chamber.target.y * 8}%"></div>
           <div class="player" style="left:${50 + player.x * 8}%;top:${50 - player.y * 8}%"></div>
           ${plantedSeeds.map((seed) => `<div class="seed" style="left:${50 + seed.position.x * 8}%;top:${50 - seed.position.y * 8}%"></div>`).join('')}
         </div>
         <aside>
+          <p>${visualPresentation.text}</p>
           ${textOnlyHintHtml()}
           ${boundaryObjectiveScanV1Html()}
           ${onDemandInfoCommandsHtml()}
@@ -1092,6 +1099,7 @@ function atlas() {
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const firstEndings = firstEndingsState(save)
   const endingChoices = endingChoiceModelState(save)
+  const visualPresentation = visualPresentationState(save)
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
   const canopyDoors = canopyDoorState(chambers, save)
@@ -1204,6 +1212,7 @@ function atlas() {
       <section aria-labelledby="menu-accessibility-title">
         <h2 id="menu-accessibility-title">Menu Accessibility</h2>
         <p>${menuAccessibility.text}</p>
+        <p>${visualPresentation.text}</p>
         <ol>${menuAccessibility.menus.map((item) => `<li>${item.title}: route ${item.route}; ${item.landmark}; feedback ${item.feedback}${item.gated ? '; currently gated' : ''}.</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="save-load-title">
@@ -1605,6 +1614,7 @@ function conservatory() {
 
 function settings() {
   audio.setMusicScene('menu')
+  const visualPresentation = visualPresentationState(save)
   const mixPass = audioMixAccessibilityPassState(save.settings, {
     captionLog: true,
     gamepadSupport: true,
@@ -1637,6 +1647,7 @@ function settings() {
         </fieldset>
         <fieldset>
           <legend>Display options</legend>
+          <p>${visualPresentation.text}</p>
           <p>Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback.</p>
           <p>Minimal visual mode hides the abstract radar and keeps the chamber playable through text, controls, and audio feedback.</p>
           <p>High contrast increases border, focus, radar, and feedback contrast for players who inspect the visual layer.</p>

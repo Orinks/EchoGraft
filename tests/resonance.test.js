@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneContractStructureState, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingChoiceModelState, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, playerRoleQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
-import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, performancePassState, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasOpeningFreedomState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState, workingRestorationCampaignState } from '../src/content/resonance.js'
+import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, codexStoryPayoffState, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, performancePassState, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restoredSystemRewardsState, restorationAtlasOpeningFreedomState, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, visualPresentationState, waterRootRoutingState, workingRestorationCampaignState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -713,6 +713,20 @@ describe('resonance evaluation', () => {
     ])
     expect(state.text).toContain('Screen reader testing pass ready')
     expect(state.text).toContain('real NVDA, JAWS, Narrator, or VoiceOver validation remains recommended')
+  })
+
+  it('keeps richer greenhouse visuals optional behind no-vision play', () => {
+    const state = visualPresentationState(createDefaultSave())
+    const minimal = visualPresentationState({ ...createDefaultSave(), settings: { minimalVisual: true } })
+
+    expect(state.ready).toBe(true)
+    expect(state.policy).toBe('optional-rich-greenhouse')
+    expect(state.layers.map((layer) => layer.id)).toEqual(['radar', 'greenhouse', 'accessibility'])
+    expect(state.text).toContain('optional-rich-greenhouse')
+    expect(state.text).toContain('no-vision play')
+    expect(minimal.minimal).toBe(true)
+    expect(minimal.text).toContain('minimal mode active')
+    expect(minimal.text).toContain('caption logs')
   })
 
   it('audits e2e coverage for key flows', () => {

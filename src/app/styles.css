@@ -101,6 +101,7 @@ aside {
 
 .radar {
   position: relative;
+  overflow: hidden;
   min-height: 420px;
   border: 2px solid #87e8c0;
   border-radius: 8px;
@@ -111,10 +112,38 @@ aside {
   background-size: 40px 40px;
 }
 
+.greenhouse-visual,
+.greenhouse-canopy,
+.greenhouse-current,
+.greenhouse-roots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.greenhouse-canopy {
+  background:
+    linear-gradient(160deg, rgba(255, 230, 109, 0.18), transparent 34%),
+    repeating-linear-gradient(115deg, rgba(157, 245, 208, 0.16) 0 2px, transparent 2px 28px);
+}
+
+.greenhouse-current {
+  background:
+    linear-gradient(90deg, transparent 0 20%, rgba(91, 192, 255, 0.18) 38%, transparent 62%),
+    repeating-linear-gradient(0deg, transparent 0 34px, rgba(91, 192, 255, 0.1) 34px 36px);
+}
+
+.greenhouse-roots {
+  background:
+    linear-gradient(0deg, rgba(173, 123, 79, 0.22), transparent 38%),
+    repeating-linear-gradient(25deg, transparent 0 24px, rgba(173, 123, 79, 0.16) 24px 26px);
+}
+
 .heart,
 .player,
 .seed {
   position: absolute;
+  z-index: 1;
   width: 22px;
   height: 22px;
   transform: translate(-50%, -50%);
@@ -184,6 +213,10 @@ aside {
 .high-contrast .success {
   background: #00ff66;
   color: #000000;
+}
+
+.high-contrast .greenhouse-visual {
+  display: none;
 }
 
 .minimal-visual .radar {

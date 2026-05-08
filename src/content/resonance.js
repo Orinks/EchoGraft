@@ -695,6 +695,25 @@ export function screenReaderTestingState(routes = screenReaderTestRoutes) {
   }
 }
 
+export function visualPresentationState(save = {}) {
+  const minimal = Boolean(save.settings?.minimalVisual)
+  const layers = [
+    { id: 'radar', text: 'abstract chamber radar keeps player, heart, and seed positions inspectable' },
+    { id: 'greenhouse', text: 'greenhouse canopy, water current, and root lattice add sighted atmosphere' },
+    { id: 'accessibility', text: 'minimal visual mode, high contrast, reduced motion, caption log, and scan text remain complete' },
+  ]
+
+  return {
+    layers,
+    minimal,
+    policy: 'optional-rich-greenhouse',
+    ready: layers.length === 3,
+    text: minimal
+      ? 'Visual presentation: minimal mode active; hide the abstract greenhouse layer and keep the game fully playable through audio, text, controls, and caption logs.'
+      : 'Visual presentation: optional-rich-greenhouse. Build a richer abstract greenhouse for sighted players, but keep minimal/no-vision play as the primary contract with complete audio, text, controls, and caption logs.',
+  }
+}
+
 export const e2eKeyFlowCoverage = [
   { id: 'new-game', flow: 'splash to main menu to new game', assertion: 'first chamber renders with accessible controls' },
   { id: 'no-vision-restore', flow: 'keyboard scan, move, plant, restore', assertion: 'caption log mirrors audio-first completion' },
