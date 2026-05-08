@@ -1560,6 +1560,53 @@ export function stewardshipSummary(chambers, save) {
   }
 }
 
+export function workingRestorationCampaignState(chambers, save = {}, arkClock = 0) {
+  const solvedIds = save.solvedChambers ?? []
+  const solved = new Set(solvedIds)
+  const available = availableChambers(chambers, solvedIds).filter((chamber) => !solved.has(chamber.id))
+  const plan = restorationPlanningSession(chambers, solvedIds, { min: 20, max: 40 }, arkClock)
+  const returns = optionalReturnContracts(chambers, save)
+  const ratingOrder = ['Resonant', 'Stable', 'Restored', 'Dormant', 'Wild']
+  const ratingCounts = Object.entries(save.ratings ?? {}).reduce((counts, [, rating]) => {
+    counts[rating] = (counts[rating] ?? 0) + 1
+    return counts
+  }, {})
+  const ratingText = ratingOrder
+    .filter((rating) => ratingCounts[rating])
+    .map((rating) => `${rating} ${ratingCounts[rating]}`)
+    .join(', ') || 'no chamber ratings yet'
+  const nextRequired = available.find((chamber) => !chamber.optional)
+  const nextOptional = available.find((chamber) => chamber.optional)
+  const nextAction = returns[0]?.title
+    ? `revisit ${returns[0].title} for rating improvement`
+    : nextRequired?.title
+      ? `restore ${nextRequired.title}`
+      : nextOptional?.title
+        ? `optional work ${nextOptional.title}`
+        : 'review postgame restoration'
+  const entries = plan.contracts.map((contract) => ({
+    id: contract.id,
+    ready: contract.ready,
+    rating: save.ratings?.[contract.id] ?? 'Unrated',
+    title: contract.title,
+    text: `${contract.title}: ${contract.ready ? 'ready' : 'queued'}; ${contract.optional ? 'optional' : 'required'}; ${save.ratings?.[contract.id] ?? 'Unrated'} rating; ${contract.solveTimeMinutes.min} to ${contract.solveTimeMinutes.max} minute solve.`,
+  }))
+
+  return {
+    availableCount: available.length,
+    entries,
+    nextAction,
+    nextOptional,
+    nextRequired,
+    plan,
+    ratingCounts,
+    ratingText,
+    ready: plan.contracts.length > 0 && plan.min >= 20 && plan.max <= 40,
+    returnContracts: returns,
+    text: `Working restoration campaign: ${solved.size} restored, ${available.length} available, ratings ${ratingText}. Planning queue ${plan.min} to ${plan.max} minute(s); ${returns.length} rating return option(s). Next action: ${nextAction}.`,
+  }
+}
+
 export function optionalReturnContracts(chambers, save) {
   const solved = new Set(save.solvedChambers)
   return chambers
