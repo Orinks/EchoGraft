@@ -17,6 +17,7 @@ export const defaultKeyboardBindings = {
   tuneDown: '-, [',
   tuneUp: '=, ]',
   graft: 'g',
+  restoreAdvance: 'n',
   reset: 'r',
   help: 'h',
   pause: 'Escape',

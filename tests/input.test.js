@@ -23,6 +23,7 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ keyboard: { BracketLeft: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'tuneDown', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { BracketRight: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'tuneUp', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { KeyG: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'graft', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyN: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'restoreAdvance', source: 'keyboard' })
   })
 
   it('normalizes gamepad state into game intents', () => {

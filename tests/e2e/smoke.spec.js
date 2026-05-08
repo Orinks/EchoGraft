@@ -427,6 +427,22 @@ test('uses G to graft the first two seeds', async ({ page }) => {
   await expect(eventLog.getByText(/Unlocked graft mechanic: hybrid resonance planting/)).toBeVisible()
 })
 
+test('uses N to restore or advance when solved', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('n')
+  await expect(eventLog.getByText(/Restore: Training Contract: First Breath is not ready/)).toBeVisible()
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+  await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
+  await page.keyboard.press('n')
+  await expect(eventLog.getByText(/Ark clock advanced to cycle 1/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

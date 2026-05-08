@@ -67,6 +67,7 @@ const keyBindingLabels = {
   tuneDown: 'Tune down',
   tuneUp: 'Tune up',
   graft: 'Graft',
+  restoreAdvance: 'Restore or advance',
   objectiveInfo: 'Objective info',
   positionInfo: 'Position info',
   inventoryInfo: 'Inventory info',
@@ -360,7 +361,7 @@ function codexInfoText() {
 
 function controlsText() {
   const bindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}) }
-  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant/interact/confirm ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; previous seed ${bindings.previousSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants, east button scans, shoulder buttons cycle scan mode and seeds, menu button pauses.`
+  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant/interact/confirm ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; previous seed ${bindings.previousSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; restore or advance ${bindings.restoreAdvance}; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants, east button scans, shoulder buttons cycle scan mode and seeds, menu button pauses.`
 }
 
 function mainMenuStatusText() {
@@ -628,6 +629,11 @@ function restoreChamber() {
   evaluate()
 }
 
+function restoreOrAdvance() {
+  if (save.solvedChambers.includes(chamber.id)) advanceArkClock()
+  else restoreChamber()
+}
+
 function advanceArkClock() {
   save.arkClock += 1
   persist()
@@ -717,6 +723,7 @@ function handleInputIntent(intent) {
   else if (intent.action === 'selectSeed') selectSeed(intent.index ?? 0)
   else if (intent.action === 'selectTuningParameter') setTuningParameter(tuningParameters[intent.index ?? 0])
   else if (intent.action === 'graft') graft()
+  else if (intent.action === 'restoreAdvance') restoreOrAdvance()
   else if (intent.action === 'cycleScanMode') cycleScanMode()
   else if (intent.action === 'pause') setScreen('pause')
 }
@@ -759,6 +766,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
     tuningIndex = (tuningIndex + 1) % tuningParameters.length
     log(`Tuning parameter: ${tuningLabel(currentTuningParameter())}.`)
   } else if (keyMatches('graft', event)) graft()
+  else if (keyMatches('restoreAdvance', event)) restoreOrAdvance()
   else if (keyMatches('reset', event)) resetChamber()
   else if (keyMatches('help', event)) setScreen('help')
   else if (keyMatches('pause', event)) setScreen('pause')
