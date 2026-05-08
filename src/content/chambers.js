@@ -693,6 +693,10 @@ export const chambers = [
     start: { x: 0, y: -4, facing: 0 },
     target: { x: -1, y: 2, pitchRatio: 1, pulseRate: 1, brightness: 0.4, phase: 135 },
     requiredSeeds: 1,
+    memoryLoops: {
+      oldState: 'pond echo repeats that Wind Bellows is still starved even after air has returned',
+      resolvedText: 'memory pond accepts the present state and stops replaying the old failure',
+    },
     solveTimeMinutes: { min: 6, max: 8 },
     tolerances: { position: 1.5, pitchRatio: 0.18, pulseRate: 0.28, brightness: 0.2, phase: 35 },
     requires: ['wind-bellows'],

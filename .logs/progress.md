@@ -296,3 +296,4 @@
 - Continued with `omx ultragoal complete-goals` for `G266-glass-shear-reflects-scans`. Added glass shear scan reflection state to Glass Rain so objective scans report mirrored echo direction, delay, and readable no-vision reflection feedback.
 - Continued with `omx ultragoal complete-goals` for `G267-phase-fog-inverts-direction-cues`. Added phase fog scan inversion state to Fog Harp so scans report the heard inverted cue beside the true direction for no-vision cross-checking.
 - Continued with `omx ultragoal complete-goals` for `G268-static-bloom-masks-weak-seeds`. Added static bloom masking to Hail Damper so weak low-brightness seeds are named, blocked, and must be brightened before restoration.
+- Continued with `omx ultragoal complete-goals` for `G269-memory-loops-repeat-misleading-old-s`. Added Memory Pond loop state so memory scans repeat a misleading old-state echo until the chamber is resolved, then report that the loop has quieted.

@@ -640,6 +640,21 @@ function recordTitle(records = {}, id) {
   return records[id]?.title ?? id
 }
 
+export function memoryLoopState(chamber = {}, save = {}) {
+  if (!chamber.memoryLoops) return undefined
+
+  const solved = new Set(save.solvedChambers ?? [])
+  const resolved = solved.has(chamber.id) || (save.resolvedMemoryLoops ?? []).includes(chamber.id)
+
+  return {
+    oldState: chamber.memoryLoops.oldState,
+    resolved,
+    text: resolved
+      ? `Memory loop resolved: ${chamber.memoryLoops.resolvedText}.`
+      : `Memory loop unresolved: repeats misleading old state, ${chamber.memoryLoops.oldState}. Resolve this chamber to quiet the loop.`,
+  }
+}
+
 export function memoryScanState(chamber = {}, save = {}, records = {}) {
   const recoveredIds = save.codexIds ?? []
   const recovered = new Set(recoveredIds)
@@ -665,13 +680,15 @@ export function memoryScanState(chamber = {}, save = {}, records = {}) {
       ? `${hiddenEchoes.map((record) => record.title).join(', ')} audible before restoration`
       : 'no hidden echoes remain in this chamber'
     : 'locked until Quiet Mirror or Memory Orchard comes online'
+  const memoryLoop = memoryLoopState(chamber, save)
 
   return {
     chamberRecords,
     hiddenEchoes,
+    memoryLoop,
     memoryOnline,
     recoveredCount: recoveredIds.length,
-    text: `Memory scan: records ${recoveredText}. Chamber records: ${chamberText}. Hidden echoes: ${hiddenText}.`,
+    text: `Memory scan: records ${recoveredText}. Chamber records: ${chamberText}. Hidden echoes: ${hiddenText}.${memoryLoop ? ` ${memoryLoop.text}` : ''}`,
   }
 }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -507,6 +507,19 @@ describe('scan pulse', () => {
     expect(memoryScan.memoryOnline).toBe(true)
     expect(memoryScan.hiddenEchoes).toContainEqual(expect.objectContaining({ id: 'perception-04', title: 'Perception 04' }))
     expect(memoryScan.text).toContain('Hidden echoes: Perception 04 audible before restoration')
+  })
+
+  it('repeats misleading memory loops until the chamber is resolved', () => {
+    const chamber = chambers.find((item) => item.id === 'memory-pond')
+    const unresolved = memoryScanState(chamber, { codexIds: [], restoredSystems: ['Memory'], solvedChambers: [] })
+    const resolved = memoryScanState(chamber, { codexIds: [], restoredSystems: ['Memory'], solvedChambers: ['memory-pond'] })
+
+    expect(memoryLoopState(chamber, { solvedChambers: [] })).toMatchObject({ resolved: false })
+    expect(unresolved.memoryLoop).toMatchObject({ oldState: chamber.memoryLoops.oldState, resolved: false })
+    expect(unresolved.text).toContain('Memory loop unresolved')
+    expect(unresolved.text).toContain('repeats misleading old state')
+    expect(resolved.memoryLoop).toMatchObject({ resolved: true })
+    expect(resolved.text).toContain('Memory loop resolved')
   })
 
   it('summarizes endgame multi-chamber network resonance state', () => {
