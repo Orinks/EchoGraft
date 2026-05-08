@@ -844,6 +844,26 @@ export function seedLibraryMenuState(inventory = [], save = {}, selectedSeedInde
   }
 }
 
+export function firstCodexRecordsState(chambers, records = codexRecords) {
+  const firstContract = chambers.find((chamber) => chamber.id === 'tutorial') ?? chambers[0]
+  const recordIds = firstContract?.rewards?.codex ?? []
+  const entries = recordIds.map((id) => ({ id, ...records[id] }))
+  const missing = entries.filter((entry) => !entry.title || !entry.text)
+  const branches = Array.from(new Set(recordIds.map((id) => id.split('-').slice(0, -1).join('-') || id)))
+  const ready = recordIds.length >= 5 && missing.length === 0
+
+  return {
+    branches,
+    entries,
+    firstContract,
+    missing,
+    ready,
+    text: ready
+      ? `First codex records ready: ${firstContract.title} rewards ${entries.length} readable record(s) across ${branches.join(', ')}.`
+      : `First codex records incomplete: ${missing.length} missing authored record(s) from ${firstContract?.title ?? 'first contract'}.`,
+  }
+}
+
 export function graftCatalogCompletionState(save = {}, catalog = graftDiscoveryCatalog) {
   const fromRecords = (save.graftRecords ?? [])
     .map((record) => String(record.id ?? '').replace(/^graft-record-/, ''))

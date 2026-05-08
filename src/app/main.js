@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFourArkSystemsState, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1060,6 +1060,7 @@ function atlas() {
   const resourceGuard = resourceDeadEndState(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
   const codexRecovery = codexRecoverySummary(chambers, save)
+  const firstCodexRecords = firstCodexRecordsState(chambers, codexRecords)
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const centralHeart = centralHeartSummary(chambers, save)
   const crewWakeCycle = crewWakeCycleSummary(save)
@@ -1172,6 +1173,7 @@ function atlas() {
       <section aria-labelledby="codex-recovery-title">
         <h2 id="codex-recovery-title">Codex Recovery</h2>
         <p>${codexRecovery.text}</p>
+        <p>${firstCodexRecords.text}</p>
         ${codexRecovery.availableRecords.length ? `<ol>${codexRecovery.availableRecords.map((record) => `<li>${codexRecords[record.id]?.title ?? record.id} in ${record.chamberTitle}.</li>`).join('')}</ol>` : ''}
       </section>
       <section aria-labelledby="memory-echo-title">
@@ -1354,11 +1356,17 @@ function codex() {
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const recovery = codexRecoverySummary(chambers, save)
   const completion = codexCompletionState(save, availableCodexRecords())
+  const firstCodexRecords = firstCodexRecordsState(chambers, availableCodexRecords())
   const arkOrigin = arkOriginMysteryState(save)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
       <p>Perception status: ${save.codexIds.length} recovered. ${recovery.text}</p>
+      <section aria-labelledby="first-codex-records-title">
+        <h2 id="first-codex-records-title">First Codex Records</h2>
+        <p>${firstCodexRecords.text}</p>
+        <ol>${firstCodexRecords.entries.map((record) => `<li>${record.title ?? record.id}: ${record.text ?? 'Missing record text.'}</li>`).join('')}</ol>
+      </section>
       <section aria-labelledby="codex-completion-title">
         <h2 id="codex-completion-title">Codex Completion</h2>
         <p>${completion.text}</p>

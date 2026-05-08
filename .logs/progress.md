@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G301-first-codex-records`. Added a First Codex Records state for the training contract's initial five readable records, then surfaced the starter record set in the Restoration Atlas and Codex screen.
 - Continued with `omx ultragoal complete-goals` for `G300-6-required-contracts-2-optional-cont`. Added a Season 1 opening contract mix that stages the first six required contracts and the first two optional branches, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G299-intake-navigation-water-canopy-syste`. Added an Intake/Navigation/Water/Canopy systems state that verifies the first functional arc's authored contracts, unlock promises, and current online count, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G298-on-demand-info-commands-complete`. Added an on-demand info command completeness state for objective, position, inventory, latest log, recent log, boundaries, planted voices, codex, and controls, then surfaced the bindings in the chamber UI.

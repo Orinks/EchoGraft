@@ -185,6 +185,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Canopy photosynthesis doors locked/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Memory Codex Echoes' })).toBeVisible()
   await expect(page.getByText(/Memory codex echoes locked/)).toBeVisible()
+  await expect(page.getByText(/First codex records ready: Training Contract: First Breath rewards 5 readable record\(s\)/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Heart Network Endings' })).toBeVisible()
   await expect(page.getByText(/Heart network resonance locked/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Final Ecology Philosophy' })).toBeVisible()
@@ -262,6 +263,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
 
   await page.getByRole('button', { name: 'Codex' }).click()
   await expect(page.getByText(/Perception status: \d+ recovered\. Codex recovery:/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'First Codex Records' })).toBeVisible()
+  await expect(page.getByText(/First Breath: The Ark still answers small acts of care/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Codex Completion' })).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Codex perception actions' })).toBeVisible()
   await expect(page.getByLabel('Caption and event log')).toBeVisible()
