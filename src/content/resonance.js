@@ -1128,6 +1128,70 @@ export function materialsCraftingState(save = {}) {
   }
 }
 
+function addMaterialTotals(target, source = {}) {
+  for (const [key, value] of Object.entries(source)) {
+    target[key] = (target[key] ?? 0) + value
+  }
+  return target
+}
+
+export function restoredSystemRewardsState(chambers, save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const restoredSystems = new Set(save.restoredSystems ?? [])
+  const entriesBySystem = new Map()
+
+  for (const chamber of chambers) {
+    const system = chamber.system ?? 'Unknown'
+    const entry = entriesBySystem.get(system) ?? {
+      codexIds: [],
+      materialTotals: {},
+      restoredContracts: 0,
+      seedIds: [],
+      system,
+      totalContracts: 0,
+    }
+    entry.totalContracts += 1
+    if (solved.has(chamber.id)) entry.restoredContracts += 1
+    addMaterialTotals(entry.materialTotals, chamber.rewards?.materials)
+    entry.codexIds.push(...(chamber.rewards?.codex ?? []))
+    entry.seedIds.push(...(chamber.rewards?.seeds ?? []))
+    entriesBySystem.set(system, entry)
+  }
+
+  const entries = Array.from(entriesBySystem.values()).map((entry) => {
+    const online = restoredSystems.has(entry.system)
+    const materialText = Object.entries(entry.materialTotals)
+      .filter(([, value]) => value > 0)
+      .map(([key, value]) => `${value} ${key}`)
+      .join(', ') || 'no material rewards authored yet'
+    const rewardCount = Object.keys(entry.materialTotals).length + entry.codexIds.length + entry.seedIds.length
+
+    return {
+      ...entry,
+      materialText,
+      online,
+      rewardCount,
+      text: `${entry.system}: ${online ? 'online' : 'locked'}; ${entry.restoredContracts} of ${entry.totalContracts} contract(s) restored; materials ${materialText}; records ${entry.codexIds.length}; seeds ${entry.seedIds.length}.`,
+    }
+  })
+
+  const onlineEntries = entries.filter((entry) => entry.online)
+  const nextReward = entries.find((entry) => !entry.online && entry.rewardCount > 0) ?? entries.find((entry) => entry.rewardCount > 0)
+  const earnedMaterials = Object.entries(save.materials ?? {})
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${value} ${key}`)
+    .join(', ') || 'none carried yet'
+
+  return {
+    earnedMaterials,
+    entries,
+    nextReward,
+    onlineEntries,
+    ready: entries.length > 0 && entries.every((entry) => entry.rewardCount > 0),
+    text: `Restored system rewards ready: ${onlineEntries.length} online system(s) have earned ${earnedMaterials}. ${nextReward ? `Next system reward track: ${nextReward.system} offers ${nextReward.materialText}.` : 'No pending reward track remains.'}`,
+  }
+}
+
 export function persistentChamberChangesState(chambers, save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const environmentalChanges = save.environmentalChanges ?? []
