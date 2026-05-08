@@ -10,7 +10,7 @@ import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedCh
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
-import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
+import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
@@ -444,6 +444,16 @@ function boundaryObjectiveScanV1Html() {
       <h2 id="scan-v1-title">Boundary/Objective Scan V1</h2>
       <p>${state.text}</p>
       <ol>${state.sections.map((section) => `<li>${section.text}</li>`).join('')}</ol>
+    </section>
+  `
+}
+
+function onDemandInfoCommandsHtml() {
+  const state = onDemandInfoCommandState(save.keyboardBindings)
+  return `
+    <section aria-labelledby="info-commands-title">
+      <h2 id="info-commands-title">On-Demand Info Commands</h2>
+      <p>${state.text}</p>
     </section>
   `
 }
@@ -994,6 +1004,7 @@ function game() {
         <aside>
           ${textOnlyHintHtml()}
           ${boundaryObjectiveScanV1Html()}
+          ${onDemandInfoCommandsHtml()}
           <h2>Actions</h2>
           <button data-action="listen">Listen</button>
           <button data-action="locate">Locate heart</button>

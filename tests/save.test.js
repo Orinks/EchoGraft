@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultProceduralSeed } from '../src/content/rng.js'
-import { createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../src/content/save.js'
+import { createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../src/content/save.js'
 
 function memoryStorage() {
   const store = new Map()
@@ -102,6 +102,26 @@ describe('save system', () => {
     expect(loaded.restorationPhilosophy).toBe('preservation')
     expect(loaded.proceduralSeed).toBe(defaultProceduralSeed)
     expect(loaded.keyboardBindings).toEqual(defaultKeyboardBindings)
+  })
+
+  it('tracks on-demand info command completeness', () => {
+    const state = onDemandInfoCommandState(defaultKeyboardBindings)
+
+    expect(state.ready).toBe(true)
+    expect(state.commands.map((command) => command.action)).toEqual([
+      'objectiveInfo',
+      'positionInfo',
+      'inventoryInfo',
+      'latestLog',
+      'recentLog',
+      'boundaryInfo',
+      'plantedVoices',
+      'codexInfo',
+      'controlsInfo',
+    ])
+    expect(state.text).toContain('On-demand info commands complete')
+    expect(state.text).toContain('Shift+L recent log history')
+    expect(state.text).toContain('? controls help')
   })
 
   it('resets chamber-local progress without punishing campaign progress', () => {

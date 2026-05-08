@@ -32,6 +32,35 @@ export const defaultKeyboardBindings = {
   controlsInfo: '?',
 }
 
+export const onDemandInfoCommands = [
+  { action: 'objectiveInfo', label: 'objective/current system', key: 'O' },
+  { action: 'positionInfo', label: 'position/facing/progress', key: 'P' },
+  { action: 'inventoryInfo', label: 'selected seed/inventory/materials', key: 'I' },
+  { action: 'latestLog', label: 'latest log entry', key: 'L' },
+  { action: 'recentLog', label: 'recent log history', key: 'Shift+L' },
+  { action: 'boundaryInfo', label: 'boundaries and safe return', key: 'X' },
+  { action: 'plantedVoices', label: 'planted seed voices', key: 'V' },
+  { action: 'codexInfo', label: 'codex/perception updates', key: 'C' },
+  { action: 'controlsInfo', label: 'controls help', key: '?' },
+]
+
+export function onDemandInfoCommandState(bindings = defaultKeyboardBindings) {
+  const commands = onDemandInfoCommands.map((command) => ({
+    ...command,
+    binding: bindings[command.action] ?? command.key,
+    ready: Boolean(bindings[command.action] ?? command.key),
+  }))
+  const missing = commands.filter((command) => !command.ready)
+
+  return {
+    commands,
+    ready: missing.length === 0,
+    text: missing.length
+      ? `On-demand info commands incomplete: missing ${missing.map((command) => command.action).join(', ')}.`
+      : `On-demand info commands complete: ${commands.map((command) => `${command.binding} ${command.label}`).join('; ')}.`,
+  }
+}
+
 export function createDefaultSave() {
   return {
     version: 1,
