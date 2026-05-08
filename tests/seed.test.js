@@ -202,6 +202,25 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['triangle'])).toMatchObject({ matchesRequirement: true, waveform: 'triangle' })
   })
 
+  it('gives Umbra seeds a phase cancellation hidden-record archetype', () => {
+    const seed = createSeedDNA('umbra-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.25,
+      ecologicalAffinity: 'phase cancellation and hidden records',
+      family: 'Umbra',
+      growthBehavior: 'twining',
+      oscillatorType: 'am',
+      phase: 180,
+      pitchRatio: 0.75,
+      pulseRate: 0.75,
+      waveform: 'square',
+    })
+    expect(seedFamilyState(seed).text).toContain('phase cancellation and hidden records')
+    expect(seedPhaseState(seed, 0)).toMatchObject({ phase: 180, targetDelta: -180 })
+    expect(seedWaveformState(seed, ['square'])).toMatchObject({ matchesRequirement: true, waveform: 'square' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)
