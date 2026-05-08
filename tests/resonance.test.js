@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -1084,6 +1084,23 @@ describe('resonance evaluation', () => {
     expect(teachingAxisSummary(chambers.find((chamber) => chamber.id === 'tutorial')).axis).toBe('chamber heart scan')
     expect(teachingAxisSummary(finale)).toMatchObject({ combinesMasteredAxes: true, newAxisCount: 0 })
     expect(teachingAxisSummary(earlyContracts[1]).text).toContain('introduces one new axis')
+  })
+
+  it('combines axes only after prerequisite mastery', () => {
+    const harmony = chambers.find((chamber) => chamber.id === 'harmony')
+    const finale = chambers.find((chamber) => chamber.id === 'finale')
+    const locked = createDefaultSave()
+    locked.solvedChambers = ['rhythm']
+    locked.ratings = { rhythm: 'Restored' }
+    const ready = createDefaultSave()
+    ready.solvedChambers = ['pitch', 'mold']
+    ready.ratings = { pitch: 'Stable', mold: 'Resonant' }
+
+    expect(axisCombinationMasterySummary(chambers.find((chamber) => chamber.id === 'direction'), ready).combinesAxes).toBe(false)
+    expect(axisCombinationMasterySummary(harmony, locked)).toMatchObject({ combinesAxes: true, ready: false, masteredCount: 0 })
+    expect(axisCombinationMasterySummary(harmony, ready)).toMatchObject({ combinesAxes: true, ready: true, masteredCount: 1 })
+    expect(axisCombinationMasterySummary(finale, ready)).toMatchObject({ combinesAxes: true, ready: true, masteredCount: 1 })
+    expect(axisCombinationMasterySummary(harmony, ready).text).toContain('Axis combination mastery: ready')
   })
 
   it('authors Navigation Grove as a direction and distance contract', () => {

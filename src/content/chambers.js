@@ -67,6 +67,23 @@ export function teachingAxisSummary(chamber) {
   }
 }
 
+export function axisCombinationMasterySummary(chamber, save = {}) {
+  const combinesAxes = chamber.requiredSeeds > 1 || chamber.requiresGraft || teachingAxisSummary(chamber).combinesMasteredAxes
+  const prerequisites = chamber.requires ?? []
+  const masteredPrerequisites = prerequisites.filter((id) => save.solvedChambers?.includes(id) && ['Stable', 'Resonant'].includes(save.ratings?.[id] ?? ''))
+  const ready = !combinesAxes || (prerequisites.length > 0 && masteredPrerequisites.length === prerequisites.length)
+
+  return {
+    combinesAxes,
+    masteredCount: masteredPrerequisites.length,
+    prerequisites,
+    ready,
+    text: combinesAxes
+      ? `Axis combination mastery: ${ready ? 'ready' : 'locked'}; mastered ${masteredPrerequisites.length} of ${prerequisites.length} prerequisite axis contract(s).`
+      : 'Axis combination mastery: not needed for this single-axis contract.',
+  }
+}
+
 export function chamberCycleState(chamber, arkClock = 0) {
   if (!chamber.cycle?.states?.length) return undefined
 
