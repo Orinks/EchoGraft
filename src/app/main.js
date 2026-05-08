@@ -1056,16 +1056,21 @@ function codex() {
   audio.setMusicScene('menu')
   const trees = codexRecordTrees(availableCodexRecords(), save.codexIds)
   const memoryEchoes = memoryCodexEchoState(chambers, save)
+  const recovery = codexRecoverySummary(chambers, save)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
+      <p>Perception status: ${save.codexIds.length} recovered. ${recovery.text}</p>
       <section aria-labelledby="codex-echo-title">
         <h2 id="codex-echo-title">Memory Codex Echoes</h2>
         <p>${memoryEchoes.text}</p>
       </section>
       ${trees.length ? trees.map((tree) => `<section aria-labelledby="codex-${tree.id}"><h2 id="codex-${tree.id}">${tree.title}</h2><ol>${tree.records.map((record) => `<li><h3>${record.title ?? record.id}</h3><p>${record.text ?? 'Recovered record.'}</p></li>`).join('')}</ol></section>`).join('') : '<p>No perceptions recovered yet.</p>'}
-      <button data-action="atlas">Atlas</button>
-      <button data-action="game">Back to chamber</button>
+      <nav aria-label="Codex perception actions">
+        <button data-action="atlas">Atlas</button>
+        <button data-action="library">Seed library</button>
+        <button data-action="game">Back to chamber</button>
+      </nav>
     </main>
   `)
 }
