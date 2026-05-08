@@ -705,7 +705,9 @@ function handleInputIntent(intent) {
   } else if (intent.action === 'previousSeed') {
     const carry = currentCarry()
     selectSeed(carry.carried.length ? (selectedSeedIndex - 1 + carry.carried.length) % carry.carried.length : 0)
-  } else if (intent.action === 'cycleScanMode') cycleScanMode()
+  } else if (intent.action === 'tuneDown') tune(-1)
+  else if (intent.action === 'tuneUp') tune(1)
+  else if (intent.action === 'cycleScanMode') cycleScanMode()
   else if (intent.action === 'pause') setScreen('pause')
 }
 
