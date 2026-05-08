@@ -2,6 +2,34 @@ import { defaultProceduralSeed } from './rng.js'
 
 export const saveKey = 'echograft-save-v1'
 
+export const defaultKeyboardBindings = {
+  moveUp: 'w, ArrowUp',
+  moveDown: 's, ArrowDown',
+  moveLeft: 'a, ArrowLeft',
+  moveRight: 'd, ArrowRight',
+  rotateLeft: 'q',
+  rotateRight: 'e',
+  scan: 'Space',
+  cycleScanMode: 'z',
+  plant: 'Enter',
+  cycleSeed: 'Tab',
+  tuneDown: '-, [',
+  tuneUp: '=, ]',
+  graft: 'g',
+  reset: 'r',
+  help: 'h',
+  pause: 'Escape',
+  objectiveInfo: 'o',
+  positionInfo: 'p',
+  inventoryInfo: 'i',
+  latestLog: 'l',
+  recentLog: 'Shift+L',
+  boundaryInfo: 'x',
+  plantedVoices: 'v',
+  codexInfo: 'c',
+  controlsInfo: '?',
+}
+
 export function createDefaultSave() {
   return {
     version: 1,
@@ -51,6 +79,7 @@ export function createDefaultSave() {
       minimalVisual: false,
       highContrast: false,
     },
+    keyboardBindings: defaultKeyboardBindings,
   }
 }
 
@@ -64,6 +93,7 @@ export function loadSave(storage = globalThis.localStorage) {
       ...parsed,
       materials: { ...defaults.materials, ...(parsed.materials ?? {}) },
       settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
+      keyboardBindings: { ...defaults.keyboardBindings, ...(parsed.keyboardBindings ?? {}) },
       bonusContractIds: parsed.bonusContractIds ?? defaults.bonusContractIds,
       graftRatingBoosts: parsed.graftRatingBoosts ?? defaults.graftRatingBoosts,
       wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,

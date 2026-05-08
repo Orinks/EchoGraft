@@ -10,7 +10,7 @@ import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedCh
 import { availableChambers, canopyDoorState, centralHeartSummary, codexRecoverySummary, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
-import { clearSave, createDefaultSave, loadSave, saveGame } from '../content/save.js'
+import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
@@ -50,6 +50,24 @@ const settingLabels = {
   reducedMotion: 'Reduced motion',
   minimalVisual: 'Minimal visual mode',
   highContrast: 'High contrast',
+}
+
+const keyBindingLabels = {
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  moveLeft: 'Move left',
+  moveRight: 'Move right',
+  scan: 'Primary scan',
+  plant: 'Plant or interact',
+  cycleSeed: 'Cycle seed',
+  cycleScanMode: 'Cycle scan mode',
+  tuneDown: 'Tune down',
+  tuneUp: 'Tune up',
+  graft: 'Graft',
+  objectiveInfo: 'Objective info',
+  positionInfo: 'Position info',
+  inventoryInfo: 'Inventory info',
+  latestLog: 'Latest log',
 }
 
 function buildInventory() {
@@ -175,6 +193,7 @@ function hydrateRuntimeSave(nextSave = {}) {
     ...nextSave,
     materials: { ...defaults.materials, ...(nextSave.materials ?? {}) },
     settings: { ...defaults.settings, ...(nextSave.settings ?? {}) },
+    keyboardBindings: { ...defaults.keyboardBindings, ...(nextSave.keyboardBindings ?? {}) },
   }
 }
 
@@ -336,7 +355,8 @@ function codexInfoText() {
 }
 
 function controlsText() {
-  return 'Controls: WASD or arrow keys move; Q and E rotate; Space scans; Z cycles scan mode; Enter plants or picks up; Tab cycles seeds; 1 through 4 select seeds; Minus or brackets tune; Shift cycles tuning parameter; G grafts; N restores or advances; O objective, P position, I inventory, L latest log, Shift+L recent log, X boundaries, V planted voices, C codex, question mark controls; R resets; H opens help; Escape pauses.'
+  const bindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}) }
+  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}.`
 }
 
 function mainMenuStatusText() {
@@ -614,6 +634,33 @@ function updateSetting(key, value) {
   log(`Settings audio/display update: ${settingLabels[key] ?? key} set to ${parsed === true ? 'on' : parsed === false ? 'off' : parsed}.`)
 }
 
+function keyBindingText(action) {
+  return (save.keyboardBindings ?? defaultKeyboardBindings)[action] ?? defaultKeyboardBindings[action] ?? ''
+}
+
+function keyTokens(value = '') {
+  return String(value).split(',').map((item) => item.trim().toLowerCase()).filter(Boolean)
+}
+
+function eventKeyTokens(event) {
+  const key = event.key === ' ' ? 'space' : event.key
+  const tokens = [key, event.code].filter(Boolean).map((item) => item.toLowerCase())
+  if (event.shiftKey && key) tokens.push(`shift+${key.toLowerCase()}`)
+  if (event.shiftKey && event.code) tokens.push(`shift+${event.code.toLowerCase()}`)
+  return tokens
+}
+
+function keyMatches(action, event) {
+  const tokens = eventKeyTokens(event)
+  return keyTokens(keyBindingText(action)).some((binding) => tokens.includes(binding))
+}
+
+function updateKeyBinding(action, value) {
+  save.keyboardBindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}), [action]: value.trim() || defaultKeyboardBindings[action] }
+  persist()
+  log(`Keyboard remap: ${keyBindingLabels[action] ?? action} set to ${save.keyboardBindings[action]}.`)
+}
+
 function cycleScanMode() {
   const modes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network']
   scanMode = modes[(modes.indexOf(scanMode) + 1) % modes.length]
@@ -632,39 +679,39 @@ function handleInputIntent(intent) {
 }
 
 function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
-  if (event.key === 'w' || event.key === 'ArrowUp') movement(0, 1)
-  else if (event.key === 's' || event.key === 'ArrowDown') movement(0, -1)
-  else if (event.key === 'a' || event.key === 'ArrowLeft') movement(-1, 0)
-  else if (event.key === 'd' || event.key === 'ArrowRight') movement(1, 0)
-  else if (event.key.toLowerCase() === 'q') rotate(-15)
-  else if (event.key.toLowerCase() === 'e') rotate(15)
-  else if (event.key === ' ') scan()
-  else if (event.key.toLowerCase() === 'z') cycleScanMode()
-  else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
-  else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
-  else if (event.key.toLowerCase() === 'i') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
-  else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
-  else if (event.key.toLowerCase() === 'l') log(`Latest log entry: ${latestLogText()}`)
-  else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
-  else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
-  else if (event.key.toLowerCase() === 'c') log(codexInfoText())
-  else if (event.key === '?') log(controlsText())
-  else if (event.key === 'Enter') plantOrPickUp()
-  else if (event.key === 'Tab') {
+  if (keyMatches('moveUp', event)) movement(0, 1)
+  else if (keyMatches('moveDown', event)) movement(0, -1)
+  else if (keyMatches('moveLeft', event)) movement(-1, 0)
+  else if (keyMatches('moveRight', event)) movement(1, 0)
+  else if (keyMatches('rotateLeft', event)) rotate(-15)
+  else if (keyMatches('rotateRight', event)) rotate(15)
+  else if (keyMatches('scan', event)) scan()
+  else if (keyMatches('cycleScanMode', event)) cycleScanMode()
+  else if (keyMatches('objectiveInfo', event)) log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
+  else if (keyMatches('positionInfo', event)) log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
+  else if (keyMatches('inventoryInfo', event)) log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
+  else if (keyMatches('recentLog', event)) log(`Recent log: ${recentLogText()}`)
+  else if (keyMatches('latestLog', event)) log(`Latest log entry: ${latestLogText()}`)
+  else if (keyMatches('boundaryInfo', event)) log(boundaryInfoText())
+  else if (keyMatches('plantedVoices', event)) log(plantedVoicesText())
+  else if (keyMatches('codexInfo', event)) log(codexInfoText())
+  else if (keyMatches('controlsInfo', event)) log(controlsText())
+  else if (keyMatches('plant', event)) plantOrPickUp()
+  else if (keyMatches('cycleSeed', event)) {
     event.preventDefault()
     const carry = currentCarry()
     selectSeed(carry.carried.length ? (selectedSeedIndex + 1) % carry.carried.length : 0)
   } else if (/^[1-4]$/.test(event.key)) {
     selectSeed(Number(event.key) - 1)
-  } else if (event.key === '-' || event.key === '[') tune(-1)
-  else if (event.key === '=' || event.key === ']') tune(1)
+  } else if (keyMatches('tuneDown', event)) tune(-1)
+  else if (keyMatches('tuneUp', event)) tune(1)
   else if (event.key === 'Shift') {
     tuningIndex = (tuningIndex + 1) % tuningParameters.length
     log(`Tuning parameter: ${tuningLabel(currentTuningParameter())}.`)
-  } else if (event.key.toLowerCase() === 'g') graft()
-  else if (event.key.toLowerCase() === 'r') resetChamber()
-  else if (event.key.toLowerCase() === 'h') setScreen('help')
-  else if (event.key === 'Escape') setScreen('pause')
+  } else if (keyMatches('graft', event)) graft()
+  else if (keyMatches('reset', event)) resetChamber()
+  else if (keyMatches('help', event)) setScreen('help')
+  else if (keyMatches('pause', event)) setScreen('pause')
 }
 
 document.addEventListener('keydown', (event) => {
@@ -742,6 +789,11 @@ app.addEventListener('click', async (event) => {
 app.addEventListener('input', (event) => {
   const setting = event.target?.dataset?.setting
   if (setting) updateSetting(setting, event.target.type === 'checkbox' ? event.target.checked : event.target.value)
+})
+
+app.addEventListener('change', (event) => {
+  const action = event.target?.dataset?.keyBinding
+  if (action) updateKeyBinding(action, event.target.value)
 })
 
 function shell(content) {
@@ -1137,6 +1189,9 @@ function settings() {
   const sliders = ['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans']
     .map((key) => `<label>${settingLabels[key]}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
     .join('')
+  const keyboardFields = Object.entries(keyBindingLabels)
+    .map(([action, label]) => `<label>${label}<input data-key-binding="${action}" value="${keyBindingText(action)}" /></label>`)
+    .join('')
   shell(`
     <main class="screen" aria-labelledby="settings-title">
       <h1 id="settings-title">Settings</h1>
@@ -1155,6 +1210,11 @@ function settings() {
           <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
           <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
           <label><input data-setting="highContrast" type="checkbox" ${save.settings.highContrast ? 'checked' : ''} /> High contrast</label>
+        </fieldset>
+        <fieldset>
+          <legend>Remappable keyboard</legend>
+          <p>Enter a key name or comma-separated alternatives such as B, Space, ArrowUp, or Shift+L.</p>
+          ${keyboardFields}
         </fieldset>
       </form>
       <nav aria-label="Settings actions">

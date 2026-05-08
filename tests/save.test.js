@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultProceduralSeed } from '../src/content/rng.js'
-import { createDefaultSave, loadSave, saveGame } from '../src/content/save.js'
+import { createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../src/content/save.js'
 
 function memoryStorage() {
   const store = new Map()
@@ -54,6 +54,7 @@ describe('save system', () => {
     expect(loadSave(storage).graftRecords).toHaveLength(1)
     expect(loadSave(storage).materials.biomass).toBe(2)
     expect(loadSave(storage).proceduralSeed).toBe('ark-alpha')
+    expect(loadSave(storage).keyboardBindings.scan).toBe(defaultKeyboardBindings.scan)
   })
 
   it('hydrates new campaign fields into older saves', () => {
@@ -78,5 +79,6 @@ describe('save system', () => {
     expect(loaded.restoredSystems).toEqual([])
     expect(loaded.restorationPhilosophy).toBe('preservation')
     expect(loaded.proceduralSeed).toBe(defaultProceduralSeed)
+    expect(loaded.keyboardBindings).toEqual(defaultKeyboardBindings)
   })
 })
