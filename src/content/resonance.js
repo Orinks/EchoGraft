@@ -864,6 +864,32 @@ export function firstCodexRecordsState(chambers, records = codexRecords) {
   }
 }
 
+export function firstMaterialLoopState(chambers, save = {}) {
+  const firstContract = chambers.find((chamber) => chamber.id === 'tutorial') ?? chambers[0]
+  const rewardMaterials = firstContract?.rewards?.materials ?? {}
+  const rewardEntries = Object.entries(rewardMaterials).filter(([, value]) => value > 0)
+  const currentMaterials = save.materials ?? {}
+  const gatheredEntries = rewardEntries.filter(([key]) => (currentMaterials[key] ?? 0) > 0)
+  const loopSteps = [
+    `earn ${rewardEntries.map(([key, value]) => `${value} ${key}`).join(', ')} from ${firstContract.title}`,
+    'spend spores on seed tuning when available',
+    'use biomass as basic restoration growth and repair stock',
+    'reset chambers without losing gathered materials',
+  ]
+  const ready = rewardEntries.some(([key]) => key === 'spores') && rewardEntries.some(([key]) => key === 'biomass')
+
+  return {
+    firstContract,
+    gatheredEntries,
+    loopSteps,
+    ready,
+    rewardEntries,
+    text: ready
+      ? `First material loop ready: ${loopSteps.join('; ')}. Current save has ${gatheredEntries.length} starter material type(s) gathered.`
+      : `First material loop incomplete: starter contract needs biomass and spores rewards.`,
+  }
+}
+
 export function graftCatalogCompletionState(save = {}, catalog = graftDiscoveryCatalog) {
   const fromRecords = (save.graftRecords ?? [])
     .map((record) => String(record.id ?? '').replace(/^graft-record-/, ''))

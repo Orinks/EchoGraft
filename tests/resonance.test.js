@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
 
@@ -279,6 +279,17 @@ describe('resonance evaluation', () => {
     expect(empty.text).toContain('Tuning is free when spores are empty')
     expect(progressed.deadEnded).toBeUndefined()
     expect(resourceDeadEndState(chambers, progressed).readyRequired.map((chamber) => chamber.id)).toContain('rhythm')
+  })
+
+  it('tracks the first material earn and spend loop', () => {
+    const empty = firstMaterialLoopState(chambers, createDefaultSave())
+    const gathered = firstMaterialLoopState(chambers, { ...createDefaultSave(), materials: { biomass: 1, spores: 1 } })
+
+    expect(empty.ready).toBe(true)
+    expect(empty.rewardEntries).toEqual([['biomass', 1], ['spores', 1]])
+    expect(empty.text).toContain('earn 1 biomass, 1 spores')
+    expect(gathered.gatheredEntries).toEqual([['biomass', 1], ['spores', 1]])
+    expect(gathered.text).toContain('2 starter material type')
   })
 
   it('tracks low-cycle restoration challenge timing', () => {

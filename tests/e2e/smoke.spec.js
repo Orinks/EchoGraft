@@ -156,6 +156,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Materials Ledger' })).toBeVisible()
   await expect(page.getByText(/biomass: 1; basic restoration growth and repair work/)).toBeVisible()
   await expect(page.getByText(/spores: 1; common tuning currency/)).toBeVisible()
+  await expect(page.getByText(/First material loop ready: earn 1 biomass, 1 spores from Training Contract: First Breath; spend spores on seed tuning when available/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Resource Dead-End Guard' })).toBeVisible()
   await expect(page.getByText(/Resource dead-end prevention: safe/)).toBeVisible()
   await expect(page.getByText(/Systems online: Intake/)).toBeVisible()
