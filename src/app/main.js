@@ -356,7 +356,7 @@ function codexInfoText() {
 
 function controlsText() {
   const bindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}) }
-  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}.`
+  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants, east button scans, shoulder buttons cycle scan mode and seeds, menu button pauses.`
 }
 
 function mainMenuStatusText() {
@@ -1215,6 +1215,10 @@ function settings() {
           <legend>Remappable keyboard</legend>
           <p>Enter a key name or comma-separated alternatives such as B, Space, ArrowUp, or Shift+L.</p>
           ${keyboardFields}
+        </fieldset>
+        <fieldset>
+          <legend>Gamepad support</legend>
+          <p>Syngen gamepad input supports left stick or D-pad movement, south button plant/interact, east button primary scan, shoulders for scan mode and seed cycling, and menu/start pause.</p>
         </fieldset>
       </form>
       <nav aria-label="Settings actions">

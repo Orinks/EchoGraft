@@ -13,6 +13,9 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ gamepad: { axis: { 0: 0.8 }, digital: {} }, keyboard: {} })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'gamepad' })
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 0: true } }, keyboard: {} })).toEqual({ action: 'plant', source: 'gamepad' })
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 1: true } }, keyboard: {} })).toEqual({ action: 'scan', source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 4: true } }, keyboard: {} })).toEqual({ action: 'cycleScanMode', source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 5: true } }, keyboard: {} })).toEqual({ action: 'cycleSeed', source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 9: true } }, keyboard: {} })).toEqual({ action: 'pause', source: 'gamepad' })
   })
 
   it('throttles repeated Syngen input poll intents', () => {

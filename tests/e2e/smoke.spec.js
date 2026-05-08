@@ -50,6 +50,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: High contrast set to on/)).toBeVisible()
   await expect(page.getByText(/Enter a key name or comma-separated alternatives such as B, Space, ArrowUp, or Shift\+L/)).toBeVisible()
   await expect(page.getByLabel('Primary scan')).toHaveValue('Space')
+  await expect(page.getByText(/Syngen gamepad input supports left stick or D-pad movement, south button plant\/interact, east button primary scan/)).toBeVisible()
   await page.getByLabel('Primary scan').fill('b')
   await page.getByLabel('Primary scan').blur()
   await expect(page.getByLabel('Caption and event log').getByText(/Keyboard remap: Primary scan set to b/)).toBeVisible()
@@ -90,6 +91,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Codex: no records recovered yet\. Perception updates: Codex recovery:/)).toBeVisible()
   await page.keyboard.press('?')
   await expect(eventLog.getByText(/Controls: move w, ArrowUp\/s, ArrowDown\/a, ArrowLeft\/d, ArrowRight; scan b/)).toBeVisible()
+  await expect(eventLog.getByText(/Gamepad: left stick or D-pad moves, south button plants, east button scans/)).toBeVisible()
 
   await page.keyboard.press('b')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
