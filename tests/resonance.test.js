@@ -771,11 +771,15 @@ describe('resonance evaluation', () => {
     const state = packagingDeploymentState({
       artifacts: { distIndex: true, syngenRuntime: true },
       electron: { loadsDist: true, main: true, preload: true },
-      scripts: { build: true, preview: true, 'check:packaging': true, 'package:electron': true },
+      scripts: { build: true, preview: true, 'check:packaging': true, 'package:electron': true, 'release:electron': true },
     })
 
     expect(state.ready).toBe(true)
     expect(state.text).toContain('Packaging and deployment ready')
+    expect(state.policy).toBe('electron-first-class-browser-canonical')
+    expect(state.targets.map((target) => target.id)).toEqual(['browser-static', 'electron'])
+    expect(state.text).toContain('Electron is a first-class packaged release target')
+    expect(state.text).toContain('browser/static remains the canonical runtime')
 
     const incomplete = packagingDeploymentState({
       artifacts: { distIndex: true },

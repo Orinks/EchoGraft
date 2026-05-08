@@ -774,10 +774,11 @@ export function performancePassState(metrics = {}) {
 }
 
 export function packagingDeploymentState(config = {}) {
-  const requiredScripts = ['build', 'preview', 'check:packaging', 'package:electron']
+  const requiredScripts = ['build', 'preview', 'check:packaging', 'package:electron', 'release:electron']
   const scripts = config.scripts ?? {}
   const artifacts = config.artifacts ?? {}
   const electron = config.electron ?? {}
+  const policy = config.policy ?? 'electron-first-class-browser-canonical'
   const missingScripts = requiredScripts.filter((script) => !scripts[script])
   const missingArtifacts = Object.entries({
     'dist/index.html': artifacts.distIndex,
@@ -792,9 +793,14 @@ export function packagingDeploymentState(config = {}) {
   return {
     missingArtifacts,
     missingScripts,
+    policy,
     ready,
+    targets: [
+      { id: 'browser-static', role: 'canonical runtime and preview source' },
+      { id: 'electron', role: 'first-class packaged release target that loads the canonical dist build' },
+    ],
     text: ready
-      ? 'Packaging and deployment ready: build, preview, packaging checks, Electron directory packaging, dist index, packaged Syngen runtime, and Electron preload/main files are aligned.'
+      ? 'Packaging and deployment ready: Electron is a first-class packaged release target while browser/static remains the canonical runtime; build, preview, packaging checks, Electron directory packaging, dist index, packaged Syngen runtime, and Electron preload/main files are aligned.'
       : `Packaging and deployment incomplete: missing scripts ${missingScripts.join(', ') || 'none'}; missing artifacts ${missingArtifacts.join(', ') || 'none'}; Electron loads dist ${electron.loadsDist === true ? 'yes' : 'no'}.`,
   }
 }

@@ -19,7 +19,8 @@
     "check:syngen-audio": "node scripts/check-syngen-audio.mjs",
     "check": "npm run check:audio-assets && npm run check:syngen-audio && npm run test && npm run build && npm run check:performance && npm run check:packaging",
     "electron": "electron .",
-    "package:electron": "electron-builder --dir --config.win.signAndEditExecutable=false"
+    "package:electron": "electron-builder --dir --config.win.signAndEditExecutable=false",
+    "release:electron": "npm run build && npm run package:electron"
   },
   "dependencies": {},
   "devDependencies": {

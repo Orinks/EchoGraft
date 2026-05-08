@@ -27,6 +27,8 @@ requireScript('build', 'scripts/build-static.mjs')
 requireScript('preview', '--root dist')
 requireScript('package:electron', 'electron-builder --dir')
 requireScript('package:electron', '--config.win.signAndEditExecutable=false')
+requireScript('release:electron', 'npm run build')
+requireScript('release:electron', 'npm run package:electron')
 
 const index = existsSync(path.join(root, 'dist/index.html'))
   ? readFileSync(path.join(root, 'dist/index.html'), 'utf8')

@@ -1687,7 +1687,7 @@ function help() {
   const packaging = packagingDeploymentState({
     artifacts: { distIndex: true, syngenRuntime: true },
     electron: { loadsDist: true, main: true, preload: true },
-    scripts: { build: true, preview: true, 'check:packaging': true, 'package:electron': true },
+    scripts: { build: true, preview: true, 'check:packaging': true, 'package:electron': true, 'release:electron': true },
   })
   shell(`
     <main class="screen" aria-labelledby="help-title">
@@ -1709,6 +1709,7 @@ function help() {
       <section aria-labelledby="packaging-deployment-title">
         <h2 id="packaging-deployment-title">Packaging and Deployment</h2>
         <p>${packaging.text}</p>
+        <ol>${packaging.targets.map((target) => `<li>${target.id}: ${target.role}.</li>`).join('')}</ol>
       </section>
       <p>Main campaign chambers never require reflex timing. Scan, read the caption log, tune, reset, and plant at your own pace.</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
