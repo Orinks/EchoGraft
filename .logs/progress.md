@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G293-restoration-atlas-v1`. Added an explicit Atlas V1 checklist state that verifies work orders, the 20 to 40 minute planning window, materials, return contracts, codex payoff, and no-vision function-menu exits, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G292-8-to-10-chambers`. Added a Prototype Chamber Slice summary that counts Season 1 playable chambers separately from the training contract, keeping the milestone in the 8 to 10 chamber range while preserving the full authored campaign.
 - Continued with `omx ultragoal complete-goals` for `G291-avoid-dead-end-resource-states`. Added a Resource Dead-End Guard that reports required-progress safety, future material reward sources, free tuning when spores are empty, and reset recovery for chamber-local spend penalties, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G290-always-provide-scan-log-feedback`. Added a reusable scan-log feedback guard for objective, boundary, seed, hazard, memory, and network scan modes so every scan action produces readable event-log text, including fallback feedback for unexpected scan modes.

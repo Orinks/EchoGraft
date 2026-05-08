@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1019,6 +1019,7 @@ function atlas() {
   const plan = restorationPlanningSession(chambers, save.solvedChambers, { min: 20, max: 40 }, save.arkClock)
   const campaign = firstFullCampaignEstimate(campaignScope)
   const milestoneSlice = milestoneChamberSlice(chambers, 1)
+  const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
   const stewardship = stewardshipSummary(chambers, save)
   const resourceGuard = resourceDeadEndState(chambers, save)
   const returnContracts = optionalReturnContracts(chambers, save)
@@ -1071,6 +1072,13 @@ function atlas() {
       <section aria-labelledby="milestone-slice-title">
         <h2 id="milestone-slice-title">Prototype Chamber Slice</h2>
         <p>${milestoneSlice.text}</p>
+      </section>
+      <section aria-labelledby="atlas-v1-title">
+        <h2 id="atlas-v1-title">Atlas V1 Checklist</h2>
+        <p>${atlasV1.text}</p>
+        <ol>
+          ${atlasV1.checklist.map((item) => `<li>${item.text}</li>`).join('')}
+        </ol>
       </section>
       <section aria-labelledby="major-systems-title">
         <h2 id="major-systems-title">Major Ark Systems</h2>

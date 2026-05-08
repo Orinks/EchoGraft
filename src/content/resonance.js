@@ -587,6 +587,37 @@ export function restorationPlanningSession(chambers, solvedIds, target = { min: 
   return { contracts, min, max, target }
 }
 
+export function restorationAtlasV1State(chambers, save = {}, arkClock = 0) {
+  const solvedIds = save.solvedChambers ?? []
+  const available = availableChambers(chambers, solvedIds).filter((chamber) => !solvedIds.includes(chamber.id))
+  const plan = restorationPlanningSession(chambers, solvedIds, { min: 20, max: 40 }, arkClock)
+  const returnContracts = optionalReturnContracts(chambers, save)
+  const codexRewardCount = chambers.flatMap((chamber) => chamber.rewards?.codex ?? []).length
+  const materialsKnown = Object.keys(save.materials ?? {}).length > 0
+  const functions = ['active chamber', 'seed library', 'codex perceptions', 'settings', 'main menu']
+  const checklist = [
+    { id: 'work-orders', ready: available.length > 0, text: `${available.length} available unresolved work order(s).` },
+    { id: 'planning-window', ready: plan.min >= 20 && plan.max <= 40, text: `${plan.min} to ${plan.max} minute suggested planning window.` },
+    { id: 'materials-ledger', ready: materialsKnown, text: materialsKnown ? 'Materials ledger visible.' : 'Materials ledger missing.' },
+    { id: 'return-contracts', ready: true, text: `${returnContracts.length} optional rating-improvement return contract(s) currently available.` },
+    { id: 'codex-payoff', ready: codexRewardCount > 0, text: `${codexRewardCount} codex/perception reward hook(s) authored for atlas follow-up.` },
+    { id: 'function-menu', ready: functions.length >= 5, text: `Functions menu exits: ${functions.join(', ')}.` },
+  ]
+  const ready = checklist.every((item) => item.ready)
+
+  return {
+    available,
+    checklist,
+    functions,
+    plan,
+    ready,
+    returnContracts,
+    text: ready
+      ? `Restoration atlas v1 ready: work orders, planning, materials, return contracts, codex payoff, and function-menu exits are available.`
+      : `Restoration atlas v1 incomplete: ${checklist.filter((item) => !item.ready).map((item) => item.id).join(', ')}.`,
+  }
+}
+
 export function resourceDeadEndState(chambers, save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const available = availableChambers(chambers, save.solvedChambers ?? [])
