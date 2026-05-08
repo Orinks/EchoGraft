@@ -27,7 +27,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('o')
   await expect(eventLog.getByText(/Objective: .* Current system: Intake\./)).toBeVisible()
   await page.keyboard.press('p')
-  await expect(eventLog.getByText(/Position:/)).toBeVisible()
+  await expect(eventLog.getByText(/Position: .* facing .* Progress: 0 of \d+ contracts restored; 0 of \d+ Ark systems online/)).toBeVisible()
   await page.keyboard.press('i')
   await expect(eventLog.getByText(/Inventory:/)).toBeVisible()
   await page.keyboard.press('l')
