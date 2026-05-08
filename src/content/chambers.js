@@ -536,6 +536,7 @@ export const chambers = [
     start: { x: -2, y: -3, facing: 20 },
     target: { x: 0, y: 1, pitchRatio: 1, pulseRate: 1.75, brightness: 0.66, phase: 30 },
     requiredSeeds: 1,
+    glassShear: { axis: 'vertical', text: 'glass rain sheets mirror objective scans across the canopy seam' },
     cycle: {
       name: 'glass rain weather state',
       interval: 2,

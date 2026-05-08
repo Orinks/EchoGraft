@@ -18,6 +18,7 @@ export function scanPulse(player, target = {}, chamber = {}) {
   const duration = clamp(0.16 + distance * 0.04, 0.18, 0.65)
   const delayTrail = [0, 0.04 + distance * 0.012, 0.09 + distance * 0.018].map((value) => Number(value.toFixed(3)))
   const windEcho = chamber.windEcho ? windCarriedEcho(chamber.windEcho, distance) : undefined
+  const glassShear = chamber.glassShear ? glassShearReflectionState(player, target, chamber, distance) : undefined
 
   return {
     brightness,
@@ -25,10 +26,28 @@ export function scanPulse(player, target = {}, chamber = {}) {
     direction: { dx, dy, horizontal, side, vertical },
     distance,
     duration,
+    glassShear,
     inRange,
     range: scanRange,
-    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; range ${scanRange} step(s), ${inRange ? 'in range' : 'beyond range'}; delay trail ${delayTrail.join('/')}.${windEcho ? ` ${windEcho.text}` : ''}`,
+    text: `Scan pulse: ${distance.toFixed(1)} steps, ${horizontal}, ${vertical}; range ${scanRange} step(s), ${inRange ? 'in range' : 'beyond range'}; delay trail ${delayTrail.join('/')}.${windEcho ? ` ${windEcho.text}` : ''}${glassShear ? ` ${glassShear.text}` : ''}`,
     windEcho,
+  }
+}
+
+export function glassShearReflectionState(player = {}, target = {}, chamber = {}, distance = Math.hypot((target.x ?? 0) - (player.x ?? 0), (target.y ?? 0) - (player.y ?? 0))) {
+  const dx = (target.x ?? 0) - (player.x ?? 0)
+  const dy = (target.y ?? 0) - (player.y ?? 0)
+  const axis = chamber.glassShear.axis ?? (Math.abs(dx) >= Math.abs(dy) ? 'vertical' : 'horizontal')
+  const reflected = axis === 'vertical' ? { dx: -dx, dy } : { dx, dy: -dy }
+  const delay = Number((0.12 + distance * 0.025).toFixed(3))
+  const horizontal = reflected.dx < 0 ? 'west' : reflected.dx > 0 ? 'east' : 'center'
+  const vertical = reflected.dy < 0 ? 'south' : reflected.dy > 0 ? 'north' : 'level'
+
+  return {
+    axis,
+    delay,
+    reflectedDirection: { ...reflected, horizontal, vertical },
+    text: `Glass shear reflects scan after ${delay} seconds toward ${horizontal}, ${vertical}; ${chamber.glassShear.text}.`,
   }
 }
 

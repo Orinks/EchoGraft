@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { chambers } from '../src/content/chambers.js'
+import { boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -11,6 +12,22 @@ describe('scan pulse', () => {
     expect(pulse.delayTrail[2]).toBeGreaterThan(pulse.delayTrail[1])
     expect(pulse.range).toBe(8)
     expect(pulse.text).toContain('Scan pulse')
+  })
+
+  it('reflects scans from glass shear chambers', () => {
+    const chamber = chambers.find((item) => item.id === 'glass-rain')
+    const player = { x: -2, y: -3 }
+    const pulse = scanPulse(player, chamber.target, chamber)
+    const reflection = glassShearReflectionState(player, chamber.target, chamber, pulse.distance)
+
+    expect(chamber.glassShear).toMatchObject({ axis: 'vertical' })
+    expect(pulse.glassShear).toMatchObject({
+      axis: 'vertical',
+      reflectedDirection: { dx: -2, dy: 4, horizontal: 'west', vertical: 'north' },
+    })
+    expect(reflection.delay).toBe(pulse.glassShear.delay)
+    expect(pulse.text).toContain('Glass shear reflects scan')
+    expect(pulse.text).toContain('glass rain sheets mirror objective scans')
   })
 
   it('keeps nearby scan pulses short and bright', () => {
