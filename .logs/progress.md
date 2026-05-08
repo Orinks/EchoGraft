@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G290-always-provide-scan-log-feedback`. Added a reusable scan-log feedback guard for objective, boundary, seed, hazard, memory, and network scan modes so every scan action produces readable event-log text, including fallback feedback for unexpected scan modes.
 - Continued with `omx ultragoal complete-goals` for `G289-always-allow-reset-without-punishmen`. Moved reset into a no-punishment save helper that clears planted seeds, seed moves, and chamber-local spend penalties while preserving Ark clock, materials, ratings, solved contracts, and codex, then updated reset feedback to say so explicitly.
 - Continued with `omx ultragoal complete-goals` for `G288-optional-chambers-may-be-more-comple`. Added an Optional Complexity summary that gives optional contracts an expanded complexity budget for multi-seed, pattern, graft, hazard, weather, and other advanced mechanics without blocking the required campaign path, then surfaced the rule in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G287-combine-axes-only-after-mastery`. Added Axis Combination Mastery summaries that mark multi-seed, graft, and finale contracts as combination gates and require Stable or Resonant prerequisite ratings before those contracts report ready, then surfaced the mastery status in the Restoration Atlas.

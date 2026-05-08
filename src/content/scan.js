@@ -5,6 +5,21 @@ function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
 }
 
+export const scanLogModes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network']
+
+export function scanLogFeedbackState(mode = 'objective', text = '') {
+  const originalMode = mode
+  const normalizedMode = scanLogModes.includes(mode) ? mode : 'objective'
+  const report = typeof text === 'string' ? text.trim() : ''
+
+  return {
+    logged: true,
+    mode: normalizedMode,
+    originalMode,
+    text: report || `Scan log feedback: ${originalMode || 'unknown'} scan has no readable report; use objective scan or cycle scan mode for objective, boundaries, seeds, hazards, memory, or network feedback.`,
+  }
+}
+
 export function scanPulse(player, target = {}, chamber = {}) {
   const scanRange = chamber.scanRange ?? 8
   const dx = (target.x ?? 0) - player.x

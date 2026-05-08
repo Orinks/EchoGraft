@@ -8,7 +8,7 @@ import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
-import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
+import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -396,19 +396,22 @@ function scan() {
   const compass = chamberCompassCue(player, chamber.target)
   const heartScan = heartScanState(player, chamber, range.range)
   const pulse = heartScan.pulse
+  let feedback = ''
   if (scanMode === 'objective') {
     audio.scan(player, chamber.target)
     if (save.settings.scanVerbosity === 'concise') {
-      log(`Objective scan: heart ${pulse.distance.toFixed(1)} steps ${pulse.direction.side}; ${range.text} Required changes: ${requiredChangesText()}`)
+      feedback = `Objective scan: heart ${pulse.distance.toFixed(1)} steps ${pulse.direction.side}; ${range.text} Required changes: ${requiredChangesText()}`
     } else {
-      log(`Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`)
+      feedback = `Objective scan: heart is ${pulse.distance.toFixed(1)} steps away, ${pulse.direction.side}; ${heartScan.text}. ${range.text} ${navigation.text} ${navigation.navigationOnline ? compass.text : ''} ${pulse.text} shape ${heartShapeText(chamber.target)}. Target traits: pitch ${chamber.target.pitchRatio}, pulse ${chamber.target.pulseRate}, brightness ${chamber.target.brightness}, phase ${chamber.target.phase}. Hazards: ${hazardsText()} Required changes: ${requiredChangesText()}`
     }
   }
-  if (scanMode === 'boundaries') log(boundaryScanState(player, chamber).text)
-  if (scanMode === 'seeds') log(seedScanState(plantedSeeds, chamber).text)
-  if (scanMode === 'hazards') log(hazardScanState(chamber, plantedSeeds).text)
-  if (scanMode === 'memory') log(memoryScanState(chamber, save, availableCodexRecords()).text)
-  if (scanMode === 'network') log(networkScanState(multiChamberResonanceNetwork(chambers, save), heartNetworkEndingState(chambers, save), playerBuiltFinalChord(chambers, save, inventory)).text)
+  if (scanMode === 'boundaries') feedback = boundaryScanState(player, chamber).text
+  if (scanMode === 'seeds') feedback = seedScanState(plantedSeeds, chamber).text
+  if (scanMode === 'hazards') feedback = hazardScanState(chamber, plantedSeeds).text
+  if (scanMode === 'memory') feedback = memoryScanState(chamber, save, availableCodexRecords()).text
+  if (scanMode === 'network') feedback = networkScanState(multiChamberResonanceNetwork(chambers, save), heartNetworkEndingState(chambers, save), playerBuiltFinalChord(chambers, save, inventory)).text
+  if (scanMode !== 'objective') audio.scan(player, chamber.target)
+  log(scanLogFeedbackState(scanMode, feedback).text)
 }
 
 function textOnlyHintHtml() {
