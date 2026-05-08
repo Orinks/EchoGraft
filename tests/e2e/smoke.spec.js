@@ -365,6 +365,18 @@ test('uses Enter to plant interact and confirm after solving', async ({ page }) 
   await expect(page.getByRole('heading', { name: 'Restoration Atlas' })).toBeVisible()
 })
 
+test('uses Tab to cycle the selected seed', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('Tab')
+  await expect(eventLog.getByText(/Selected Lumen phonoseed\. Selected seed: Lumen phonoseed/)).toBeVisible()
+  await page.keyboard.press('Tab')
+  await expect(eventLog.getByText(/Selected Umbra phonoseed\. Selected seed: Umbra phonoseed/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({
