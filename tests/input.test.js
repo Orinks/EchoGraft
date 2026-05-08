@@ -32,6 +32,7 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ keyboard: { KeyX: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'boundaryInfo', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { KeyV: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'plantedVoices', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { KeyC: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'codexInfo', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { Escape: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'pause', source: 'keyboard' })
   })
 
   it('normalizes gamepad state into game intents', () => {
