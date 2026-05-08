@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, HeartVoice, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -148,6 +148,27 @@ describe('audio movement cues', () => {
       seed: { heartVoice: true, restored: true },
       tone: { mode: 'additive', type: 'triangle' },
     })
+  })
+
+  it('models scan audio as a short spatial ScanPulse with delay trail', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const pulse = new ScanPulse({ player: createPlayer(chamber.start), target: chamber.target })
+    const [ping, trail] = pulse.toVoicePayloads()
+
+    expect(pulse.text).toContain('ScanPulse: short spatial ping')
+    expect(ping).toMatchObject({
+      category: 'scan',
+      position: chamber.target,
+      tone: { effectChain: ['feedbackDelay'] },
+    })
+    expect(ping.duration).toBeLessThanOrEqual(0.24)
+    expect(trail).toMatchObject({
+      category: 'scan',
+      position: chamber.target,
+      seed: { scanPulseTrail: true },
+      tone: { effectChain: ['feedbackDelay', 'multitapDelay'], type: 'triangle' },
+    })
+    expect(trail.duration).toBeGreaterThan(0.07)
   })
 
   it('spatializes every footstep at the current player position', () => {

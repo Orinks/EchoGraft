@@ -505,6 +505,64 @@ export class HeartVoice {
   }
 }
 
+export class ScanPulse {
+  constructor({ player, target = {} } = {}) {
+    this.player = player
+    this.target = target
+    this.pulse = player ? scanPulse(player, target) : { brightness: target.brightness ?? 0.45, distance: 0, duration: durationFromPulse(target.pulseRate ?? 1) }
+    this.heartVoice = new HeartVoice({ chamber: { target }, player })
+    this.text = `ScanPulse: short spatial ping to ${target.x ?? 0}, ${target.y ?? 0}; delay trail ${Math.max(0.08, this.pulse.duration * 0.55).toFixed(2)} second(s).`
+  }
+
+  toVoicePayloads() {
+    const ping = this.heartVoice.toVoicePayload()
+    const trailDuration = Math.max(0.08, this.pulse.duration * 0.55)
+    const pulseRate = this.target.pulseRate ?? 1
+
+    return [
+      {
+        ...ping,
+        duration: Math.min(0.24, ping.duration),
+        gain: dbGain(-10),
+        tone: {
+          ...ping.tone,
+          effectChain: ['feedbackDelay'],
+        },
+      },
+      {
+        category: 'scan',
+        duration: trailDuration,
+        gain: dbGain(-22),
+        position: this.target,
+        seed: {
+          ...this.target,
+          brightness: clamp((this.target.brightness ?? 0.45) * 0.8),
+          oscillatorType: 'am',
+          pulseRate,
+          scanPulseTrail: true,
+          waveform: 'triangle',
+        },
+        tone: {
+          brightness: clamp((this.target.brightness ?? 0.45) * 0.8),
+          effectChain: ['feedbackDelay', 'multitapDelay'],
+          frequency: ratioToFrequency((this.target.pitchRatio ?? 1) * 0.5, 45),
+          harmonic: [
+            { coefficient: 1, gain: 1, type: 'triangle' },
+            { coefficient: pulseRate, gain: 0.22 + this.pulse.brightness * 0.3, type: 'sine' },
+          ],
+          mode: 'am',
+          pulseRate,
+          type: 'triangle',
+        },
+      },
+    ]
+  }
+
+  play(engine) {
+    this.toVoicePayloads().forEach((payload) => engine.voice(payload))
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -976,7 +1034,7 @@ export class AudioEngine {
 
   scan(player, target) {
     this.updateListener(player)
-    new HeartVoice({ chamber: { target }, player }).play(this)
+    new ScanPulse({ player, target }).play(this)
   }
 
   resonance(result = {}, chamber = {}) {
