@@ -258,7 +258,8 @@ function hazardsText() {
 }
 
 function latestLogText() {
-  return eventLog.entries[0]?.message ?? 'No log entries yet.'
+  const entry = eventLog.entries.find((item) => !item.message.startsWith('Latest log entry:'))
+  return entry?.message ?? 'No log entries yet.'
 }
 
 function recentLogText() {
@@ -561,7 +562,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
   else if (event.key.toLowerCase() === 'i') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
   else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
-  else if (event.key.toLowerCase() === 'l') log(`Latest log: ${latestLogText()}`)
+  else if (event.key.toLowerCase() === 'l') log(`Latest log entry: ${latestLogText()}`)
   else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
   else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
   else if (event.key.toLowerCase() === 'c') log(save.codexIds.length ? `Codex: ${save.codexIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.` : 'Codex: no records recovered yet.')
