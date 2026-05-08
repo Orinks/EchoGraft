@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -704,6 +704,29 @@ describe('seed DNA', () => {
     expect(report.text).toContain('First graft')
     expect(report.text).toContain('recovered record')
     expect(report.text).toContain('unlocked hybrid resonance planting')
+  })
+
+  it('summarizes the grafting bench v1 contract', () => {
+    const state = graftingBenchV1State([
+      createSeedDNA('sol', { name: 'Sol phonoseed', family: 'Sol' }),
+      createSeedDNA('lumen', { name: 'Lumen phonoseed', family: 'Lumen' }),
+    ], {
+      materials: { archiveLoam: 1, glassPollen: 1, mycelium: 2, resin: 1 },
+      restoredSystems: ['Intake'],
+    })
+
+    expect(state.ready).toBe(true)
+    expect(state.sections.map((section) => section.id)).toEqual([
+      'two-parent-requirement',
+      'inheritance-rule',
+      'material-modifiers',
+      'useful-failures',
+      'discovery-payoff',
+      'captioned-actions',
+    ])
+    expect(state.report.seed.name).toBe('Sol-Lumen graft')
+    expect(state.failurePreview.status).toBe('failed')
+    expect(state.text).toContain('Grafting bench v1 ready')
   })
 
   it('catalogs 80 or more graft discoveries from family pairings', () => {

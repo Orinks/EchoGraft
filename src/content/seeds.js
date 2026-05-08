@@ -863,6 +863,69 @@ export function graftSeedsWithReport(seedA, seedB, id = `${seedA.id}-${seedB.id}
   }
 }
 
+export function graftingBenchV1State(inventory = [], save = {}) {
+  const parentA = inventory[0]
+  const parentB = inventory[1]
+  const materials = save.materials ?? {}
+  const report = parentA && parentB
+    ? graftSeedsWithReport(parentA, parentB, 'grafting-bench-preview', { materials, restoredSystems: save.restoredSystems ?? [] })
+    : undefined
+  const failurePreview = parentA
+    ? graftSeedsWithReport(parentA, { ...parentA, id: `${parentA.id}-same-line`, name: `${parentA.name} same-line` }, 'grafting-bench-failure-preview')
+    : undefined
+  const sections = [
+    {
+      id: 'two-parent-requirement',
+      ready: Boolean(parentA && parentB),
+      text: parentA && parentB
+        ? `Bench ready with Parent A ${parentA.name} and Parent B ${parentB.name}.`
+        : 'Bench needs two carried seeds before grafting.',
+    },
+    {
+      id: 'inheritance-rule',
+      ready: Boolean(parentA && parentB),
+      text: parentA && parentB
+        ? `Parent A passes root pitch ${parentA.pitchRatio} and waveform ${parentA.waveform}; Parent B passes modulation and growth ${parentB.growthBehavior}.`
+        : 'Inheritance rule locked until two parent seeds are present.',
+    },
+    {
+      id: 'material-modifiers',
+      ready: Boolean(materials),
+      text: `Material modifiers available: resin ${materials.resin ?? 0}, mycelium ${materials.mycelium ?? 0}, glass pollen ${materials.glassPollen ?? 0}, archive loam ${materials.archiveLoam ?? 0}.`,
+    },
+    {
+      id: 'useful-failures',
+      ready: Boolean(failurePreview?.status === 'failed'),
+      text: failurePreview?.text ?? 'Failed graft preview unavailable until at least one parent seed exists.',
+    },
+    {
+      id: 'discovery-payoff',
+      ready: Boolean(report && report.status !== 'failed'),
+      text: report && report.status !== 'failed'
+        ? `Discovery payoff preview: ${report.seed.name}; unlocks ${report.discoveries.join(', ')}.`
+        : 'Discovery payoff locked until two different seed families are ready.',
+    },
+    {
+      id: 'captioned-actions',
+      ready: true,
+      text: 'Bench actions are captioned: attempt graft, recover failed utility, unlock mechanics, record rare discoveries, and keep progress reversible.',
+    },
+  ]
+  const incomplete = sections.filter((section) => !section.ready)
+
+  return {
+    failurePreview,
+    parentA,
+    parentB,
+    ready: incomplete.length === 0,
+    report,
+    sections,
+    text: incomplete.length
+      ? `Grafting bench v1 incomplete: ${incomplete.map((section) => section.id).join(', ')}.`
+      : `Grafting bench v1 ready: two-parent inheritance, material modifiers, useful failures, discovery payoff, and captioned actions are available.`,
+  }
+}
+
 export function graftRecordForSeed(seed) {
   if (!seed.discoveryId || !seed.discoveredOrigin) return undefined
 

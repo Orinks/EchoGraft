@@ -11,7 +11,7 @@ import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeart
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -385,6 +385,17 @@ function graftingBenchText() {
   const parentB = inventory[1]
   if (!parentA || !parentB) return 'Grafting bench needs two carried seeds before a graft can be attempted.'
   return `Parent A: ${parentA.name}, controls root pitch ${parentA.pitchRatio} and waveform ${parentA.waveform}. Parent B: ${parentB.name}, controls modulation FM ${parentB.fmAmount}, AM ${parentB.amAmount}, noise ${parentB.noiseAmount}, and growth ${parentB.growthBehavior}. Materials: ${materialsText()}.`
+}
+
+function graftingBenchV1Html() {
+  const state = graftingBenchV1State(inventory, save)
+  return `
+    <section aria-labelledby="grafting-bench-v1-title">
+      <h2 id="grafting-bench-v1-title">Grafting Bench V1</h2>
+      <p>${state.text}</p>
+      <ol>${state.sections.map((section) => `<li>${section.text}</li>`).join('')}</ol>
+    </section>
+  `
 }
 
 function positionMeaningText(position) {
@@ -1278,6 +1289,7 @@ function library() {
         <p>Bench rule: Parent A passes root pitch and waveform; Parent B passes modulation and growth. Failed grafts return dream compost or noisy tools instead of ending progress.</p>
         <button data-action="graft">Graft first two seeds</button>
       </section>
+      ${graftingBenchV1Html()}
       <section aria-labelledby="graft-mechanics-title">
         <h2 id="graft-mechanics-title">Unlocked Graft Mechanics</h2>
         <p>${save.unlockedGraftMechanics.length ? save.unlockedGraftMechanics.join(', ') : 'No graft mechanics unlocked yet.'}</p>
