@@ -280,6 +280,15 @@ function plantedVoicesText() {
     : 'Planted voices: none in this chamber.'
 }
 
+function codexInfoText() {
+  const records = availableCodexRecords()
+  const recovered = save.codexIds.map((id) => records[id]?.title).filter(Boolean)
+  const recovery = codexRecoverySummary(chambers, save)
+  const memory = memoryScanState(chamber, save, records)
+  const recoveredText = recovered.length ? recovered.join(', ') : 'no records recovered yet'
+  return `Codex: ${recoveredText}. Perception updates: ${recovery.text} ${memory.text}`
+}
+
 function positionMeaningText(position) {
   return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
@@ -567,7 +576,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (event.key.toLowerCase() === 'l') log(`Latest log entry: ${latestLogText()}`)
   else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
   else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
-  else if (event.key.toLowerCase() === 'c') log(save.codexIds.length ? `Codex: ${save.codexIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.` : 'Codex: no records recovered yet.')
+  else if (event.key.toLowerCase() === 'c') log(codexInfoText())
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
     event.preventDefault()

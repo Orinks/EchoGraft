@@ -40,7 +40,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('v')
   await expect(eventLog.getByText(/Planted voices: none in this chamber/)).toBeVisible()
   await page.keyboard.press('c')
-  await expect(eventLog.getByText(/Codex: no records recovered yet/)).toBeVisible()
+  await expect(eventLog.getByText(/Codex: no records recovered yet\. Perception updates: Codex recovery:/)).toBeVisible()
 
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
@@ -57,7 +57,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText('Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.', { exact: true })).toBeVisible()
   await page.keyboard.press('z')
   await page.keyboard.press('Space')
-  await expect(eventLog.getByText(/Memory scan: records none recovered yet.*Chamber records: First Breath hidden/)).toBeVisible()
+  await expect(eventLog.getByText(/^Memory scan: records none recovered yet.*Chamber records: First Breath hidden/)).toBeVisible()
   await page.keyboard.press('z')
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Network scan: endgame multi-chamber resonance building; 0 online system/)).toBeVisible()

@@ -241,3 +241,4 @@
 - Continued with `omx ultragoal complete-goals` for `G211-shift-l-full-recent-log`. Hardened the `Shift+L` info command so recent log replay is counted and numbered for no-vision review.
 - Continued with `omx ultragoal complete-goals` for `G212-x-chamber-boundaries-and-return-poin`. Hardened the `X` info command so boundary reports include the chamber name plus player-relative return-point distance and direction.
 - Continued with `omx ultragoal complete-goals` for `G213-v-planted-seed-voices`. Hardened the `V` info command so planted voice reports include persistent voice identity, tuning state, spatial radius, nearby interactions, and growth timing.
+- Continued with `omx ultragoal complete-goals` for `G214-c-codex-perception-updates`. Hardened the `C` info command so codex reports include recovered records, next available perception recovery, and current chamber memory-scan state.
