@@ -1316,8 +1316,10 @@ export class AudioEngine {
 
   createEndingMusicPhrase() {
     const inventory = this.music.inventory ?? []
-    const ratios = inventory.length ? inventory.map((seed) => seed.pitchRatio) : [1, 1.25, 1.5, 2]
-    const brightness = inventory.length ? inventory.map((seed) => seed.brightness) : [0.45, 0.6, 0.75]
+    const restoredArkVoices = this.music.restoredArkVoices ?? []
+    const networkVoices = [...restoredArkVoices, ...inventory]
+    const ratios = networkVoices.length ? networkVoices.map((seed) => seed.pitchRatio ?? 1) : [1, 1.25, 1.5, 2]
+    const brightness = networkVoices.length ? networkVoices.map((seed) => seed.brightness ?? 0.5) : [0.45, 0.6, 0.75]
     return {
       brightness,
       counterline: {
@@ -1332,6 +1334,7 @@ export class AudioEngine {
       },
       gain: dbGain(-16),
       harmonics: [1, 1.5, 2, 3],
+      networkMusicSource: restoredArkVoices.map((voice) => voice.system ?? voice.id).filter(Boolean),
       mode: 'additive',
       octaveSpan: 5,
       phase: 90,
@@ -1343,7 +1346,7 @@ export class AudioEngine {
       spacing: 0.7,
       sustain: 2.4,
       tempo: 72,
-      waveforms: ['sine', 'triangle', 'sawtooth'],
+      waveforms: networkVoices.length ? networkVoices.map((voice) => voice.waveform ?? 'triangle') : ['sine', 'triangle', 'sawtooth'],
     }
   }
 
@@ -1473,10 +1476,15 @@ export class AudioEngine {
     })
   }
 
-  ending(chambers = [], inventory = []) {
-    this.setMusicScene('ending', { inventory })
-    const solvedTargets = chambers.map((item) => item.target)
-    const voices = [...solvedTargets, ...inventory].filter(Boolean)
+  ending(chambers = [], inventory = [], options = {}) {
+    const restoredArkVoices = chambers.map((item) => ({
+      ...item.target,
+      id: item.id,
+      system: item.system,
+      waveform: systemDroneProfiles[item.system]?.type ?? item.target?.waveform ?? 'triangle',
+    }))
+    this.setMusicScene('ending', { inventory, restoredArkVoices, restoredSystems: options.restoredSystems ?? [] })
+    const voices = [...restoredArkVoices, ...inventory].filter(Boolean)
     voices.forEach((voice, index) => {
       const pitchRatio = voice.pitchRatio ?? semanticRatio(`ending-${index}`)
       const pulseRate = voice.pulseRate ?? semanticPulse(`ending-${index}`)
@@ -1489,8 +1497,10 @@ export class AudioEngine {
           seed: {
             ...voice,
             brightness: voice.brightness ?? 0.5,
+            endgameNetworkMusic: true,
             oscillatorType: index % 2 ? 'fm' : 'am',
             pulseRate,
+            restoredArkSystem: voice.system,
             waveform: voice.waveform ?? 'triangle',
           },
           tone: {

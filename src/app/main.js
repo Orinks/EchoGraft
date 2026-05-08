@@ -397,7 +397,7 @@ function acceptWildInstability() {
 
 function composeConservatory() {
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
-  audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory)
+  audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory, { restoredSystems: save.restoredSystems, solvedChambers: save.solvedChambers })
   log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord. Mode ${composition.mode.title}: ${composition.mode.text}`)
 }
 
@@ -460,7 +460,7 @@ function evaluate() {
     save.postgameUnlocked = true
     log(`Ending reflections recovered: ${reflectionRewards.recordIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
     persist()
-    audio.ending(chambers, inventory)
+    audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory, { restoredSystems: save.restoredSystems, solvedChambers: save.solvedChambers })
     screen = 'ending'
     render()
   }

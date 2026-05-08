@@ -303,6 +303,18 @@ describe('audio movement cues', () => {
     expect(phrase.waveforms).toEqual(expect.arrayContaining(['triangle', 'sine']))
   })
 
+  it('builds endgame network music from the restored Ark', () => {
+    const restoredChambers = chambers.filter((item) => ['tutorial', 'pitch'].includes(item.id))
+    const audio = new AudioEngine()
+
+    audio.ending(restoredChambers, [])
+    const phrase = audio.createEndingMusicPhrase()
+
+    expect(phrase.networkMusicSource).toEqual(restoredChambers.map((item) => item.system))
+    expect(phrase.ratios.slice(0, restoredChambers.length)).toEqual(restoredChambers.map((item) => item.target.pitchRatio))
+    expect(phrase.brightness.slice(0, restoredChambers.length)).toEqual(restoredChambers.map((item) => item.target.brightness))
+  })
+
   it('models player movement feedback as a named StepVoice', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)
