@@ -34,6 +34,7 @@ Manual screen reader testing is still recommended before formal accessibility cl
 npm install
 npm run dev
 npm run check
+npm run check:performance
 npm run test:e2e
 ```
 

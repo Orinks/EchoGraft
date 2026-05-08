@@ -724,6 +724,36 @@ export function e2eKeyFlowCoverageState(flows = e2eKeyFlowCoverage) {
   }
 }
 
+export function performancePassState(metrics = {}) {
+  const budgets = {
+    cssBytes: 50_000,
+    jsBytes: 180_000,
+    totalBytes: 250_000,
+    ...metrics.budgets,
+  }
+  const measured = {
+    authoredChambers: metrics.authoredChambers ?? 0,
+    codexRecords: metrics.codexRecords ?? 0,
+    cssBytes: metrics.cssBytes ?? 0,
+    jsBytes: metrics.jsBytes ?? 0,
+    totalBytes: metrics.totalBytes ?? 0,
+  }
+  const overBudget = Object.entries(budgets)
+    .filter(([key, value]) => Number.isFinite(measured[key]) && measured[key] > value)
+    .map(([key]) => key)
+  const ready = overBudget.length === 0
+
+  return {
+    budgets,
+    measured,
+    overBudget,
+    ready,
+    text: ready
+      ? `Performance pass ready: built JavaScript, CSS, and total static payload stay inside budgets while ${measured.authoredChambers} authored chamber(s) and ${measured.codexRecords} codex record(s) remain data-driven.`
+      : `Performance pass over budget: ${overBudget.join(', ')}.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
