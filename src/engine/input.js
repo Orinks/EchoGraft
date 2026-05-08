@@ -56,6 +56,7 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (keyboardDigitIndex(keyboard, 4) >= 0) return { action: 'selectSeed', index: keyboardDigitIndex(keyboard, 4), source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketLeft', 'Minus')) return { action: 'tuneDown', source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketRight', 'Equal')) return { action: 'tuneUp', source: 'keyboard' }
+  if (keyboardDown(keyboard, 'KeyG')) return { action: 'graft', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyZ')) return { action: 'cycleScanMode', source: 'keyboard' }
   if (gamepadDown(gamepad, 4)) return { action: 'cycleScanMode', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Escape')) return { action: 'pause', source: 'keyboard' }

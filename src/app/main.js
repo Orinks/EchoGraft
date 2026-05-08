@@ -716,6 +716,7 @@ function handleInputIntent(intent) {
   else if (intent.action === 'tuneUp') tune(1)
   else if (intent.action === 'selectSeed') selectSeed(intent.index ?? 0)
   else if (intent.action === 'selectTuningParameter') setTuningParameter(tuningParameters[intent.index ?? 0])
+  else if (intent.action === 'graft') graft()
   else if (intent.action === 'cycleScanMode') cycleScanMode()
   else if (intent.action === 'pause') setScreen('pause')
 }

@@ -415,6 +415,18 @@ test('uses number row for seed quick slots and tuning traits', async ({ page }) 
   await expect(eventLog.getByText(/Tuned Lumen phonoseed: brightness is 0\.75/)).toBeVisible()
 })
 
+test('uses G to graft the first two seeds', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('g')
+  await expect(eventLog.getByText(/First graft: Sol phonoseed plus Lumen phonoseed created Sol-Lumen graft/)).toBeVisible()
+  await expect(eventLog.getByText(/Grafted Sol-Lumen graft/)).toBeVisible()
+  await expect(eventLog.getByText(/Unlocked graft mechanic: hybrid resonance planting/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({
