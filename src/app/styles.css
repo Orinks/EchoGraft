@@ -30,6 +30,23 @@ input:focus {
   outline-offset: 3px;
 }
 
+button[aria-current="true"] {
+  background: #17624f;
+  border-color: #ffe66d;
+}
+
+.sr-only {
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 .screen,
 .game {
   min-height: 100vh;

@@ -39,6 +39,20 @@ const runtimeState = createSyngenStateBridge({
 })
 runtimeState.attach()
 
+const keyboardMenuScreens = new Set([
+  'atlas',
+  'codex',
+  'conservatory',
+  'credits',
+  'ending',
+  'grafting',
+  'help',
+  'library',
+  'menu',
+  'pause',
+  'settings',
+])
+
 const settingLabels = {
   master: 'Master volume',
   ambience: 'Ambience volume',
@@ -152,6 +166,90 @@ function captionLogHtml() {
   `
 }
 
+function announce(message = '') {
+  const announcer = app.querySelector('#screen-reader-announcer')
+  if (!announcer || !message) return
+  announcer.textContent = ''
+  window.setTimeout(() => {
+    announcer.textContent = message
+  }, 0)
+}
+
+function menuButtons() {
+  const activeNav = document.activeElement?.closest?.('nav')
+  const navigation = activeNav ?? app.querySelector('nav[aria-label]')
+  const source = navigation ?? app
+  return [...source.querySelectorAll('button')]
+    .filter((button) => !button.disabled && button.offsetParent !== null)
+}
+
+function describeButton(button, index, count) {
+  const label = button?.innerText?.replace(/\s+/g, ' ').trim() || button?.getAttribute('aria-label') || 'Menu item'
+  return `${label}. Item ${index + 1} of ${count}. Use arrows to move, Enter or Space to choose, R to repeat.`
+}
+
+function setMenuFocus(index = 0, { speak = true } = {}) {
+  const buttons = menuButtons()
+  if (!buttons.length) return
+  const nextIndex = (index + buttons.length) % buttons.length
+  buttons.forEach((button, buttonIndex) => {
+    button.setAttribute('aria-current', buttonIndex === nextIndex ? 'true' : 'false')
+  })
+  buttons[nextIndex].focus()
+  if (speak) announce(describeButton(buttons[nextIndex], nextIndex, buttons.length))
+}
+
+function currentMenuIndex() {
+  const buttons = menuButtons()
+  const activeIndex = buttons.indexOf(document.activeElement)
+  return activeIndex >= 0 ? activeIndex : 0
+}
+
+function focusFirstMenuItem({ speak = true } = {}) {
+  if (!keyboardMenuScreens.has(screen)) return
+  setMenuFocus(0, { speak })
+}
+
+function handleMenuKey(event) {
+  if (!keyboardMenuScreens.has(screen)) return false
+  if (event.target?.matches?.('input, textarea, select')) return false
+  const buttons = menuButtons()
+  if (!buttons.length) return false
+  const current = currentMenuIndex()
+  const digitIndex = digitIndexFromEvent(event, buttons.length)
+
+  if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+    event.preventDefault()
+    audio.ui('move')
+    setMenuFocus(current + 1)
+    return true
+  }
+  if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+    event.preventDefault()
+    audio.ui('move')
+    setMenuFocus(current - 1)
+    return true
+  }
+  if (digitIndex >= 0) {
+    event.preventDefault()
+    audio.ui('move')
+    setMenuFocus(digitIndex)
+    return true
+  }
+  if (event.key === 'r' || event.key === 'R' || event.key === 'Tab') {
+    event.preventDefault()
+    audio.ui('confirm')
+    announce(describeButton(buttons[current], current, buttons.length))
+    return true
+  }
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault()
+    buttons[current].click()
+    return true
+  }
+  return false
+}
+
 function availableCodexRecords() {
   return {
     ...codexRecords,
@@ -167,6 +265,7 @@ function materialRewardText(materials = {}) {
 function log(message, type = 'info') {
   eventLog.push(message, type)
   render()
+  announce(message)
 }
 
 function persist() {
@@ -835,7 +934,10 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (keyMatches('plantedVoices', event)) logInformationCommand('plantedVoices')
   else if (keyMatches('codexInfo', event)) logInformationCommand('codexInfo')
   else if (keyMatches('controlsInfo', event)) log(controlsText())
-  else if (keyMatches('plant', event)) enterInteractConfirm()
+  else if (keyMatches('plant', event)) {
+    event.preventDefault()
+    enterInteractConfirm()
+  }
   else if (keyMatches('previousSeed', event)) {
     event.preventDefault()
     const carry = currentCarry()
@@ -867,6 +969,7 @@ document.addEventListener('keydown', (event) => {
     event.preventDefault()
     beginFromSplash()
   } else if (screen === 'game') handleGameKey(event, inputState)
+  else if (handleMenuKey(event)) return
   else if (event.key === 'Escape') setScreen('game')
 })
 
@@ -954,7 +1057,7 @@ app.addEventListener('change', (event) => {
 function shell(content) {
   const classes = [save.settings.reducedMotion ? 'reduced-motion' : '', save.settings.minimalVisual ? 'minimal-visual' : '', save.settings.highContrast ? 'high-contrast' : ''].join(' ')
   app.className = classes
-  app.innerHTML = content
+  app.innerHTML = `${content}<div id="screen-reader-announcer" class="sr-only" aria-live="assertive" aria-atomic="true"></div>`
 }
 
 function menu() {
@@ -1829,6 +1932,7 @@ function render() {
   if (screen === 'credits') credits()
   if (screen === 'pause') pause()
   if (screen === 'ending') ending()
+  focusFirstMenuItem({ speak: false })
 }
 
 render()

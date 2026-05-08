@@ -329,20 +329,20 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/24 known families and 276 possible graft discoveries/)).toBeVisible()
   await expect(page.getByText(/Full seed\/graft catalog ready: 24 seed family record\(s\), 276 of 276 possible two-family graft discovery record\(s\), 276 fully described discovery entry\(s\)/)).toBeVisible()
   await page.getByRole('button', { name: 'Select Lumen phonoseed' }).click()
-  await expect(page.getByText(/Selected Lumen phonoseed/)).toBeVisible()
+  await expect(page.getByLabel('Caption and event log').getByText(/Selected Lumen phonoseed/)).toBeVisible()
   await page.getByRole('button', { name: 'FM modulation' }).click()
   await page.getByRole('button', { name: 'Tune up' }).click()
-  await expect(page.getByText(/Tuned Lumen phonoseed: fmAmount is .* FM modulation/)).toBeVisible()
+  await expect(eventLog.getByText(/Tuned Lumen phonoseed: fmAmount is .* FM modulation/)).toBeVisible()
   await page.getByRole('button', { name: 'growth behavior' }).click()
   await page.getByRole('button', { name: 'Tune up' }).click()
-  await expect(page.getByText(/Tuned Lumen phonoseed: growthBehavior is .* growth behavior/)).toBeVisible()
+  await expect(eventLog.getByText(/Tuned Lumen phonoseed: growthBehavior is .* growth behavior/)).toBeVisible()
   await page.getByRole('button', { name: 'Graft first two seeds' }).click()
   await expect(page.getByText(/First graft: Sol phonoseed plus Lumen phonoseed created Sol-Lumen graft.*root pitch 1 from Sol phonoseed.*waveform sine from Sol phonoseed.*modulation FM .* AM .* noise .* from Lumen phonoseed.*growth .* from Lumen phonoseed/)).toBeVisible()
   await expect(page.getByText(/Grafted Sol-Lumen graft/)).toBeVisible()
   await expect(page.getByText(/Unlocked graft mechanic: hybrid resonance planting/)).toBeVisible()
   await expect(page.locator('li').filter({ hasText: /Sol-Lumen graft: .*Graft ancestry: Sol plus Lumen; archive record sol-lumen; hybrid traits inherited from parent seed lines/ })).toBeVisible()
   await page.getByRole('button', { name: 'Preview selected seed' }).click()
-  await expect(page.getByText(/Previewing .* Audio preview: .* waveform .* synth .* growth/)).toBeVisible()
+  await expect(eventLog.getByText(/Previewing .* Audio preview: .* waveform .* synth .* growth/)).toBeVisible()
   await page.getByRole('button', { name: 'Atlas' }).click()
 
   await page.getByRole('button', { name: 'Codex' }).click()
@@ -358,6 +358,41 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('navigation', { name: 'Codex perception actions' })).toBeVisible()
   await expect(page.getByLabel('Caption and event log')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'First Breath' })).toBeVisible()
+})
+
+test('supports Space Colony style menu focus and spoken repeats', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+
+  const announcer = page.locator('#screen-reader-announcer')
+  await expect(page.getByRole('button', { name: 'New game' })).toBeFocused()
+
+  await page.keyboard.press('ArrowDown')
+  await expect(page.getByRole('button', { name: 'Continue' })).toBeFocused()
+  await expect(announcer).toHaveText(/Continue\. Item 2 of .* Use arrows to move, Enter or Space to choose, R to repeat/)
+
+  await page.keyboard.press('R')
+  await expect(announcer).toHaveText(/Continue\. Item 2 of/)
+
+  await page.keyboard.press('Digit3')
+  await expect(page.getByRole('button', { name: 'Restoration atlas' })).toBeFocused()
+  await expect(announcer).toHaveText(/Restoration atlas\. Item 3 of/)
+
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('heading', { name: 'Opening Atlas Freedom' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeFocused()
+})
+
+test('announces gameplay log messages through a dedicated live region', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const announcer = page.locator('#screen-reader-announcer')
+  await page.keyboard.press('o')
+  await expect(announcer).toHaveText(/Objective: .* Current system: Intake\./)
+  await page.keyboard.press('Space')
+  await expect(announcer).toHaveText(/Objective scan: heart/)
 })
 
 test('does not request external audio files', async ({ page }) => {
@@ -710,11 +745,12 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await expect(page.getByText(/Conservatory path: living-archive/)).toBeVisible()
   await expect(page.getByText(/Composition Palette/)).toBeVisible()
   await expect(page.getByText(/Endless mutation garden ready/)).toBeVisible()
+  const eventLog = page.getByLabel('Caption and event log')
   await page.getByRole('button', { name: 'Grow mutation seed' }).click()
-  await expect(page.getByLabel('Caption and event log').getByText(/Endless mutation garden grew Endless Mutation 1/)).toBeVisible()
+  await expect(eventLog.getByText(/Endless mutation garden grew Endless Mutation 1/)).toBeVisible()
   await page.getByRole('button', { name: 'Compose conservatory chord' }).click()
-  await expect(page.getByText(/Conservatory composition saved: Balanced Chord with 5 voice/)).toBeVisible()
-  await expect(page.getByText(/Compose: playing 5 recovered seed voice/)).toBeVisible()
+  await expect(eventLog.getByText(/Conservatory composition saved: Balanced Chord with 5 voice/)).toBeVisible()
+  await expect(eventLog.getByText(/Compose: playing 5 recovered seed voice/)).toBeVisible()
 })
 
 test('routes final chamber completion to atlas functions instead of staying in chamber', async ({ page }) => {
