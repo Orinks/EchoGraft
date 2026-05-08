@@ -159,13 +159,14 @@ describe('audio movement cues', () => {
     expect(ping).toMatchObject({
       category: 'scan',
       position: chamber.target,
+      seed: { role: 'scan-response-ping', scanResponseLayer: true },
       tone: { effectChain: ['feedbackDelay'] },
     })
     expect(ping.duration).toBeLessThanOrEqual(0.24)
     expect(trail).toMatchObject({
       category: 'scan',
       position: chamber.target,
-      seed: { scanPulseTrail: true },
+      seed: { role: 'scan-response-trail', scanPulseTrail: true, scanResponseLayer: true },
       tone: { effectChain: ['feedbackDelay', 'multitapDelay'], type: 'triangle' },
     })
     expect(trail.duration).toBeGreaterThan(0.07)

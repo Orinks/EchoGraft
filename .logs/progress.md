@@ -226,3 +226,4 @@
 - Continued with `omx ultragoal complete-goals` for `G196-system-drone`. Audited the existing `SystemDrone` implementation and added explicit restored/preview system-drone role markers to its runtime payload.
 - Continued with `omx ultragoal complete-goals` for `G197-planted-seed-voices`. Audited the existing `SeedVoice` implementation and added an explicit planted-seed voice role marker to persistent planted seed payloads.
 - Continued with `omx ultragoal complete-goals` for `G198-hazard-voices`. Audited the existing `HazardVoice` implementation and added axis-specific hazard voice role markers for forbidden pitch, pulse, and unstable ecology payloads.
+- Continued with `omx ultragoal complete-goals` for `G199-scan-response-layer`. Audited the existing `ScanPulse` implementation and added explicit scan response layer markers for both the short ping and delay-trail payloads.

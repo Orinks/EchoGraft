@@ -527,6 +527,11 @@ export class ScanPulse {
         ...ping,
         duration: Math.min(0.24, ping.duration),
         gain: dbGain(-10),
+        seed: {
+          ...ping.seed,
+          role: 'scan-response-ping',
+          scanResponseLayer: true,
+        },
         tone: {
           ...ping.tone,
           effectChain: ['feedbackDelay'],
@@ -542,7 +547,9 @@ export class ScanPulse {
           brightness: clamp((this.target.brightness ?? 0.45) * 0.8),
           oscillatorType: 'am',
           pulseRate,
+          role: 'scan-response-trail',
           scanPulseTrail: true,
+          scanResponseLayer: true,
           waveform: 'triangle',
         },
         tone: {
