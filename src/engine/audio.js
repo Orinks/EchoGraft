@@ -563,6 +563,51 @@ export class ScanPulse {
   }
 }
 
+export class HazardVoice {
+  constructor({ chamber = {}, seed = {} } = {}) {
+    this.chamber = chamber
+    this.hazard = chamber.hazards?.[0] ?? chamber.target ?? { pitchRatio: semanticRatio('hazard'), pulseRate: semanticPulse('hazard') }
+    this.position = chamber.target ?? this.hazard.position ?? { x: 0, y: 0 }
+    this.seed = seed
+    this.forbiddenAxis = this.hazard.pitchRatio ? 'pitchRatio' : this.hazard.pulseRate ? 'pulseRate' : 'ecology'
+    this.text = `HazardVoice: ${this.hazard.message ?? 'unstable ecology'} at ${this.position.x ?? 0}, ${this.position.y ?? 0}; forbidden ${this.forbiddenAxis}.`
+  }
+
+  toVoicePayload() {
+    const pulseRate = this.hazard.pulseRate ?? 0.75
+    const pitchRatio = this.hazard.pitchRatio ?? 0.75
+
+    return {
+      category: 'hazard',
+      duration: durationFromPulse(pulseRate) * 1.8,
+      gain: dbGain(-7),
+      position: this.position,
+      seed: {
+        ...this.seed,
+        brightness: 0.18,
+        fmAmount: 0.75,
+        hazardVoice: true,
+        oscillatorType: 'fm',
+        pulseRate,
+        waveform: 'sawtooth',
+      },
+      tone: {
+        brightness: 0.18,
+        effectChain: ['feedbackDelay'],
+        frequency: ratioToFrequency(pitchRatio, 42),
+        mode: 'fm',
+        modAmount: 0.7,
+        pulseRate,
+        type: 'sawtooth',
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1166,29 +1211,7 @@ export class AudioEngine {
   }
 
   hazard(chamber = {}, seed = {}) {
-    const target = chamber.hazards?.[0] ?? chamber.target ?? { pitchRatio: semanticRatio('hazard'), pulseRate: semanticPulse('hazard') }
-    this.voice({
-      category: 'hazard',
-      duration: durationFromPulse(target.pulseRate ?? 0.75) * 1.8,
-      gain: dbGain(-7),
-      position: chamber.target,
-      seed: {
-        ...seed,
-        brightness: 0.18,
-        fmAmount: 0.75,
-        oscillatorType: 'fm',
-        pulseRate: target.pulseRate ?? 0.75,
-        waveform: 'sawtooth',
-      },
-      tone: {
-        brightness: 0.18,
-        frequency: ratioToFrequency(target.pitchRatio ?? 0.75, 42),
-        mode: 'fm',
-        modAmount: 0.7,
-        pulseRate: target.pulseRate ?? 0.75,
-        type: 'sawtooth',
-      },
-    })
+    new HazardVoice({ chamber, seed }).play(this)
   }
 
   memory(record = {}, position = { x: 0, y: 0 }) {

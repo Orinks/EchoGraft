@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, HazardVoice, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -169,6 +169,21 @@ describe('audio movement cues', () => {
       tone: { effectChain: ['feedbackDelay', 'multitapDelay'], type: 'triangle' },
     })
     expect(trail.duration).toBeGreaterThan(0.07)
+  })
+
+  it('models forbidden intervals and unstable ecology as a named HazardVoice', () => {
+    const chamber = chambers.find((item) => item.hazards?.length)
+    const hazardVoice = new HazardVoice({ chamber, seed: { id: 'unsafe' } })
+    const payload = hazardVoice.toVoicePayload()
+
+    expect(hazardVoice.text).toContain('HazardVoice:')
+    expect(payload).toMatchObject({
+      category: 'hazard',
+      position: chamber.target,
+      seed: { hazardVoice: true, id: 'unsafe', oscillatorType: 'fm' },
+      tone: { effectChain: ['feedbackDelay'], mode: 'fm', type: 'sawtooth' },
+    })
+    expect(payload.duration).toBeGreaterThan(0.1)
   })
 
   it('spatializes every footstep at the current player position', () => {
