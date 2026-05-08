@@ -1,7 +1,7 @@
 import { AudioEngine, audioMixAccessibilityPassState } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
-import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneContractStructureState, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -1053,6 +1053,7 @@ function atlas() {
   const mainChamberCatalog = mainChamberCatalogState(chambers)
   const optionalContent = optionalContentPassState(chambers)
   const seasonBlock = allFiveSeasonsBlockedInState(chambers)
+  const seasonOneStructure = seasonOneContractStructureState(chambers)
   const openingMix = seasonOneOpeningContractMix(chambers)
   const rootworksSeason = seasonTwoRootworksState(chambers)
   const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
@@ -1144,6 +1145,11 @@ function atlas() {
       <section aria-labelledby="opening-contract-mix-title">
         <h2 id="opening-contract-mix-title">Season 1 Opening Contract Mix</h2>
         <p>${openingMix.text}</p>
+      </section>
+      <section aria-labelledby="season-one-structure-title">
+        <h2 id="season-one-structure-title">Season 1 Contract Structure</h2>
+        <p>${seasonOneStructure.text}</p>
+        <ol>${seasonOneStructure.required.map((item) => `<li>${item.title}: ${item.mechanic}; ${solveTimeText(item)}.</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="season-two-rootworks-title">
         <h2 id="season-two-rootworks-title">Season 2 Rootworks</h2>

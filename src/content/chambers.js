@@ -346,6 +346,28 @@ export function seasonOneOpeningContractMix(chamberList = chambers, target = { r
   }
 }
 
+export function seasonOneContractStructureState(chamberList = chambers) {
+  const requiredIds = ['direction', 'binaural', 'pitch', 'rhythm', 'timbre', 'phase', 'mold', 'finale']
+  const required = requiredIds.map((id) => chamberList.find((chamber) => chamber.id === id)).filter(Boolean)
+  const optional = chamberList.filter((chamber) => chamber.season === 1 && chamber.optional)
+  const missing = requiredIds.filter((id) => !required.some((chamber) => chamber.id === id))
+  const instantComplete = required.filter((chamber) => (chamber.solveTimeMinutes?.min ?? 0) <= 0 || !chamber.objective || !chamber.target)
+  const chained = required.every((chamber, index) => index === 0 || chamber.requires?.includes(required[index - 1].id))
+  const ready = missing.length === 0 && required.length === 8 && optional.length >= 2 && instantComplete.length === 0 && chained
+
+  return {
+    chained,
+    instantComplete,
+    missing,
+    optional,
+    ready,
+    required,
+    text: ready
+      ? `Season 1 contract structure ready: eight required contracts replace the four-chamber prototype, chain Intake Lung through Verdancy Heart, and keep ${optional.length} optional branch contract(s) available.`
+      : `Season 1 contract structure incomplete: missing ${missing.join(', ') || 'none'}; instant-complete contracts ${instantComplete.map((chamber) => chamber.id).join(', ') || 'none'}; chained ${chained ? 'yes' : 'no'}.`,
+  }
+}
+
 export function seasonTwoRootworksState(chamberList = chambers) {
   const seasonChambers = chamberList.filter((chamber) => chamber.season === 2)
   const rootworks = seasonChambers.filter((chamber) => chamber.system === 'Rootworks')
