@@ -232,3 +232,4 @@
 - Continued with `omx ultragoal complete-goals` for `G202-restored-systems-add-layers`. Wired restored Ark systems into the chamber music scene so their drone profiles add harmonic brightness and waveform layers after restoration.
 - Continued with `omx ultragoal complete-goals` for `G203-solved-rooms-modulate-toward-consona`. Added solved-chamber consonance modulation so restored rooms bias music toward additive synthesis, octave closure, slower phase motion, and longer sustain.
 - Continued with `omx ultragoal complete-goals` for `G204-hazards-add-unstable-intervals`. Fed authored hazard pitch or pulse intervals into chamber music ratios and harmonics so unresolved hazards create explicit unstable interval layers.
+- Continued with `omx ultragoal complete-goals` for `G205-player-planted-seeds-join-the-harmon`. Made planted seed harmony contributions explicit in chamber music metadata while preserving their ratios, pulses, and waveforms in generated phrases.

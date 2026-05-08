@@ -1173,6 +1173,7 @@ export class AudioEngine {
       seed: {
         hazardUnstableIntervals: phrase.hazardUnstableIntervals,
         musicLayer: true,
+        plantedSeedHarmony: phrase.plantedSeedHarmony,
         restoredSystemLayers: phrase.restoredSystemLayers,
       },
       spatial: false,
@@ -1300,6 +1301,7 @@ export class AudioEngine {
       octaveSpan: chamber.ending ? 5 : 3,
       phase: target.phase,
       phaseMotion: solved ? 2 : chamber.id === 'phase' ? 24 : 6 + tension * 12,
+      plantedSeedHarmony: planted.map((seed) => seed.id ?? seed.name).filter(Boolean),
       position: target,
       pulses: [target.pulseRate, ...seedPulses].map((pulse) => Math.max(0.4, pulse)),
       ratios: [target.pitchRatio, ...seedRatios, ...hazardIntervals, target.pitchRatio * (chamber.harmonic ? 1.5 : 1.25)],

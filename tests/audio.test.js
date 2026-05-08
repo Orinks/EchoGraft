@@ -286,6 +286,23 @@ describe('audio movement cues', () => {
     expect(phrase.mode).toBe('fm')
   })
 
+  it('lets player-planted seeds join chamber harmony', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const plantedSeeds = [
+      { id: 'lumen', brightness: 0.7, pitchRatio: 1.5, pulseRate: 1.25, waveform: 'triangle' },
+      { id: 'umbra', brightness: 0.3, pitchRatio: 0.75, pulseRate: 0.8, waveform: 'sine' },
+    ]
+    const audio = new AudioEngine()
+
+    audio.setMusicScene('game', { chamber, plantedSeeds })
+    const phrase = audio.createChamberMusicPhrase()
+
+    expect(phrase.plantedSeedHarmony).toEqual(['lumen', 'umbra'])
+    expect(phrase.ratios).toEqual(expect.arrayContaining([1.5, 0.75]))
+    expect(phrase.pulses).toEqual(expect.arrayContaining([1.25, 0.8]))
+    expect(phrase.waveforms).toEqual(expect.arrayContaining(['triangle', 'sine']))
+  })
+
   it('models player movement feedback as a named StepVoice', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)
