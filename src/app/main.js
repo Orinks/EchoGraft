@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1234,6 +1234,7 @@ function atlas() {
 function library() {
   audio.setMusicScene('menu')
   const appraisal = seedCollectionAppraisal(inventory, save, currentSeed())
+  const menuState = seedLibraryMenuState(inventory, save, selectedSeedIndex)
   const dreamCompost = dreamCompostSummary(save)
   const glassPollenTraits = glassPollenUnlockedTraits(save)
   const pollinatorVault = pollinatorVaultSummary(save)
@@ -1242,6 +1243,11 @@ function library() {
       <h1 id="library-title">Seed Library</h1>
       <p>${seedCarryText(inventory, selectedSeedIndex)}</p>
       <p>Selected tuning: ${tuningLabel(currentTuningParameter())}. Materials: ${materialsText()}.</p>
+      <section aria-labelledby="seed-library-menu-title">
+        <h2 id="seed-library-menu-title">Seed Library Menu</h2>
+        <p>${menuState.text}</p>
+        <ol>${menuState.sections.map((section) => `<li>${section.text}</li>`).join('')}</ol>
+      </section>
       <section aria-labelledby="library-materials-title">
         <h2 id="library-materials-title">Materials Ledger</h2>
         ${materialLedgerHtml()}

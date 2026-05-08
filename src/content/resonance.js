@@ -1,6 +1,6 @@
 import { codexRecords, weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
-import { graftDiscoveryCatalog, seedFamilies } from './seeds.js'
+import { graftDiscoveryCatalog, seedAudioPreview, seedFamilies } from './seeds.js'
 import { createWorldLayoutIndex } from './world-layout.js'
 
 function distance(a, b) {
@@ -731,6 +731,66 @@ export function seedCollectionAppraisal(inventory, save, selectedSeed = inventor
       ? `Exchange ${materials.map(([key, value]) => `${value} ${key}`).join(', ')} for tuning and restoration work.`
       : 'Restore contracts to gather tuning exchange materials.',
     commerceBoundary: 'Exchange remains restoration support, not museum commerce.',
+  }
+}
+
+export function seedLibraryMenuState(inventory = [], save = {}, selectedSeedIndex = 0) {
+  const selectedSeed = inventory[selectedSeedIndex] ?? inventory[0]
+  const appraisal = seedCollectionAppraisal(inventory, save, selectedSeed)
+  const actions = [
+    'preview selected seed',
+    'select seed',
+    'tune DNA',
+    'lock trait with resin',
+    'graft first two seeds',
+    'return to atlas',
+    'back to chamber',
+  ]
+  const sections = [
+    {
+      id: 'materials-ledger',
+      ready: Boolean(save.materials),
+      text: 'Materials ledger visible for tuning, locking, and graft costs.',
+    },
+    {
+      id: 'collection-appraisal',
+      ready: appraisal.gathered > 0,
+      text: `${appraisal.gathered} gathered voice(s), ${appraisal.identifiedFamilies.length} identified family/families.`,
+    },
+    {
+      id: 'selected-seed-dna',
+      ready: Boolean(selectedSeed),
+      text: selectedSeed ? `Selected seed DNA ready: ${selectedSeed.name}.` : 'Selected seed DNA missing.',
+    },
+    {
+      id: 'grafting-bench',
+      ready: inventory.length >= 2,
+      text: inventory.length >= 2 ? 'Grafting bench ready with two parent seeds.' : 'Grafting bench needs two carried seeds.',
+    },
+    {
+      id: 'family-catalog',
+      ready: seedFamilies.length >= 24 && graftDiscoveryCatalog.length >= 80,
+      text: `${seedFamilies.length} seed families and ${graftDiscoveryCatalog.length} graft discoveries cataloged.`,
+    },
+    {
+      id: 'caption-actions',
+      ready: actions.length >= 7,
+      text: `Seed library actions: ${actions.join(', ')}.`,
+    },
+  ]
+  const incomplete = sections.filter((section) => !section.ready)
+  const ready = incomplete.length === 0
+
+  return {
+    actions,
+    appraisal,
+    preview: selectedSeed ? seedAudioPreview(selectedSeed) : undefined,
+    ready,
+    sections,
+    selectedSeed,
+    text: ready
+      ? `Seed library menu ready: ${sections.length} sections cover collection, tuning, grafting, catalog, preview, and navigation.`
+      : `Seed library menu incomplete: ${incomplete.map((section) => section.id).join(', ')}.`,
   }
 }
 

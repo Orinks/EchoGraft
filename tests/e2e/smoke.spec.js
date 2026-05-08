@@ -200,8 +200,11 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Research grafts' }).click()
-  await expect(page.getByRole('heading', { name: 'Seed Library' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seed Library', exact: true })).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Seed library actions' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Seed Library Menu' })).toBeVisible()
+  await expect(page.getByText(/Seed library menu ready: 6 sections cover collection, tuning, grafting, catalog, preview, and navigation/)).toBeVisible()
+  await expect(page.getByText(/Seed library actions: preview selected seed, select seed, tune DNA, lock trait with resin, graft first two seeds, return to atlas, back to chamber/)).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Selected seed: Sol phonoseed\. Seed carry limit: \d+ of \d+ carried/ })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Materials Ledger' })).toBeVisible()
   await expect(page.getByText(/resin: 0; locking seed traits before tuning or grafting/)).toBeVisible()
