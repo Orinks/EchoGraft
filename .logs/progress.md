@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G308-all-five-seasons-blocked-in`. Added an all-five-seasons block state that audits each campaign season's playable contracts, required and optional mix, systems, objectives, rewards, and solve times, then surfaced the full season block in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G307-more-scan-modes`. Added material and chamber-change scan modes so no-vision scanning can report carried materials, contract rewards, saved spend, restored rating, system status, planted seed persistence, seed moves, and environmental consequences.
 - Continued with `omx ultragoal complete-goals` for `G306-persistent-chamber-changes`. Added a Persistent Chamber Changes state that audits restored chamber ratings, environmental changes, planted seeds, material spend, and seed-move history from the save, then surfaced those persistent consequences in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G305-materials-and-crafting`. Added a Materials and Crafting state that audits spore tuning, resin locks, mycelium graft support, glass pollen, archive loam, dream compost, and embersap recipe paths across the Atlas and Seed Library.

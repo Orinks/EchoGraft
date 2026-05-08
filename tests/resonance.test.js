@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -648,6 +648,19 @@ describe('resonance evaluation', () => {
     expect(state.required.map((chamber) => chamber.id)).toEqual(expect.arrayContaining(['root-reservoir', 'root-choir', 'mycelium-gate', 'nutrient-lattice']))
     expect(state.optional.map((chamber) => chamber.id)).toEqual(expect.arrayContaining(['optional-root-echo', 'optional-deep-root']))
     expect(state.text).toContain('Season 2 Rootworks ready')
+  })
+
+  it('blocks in all five authored campaign seasons', () => {
+    const state = allFiveSeasonsBlockedInState(chambers)
+
+    expect(state.ready).toBe(true)
+    expect(state.seasons).toHaveLength(5)
+    expect(state.seasons.every((season) => season.blockedIn)).toBe(true)
+    expect(state.seasons.map((season) => season.id)).toEqual([1, 2, 3, 4, 5])
+    expect(state.seasons.map((season) => season.playable.length)).toEqual([10, 8, 8, 9, 6])
+    expect(state.seasons.find((season) => season.id === 5).systems).toEqual(['Verdancy Heart'])
+    expect(state.text).toContain('All five seasons blocked in')
+    expect(state.text).toContain('Season 5 Verdancy Heart has 6 playable')
   })
 
   it('keeps the authored chamber contract set in the 40 to 50 band', () => {

@@ -300,6 +300,39 @@ export function seasonTwoRootworksState(chamberList = chambers) {
   }
 }
 
+export function allFiveSeasonsBlockedInState(chamberList = chambers, scope = campaignScope) {
+  const seasons = scope.seasons.map((season) => {
+    const seasonChambers = chamberList.filter((chamber) => chamber.season === season.id)
+    const playable = seasonChambers.filter((chamber) => chamber.contractType !== 'training')
+    const required = playable.filter((chamber) => !chamber.optional)
+    const optional = playable.filter((chamber) => chamber.optional)
+    const systems = Array.from(new Set(seasonChambers.map((chamber) => chamber.system))).filter(Boolean)
+    const missing = seasonChambers.filter((chamber) => !chamber.objective || !chamber.solveTimeMinutes || !chamber.rewards)
+    const blockedIn = playable.length > 0 && required.length > 0 && systems.length > 0 && missing.length === 0
+
+    return {
+      ...season,
+      blockedIn,
+      missing,
+      optional,
+      playable,
+      required,
+      systems,
+      text: `Season ${season.id} ${season.name}: ${playable.length} playable contract(s), ${required.length} required, ${optional.length} optional, systems ${systems.join(', ')}.`,
+      training: seasonChambers.filter((chamber) => chamber.contractType === 'training'),
+    }
+  })
+  const ready = seasons.length === 5 && seasons.every((season) => season.blockedIn)
+
+  return {
+    ready,
+    seasons,
+    text: ready
+      ? `All five seasons blocked in: ${seasons.map((season) => `Season ${season.id} ${season.name} has ${season.playable.length} playable contract(s)`).join('; ')}.`
+      : `All five seasons incomplete: ${seasons.filter((season) => !season.blockedIn).map((season) => `Season ${season.id}`).join(', ')} need playable required contracts, systems, objectives, rewards, and solve times.`,
+  }
+}
+
 export const majorArkSystems = [
   { id: 'intake', name: 'Intake', unlock: 'longer scan range and pressure awareness' },
   { id: 'navigation', name: 'Navigation', unlock: 'atlas previews, objective scan, and chamber compass cues' },
