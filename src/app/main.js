@@ -321,6 +321,12 @@ function mainMenuStatusText() {
   return `Current save: ${save.solvedChambers.length} of ${chambers.length} contracts restored; ${save.restoredSystems.length} of ${majorArkSystems.length} Ark systems online. Active work: ${chamber.title ?? 'no active chamber'}.`
 }
 
+function atlasStatusText() {
+  const available = unlockedContracts()
+  const next = available.find((item) => !save.solvedChambers.includes(item.id))
+  return `Atlas status: active work ${chamber.title}; next available contract ${next?.title ?? 'none available'}; ${restorationProgressText()}`
+}
+
 function graftingBenchText() {
   const parentA = inventory[0]
   const parentB = inventory[1]
@@ -841,6 +847,7 @@ function atlas() {
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
       <p>Season 1 contracts: ${save.solvedChambers.length} restored. Materials: ${materialsText()}.</p>
+      <p>${atlasStatusText()}</p>
       <section aria-labelledby="materials-title">
         <h2 id="materials-title">Materials Ledger</h2>
         ${materialLedgerHtml()}
@@ -970,11 +977,13 @@ function atlas() {
           </li>`
         }).join('')}
       </ol>
-      <button data-action="game">Enter active chamber</button>
-      <button data-action="library">Seed library</button>
-      <button data-action="codex">Codex</button>
-      ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
-      <button data-action="menu">Main menu</button>
+      <nav aria-label="Restoration atlas actions">
+        <button data-action="game">Enter active chamber</button>
+        <button data-action="library">Seed library</button>
+        <button data-action="codex">Codex</button>
+        ${save.postgameUnlocked ? '<button data-action="conservatory">Conservatory</button>' : ''}
+        <button data-action="menu">Main menu</button>
+      </nav>
       <section class="log" aria-label="Caption and event log" aria-live="polite">
         <h2>Caption Log</h2>
         <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>

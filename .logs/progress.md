@@ -248,3 +248,4 @@
 - Continued with `omx ultragoal complete-goals` for `G218-seed-library`. Hardened the Seed Library as a semantic menu with carried/selected seed status and grouped preview, graft, atlas, and chamber actions.
 - Continued with `omx ultragoal complete-goals` for `G219-grafting-bench`. Added an explicit Grafting Bench section with parent-slot inheritance, material context, failed-graft safety, and the primary graft action.
 - Continued with `omx ultragoal complete-goals` for `G220-materials`. Added a Materials Ledger to the Atlas and Seed Library so resource counts explain their restoration, tuning, grafting, codex, and ending uses.
+- Continued with `omx ultragoal complete-goals` for `G221-restoration-atlas`. Added an Atlas status summary and semantic Restoration atlas actions navigation for chamber, seed library, codex, conservatory, and main menu routing.
