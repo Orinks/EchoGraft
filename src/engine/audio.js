@@ -750,6 +750,7 @@ export class SystemDrone {
   constructor({ chamber = {}, restored = true } = {}) {
     this.chamber = chamber
     this.restored = restored
+    this.role = restored ? 'restored-system-drone' : 'preview-system-drone'
     this.profile = systemDroneProfiles[chamber.system] ?? { brightness: 0.5, ratio: 1, type: 'sine' }
     this.text = `SystemDrone: ${chamber.system ?? 'Ark'} ${restored ? 'restored' : 'preview'} layer for ${chamber.title ?? 'chamber'}.`
   }
@@ -768,6 +769,7 @@ export class SystemDrone {
         brightness,
         oscillatorType: 'am',
         pulseRate,
+        role: this.role,
         systemDrone: true,
         system: this.chamber.system,
         waveform: this.profile.type,

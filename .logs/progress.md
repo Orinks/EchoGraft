@@ -223,3 +223,4 @@
 - Continued with `omx ultragoal complete-goals` for `G193-stepvoice-player-movement-feedback`. Added a named `StepVoice` runtime object for player movement feedback and routed the spatial footstep cue through it.
 - Continued with `omx ultragoal complete-goals` for `G194-ambient-bed`. Added a named `AmbientBed` runtime object for chamber ambience layers and routed chamber ambience generation through it.
 - Continued with `omx ultragoal complete-goals` for `G195-heart-voice`. Audited the existing `HeartVoice` implementation and added explicit target/restored heart role markers to its runtime payload for downstream mix-layer identification.
+- Continued with `omx ultragoal complete-goals` for `G196-system-drone`. Audited the existing `SystemDrone` implementation and added explicit restored/preview system-drone role markers to its runtime payload.

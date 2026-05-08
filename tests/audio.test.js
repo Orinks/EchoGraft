@@ -239,7 +239,7 @@ describe('audio movement cues', () => {
     expect(payload).toMatchObject({
       category: 'music',
       position: chamber.target,
-      seed: { systemDrone: true, system: 'Water' },
+      seed: { role: 'restored-system-drone', systemDrone: true, system: 'Water' },
       tone: { effectChain: ['feedbackDelay'], mode: 'additive' },
     })
     expect(payload.duration).toBeGreaterThan(1)
