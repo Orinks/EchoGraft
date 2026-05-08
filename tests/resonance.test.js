@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -619,6 +619,21 @@ describe('resonance evaluation', () => {
     expect(endings.availableIds).toEqual(['preservation', 'adaptation', 'release', 'conservatory'])
     expect(endings.paths.find((path) => path.id === 'release').text).toContain('available')
     expect(alternateEndingPaths(createDefaultSave()).paths.find((path) => path.id === 'release').text).toContain('locked')
+  })
+
+  it('answers whether the Ark should return to its original mission from restoration evidence', () => {
+    const preservation = createDefaultSave()
+    preservation.ratings = { tutorial: 'Stable', direction: 'Resonant' }
+    const adaptation = createDefaultSave()
+    adaptation.restorationPhilosophy = 'adaptation'
+    adaptation.customSeeds = [createSeedDNA('hybrid-question')]
+    const release = createDefaultSave()
+    release.solvedChambers = ['optional-heart-root']
+
+    expect(originalMissionQuestionState(preservation).stance).toBe('return')
+    expect(originalMissionQuestionState(adaptation).stance).toBe('revise')
+    expect(originalMissionQuestionState(release).stance).toBe('release')
+    expect(originalMissionQuestionState(createDefaultSave()).text).toContain('Original mission question')
   })
 
   it('recovers ending reflections for each finale resolution path', () => {

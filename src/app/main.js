@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1032,6 +1032,7 @@ function atlas() {
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
   const arkOrigin = arkOriginMysteryState(save)
+  const originalMission = originalMissionQuestionState(save)
   const embersapMutations = embersapEndgameMutationState(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
@@ -1128,6 +1129,7 @@ function atlas() {
       <section aria-labelledby="final-ecology-title">
         <h2 id="final-ecology-title">Final Ecology Philosophy</h2>
         <p>${finalEcology.text}</p>
+        <p>${originalMission.text}</p>
         <p>${embersapMutations.text}</p>
       </section>
       <section aria-labelledby="crew-wake-title">
@@ -1434,6 +1436,7 @@ function ending() {
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const embersapMutations = embersapEndgameMutationState(save)
   const alternateEndings = alternateEndingPaths(save)
+  const originalMission = originalMissionQuestionState(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -1445,6 +1448,7 @@ function ending() {
       </section>
       <p>${crewWakeCycle.text}</p>
       <p>${launchGarden.text}</p>
+      <p>${originalMission.text}</p>
       <p>${embersapMutations.text}</p>
       <section aria-labelledby="alternate-endings-title">
         <h2 id="alternate-endings-title">Alternate Endings</h2>

@@ -151,6 +151,39 @@ export function alternateEndingPaths(save) {
   }
 }
 
+export function originalMissionQuestionState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const adaptiveSignals = (save.unlockedGraftMechanics?.length ?? 0) + (save.wildMutationIds?.length ?? 0) + (save.customSeeds?.length ?? 0) + (save.endlessMutationSeeds?.length ?? 0)
+  const releasePrepared = solved.has('optional-heart-root') || save.endgameResolution === 'release'
+  const preservationFavored = save.restorationPhilosophy === 'preservation' && carefulRestorations >= adaptiveSignals
+  const adaptationFavored = save.restorationPhilosophy === 'adaptation' || adaptiveSignals > carefulRestorations
+  const stance = releasePrepared
+    ? 'release'
+    : adaptationFavored
+      ? 'revise'
+      : preservationFavored
+        ? 'return'
+        : 'undecided'
+  const recommendation = stance === 'release'
+    ? 'Do not simply return; prepare the Ark to send seed libraries beyond its hull.'
+    : stance === 'revise'
+      ? 'Revise the original mission around changed ecology and inherited graft work.'
+      : stance === 'return'
+        ? 'Return to the original greenhouse mission, with consent and stewardship checks intact.'
+        : 'Keep gathering restoration evidence before deciding whether the original mission still fits.'
+
+  return {
+    adaptiveSignals,
+    carefulRestorations,
+    recommendation,
+    releasePrepared,
+    stance,
+    text: `Original mission question: ${stance}; careful restorations ${carefulRestorations}, adaptive signals ${adaptiveSignals}, release prepared ${releasePrepared ? 'yes' : 'no'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation
