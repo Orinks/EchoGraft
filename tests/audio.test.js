@@ -21,6 +21,7 @@ describe('audio movement cues', () => {
     expect(memoryRecordVoiceProfile({ id: 'plant-memory-01', title: 'Plant Memory 01' }).formantPair).toEqual(['createU', 'createO'])
     expect(memoryRecordVoiceProfile({ id: 'gardener-note-01', title: 'Gardener Note 01' }).formantPair).toEqual(['createE', 'createA'])
     expect(memoryRecordVoiceProfile({ id: 'seed-ancestry-01', title: 'Seed Ancestry 01' }).formantPair).toEqual(['createI', 'createE'])
+    expect(memoryRecordVoiceProfile({ id: 'archive-memory-01', title: 'Archive Memory 01' }).formantPair).toEqual(['createI', 'createE'])
     expect(memoryRecordVoiceProfile({ id: 'system-diagnostic-01', title: 'System Diagnostic 01' }).formantPair).toEqual(['createO', 'createU'])
   })
 
@@ -241,6 +242,25 @@ describe('audio movement cues', () => {
         formantPair: ['createI', 'createE'],
         mode: 'am',
         type: 'triangle',
+      },
+    })
+  })
+
+  it('models archive records as memory formant whispers', () => {
+    const voice = new MemoryVoice({
+      position: { x: -1, y: 1 },
+      record: { id: 'archive-memory-01', title: 'Archive Memory 01' },
+    })
+    const payload = voice.toVoicePayload()
+
+    expect(voice.text).toContain('createI to createE formants')
+    expect(payload).toMatchObject({
+      seed: { memoryVoice: true, optionalMemoryWhisperFormant: true },
+      tone: {
+        effectChain: ['talkbox', 'multitapDelay'],
+        formantMix: 0.62,
+        formantPair: ['createI', 'createE'],
+        formantWhisper: true,
       },
     })
   })

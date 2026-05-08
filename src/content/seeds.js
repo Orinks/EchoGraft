@@ -46,6 +46,21 @@ export const seedFamilies = [
 ]
 
 const seedFamilyDefaults = {
+  archive: {
+    amAmount: 0.36,
+    brightness: 0.28,
+    fmAmount: 0.08,
+    formantMemory: true,
+    formantMix: 0.62,
+    formantPair: ['createI', 'createE'],
+    growthBehavior: 'twining',
+    noiseAmount: 0.06,
+    oscillatorType: 'am',
+    phase: 210,
+    pitchRatio: 1.25,
+    pulseRate: 0.9,
+    waveform: 'triangle',
+  },
   glass: {
     brightness: 0.92,
     fmAmount: 0.12,

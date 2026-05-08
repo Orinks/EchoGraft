@@ -339,6 +339,32 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['sawtooth'])).toMatchObject({ matchesRequirement: true, waveform: 'sawtooth' })
   })
 
+  it('gives Archive seeds a formant memory archetype', () => {
+    const seed = createSeedDNA('archive-memory')
+
+    expect(seed).toMatchObject({
+      amAmount: 0.36,
+      brightness: 0.28,
+      ecologicalAffinity: 'formant memory and codex echoes',
+      family: 'Archive',
+      fmAmount: 0.08,
+      formantMemory: true,
+      formantMix: 0.62,
+      formantPair: ['createI', 'createE'],
+      growthBehavior: 'twining',
+      noiseAmount: 0.06,
+      oscillatorType: 'am',
+      phase: 210,
+      pitchRatio: 1.25,
+      pulseRate: 0.9,
+      waveform: 'triangle',
+    })
+    expect(seedDiscoveredOriginState(seed)).toMatchObject({ origin: 'Memory pond' })
+    expect(seedModulationProfileState(seed)).toMatchObject({ amAmount: 0.36, dominantLayer: 'AM' })
+    expect(seedPhaseState(seed, 180)).toMatchObject({ phase: 210, targetDelta: 30 })
+    expect(seedWaveformState(seed, ['triangle'])).toMatchObject({ matchesRequirement: true, waveform: 'triangle' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)
