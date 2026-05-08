@@ -1,5 +1,6 @@
 import { weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
+import { createWorldLayoutIndex } from './world-layout.js'
 
 function distance(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y)
@@ -405,6 +406,7 @@ export function navigationAtlasState(chambers, save = {}) {
   const restoredSystems = save.restoredSystems ?? []
   const navigationOnline = restoredSystems.includes('Navigation') || restoredSystems.includes('Navigation grove')
   const ready = new Set(availableChambers(chambers, save.solvedChambers ?? []).map((chamber) => chamber.id))
+  const layout = createWorldLayoutIndex(chambers)
   const candidates = chambers.filter((chamber) => !solved.has(chamber.id) && (navigationOnline || ready.has(chamber.id)))
   const previews = candidates.slice(0, navigationOnline ? 6 : 3).map((chamber) => ({
     id: chamber.id,
@@ -412,11 +414,12 @@ export function navigationAtlasState(chambers, save = {}) {
     ready: ready.has(chamber.id),
     solveTimeMinutes: chamber.solveTimeMinutes,
     system: chamber.system,
-    text: `${chamber.title}: ${chamber.system}, ${chamber.solveTimeMinutes.min} to ${chamber.solveTimeMinutes.max} minutes, ${ready.has(chamber.id) ? 'ready now' : 'locked by atlas dependencies'}. Objective preview: ${chamber.objective}`,
+    text: `${chamber.title}: ${chamber.system}, ${chamber.solveTimeMinutes.min} to ${chamber.solveTimeMinutes.max} minutes, ${ready.has(chamber.id) ? 'ready now' : 'locked by atlas dependencies'}. ${layout.points.find((point) => point.chamberId === chamber.id)?.text ?? 'World layout point pending.'} Objective preview: ${chamber.objective}`,
     title: chamber.title,
   }))
 
   return {
+    layout,
     navigationOnline,
     previews,
     text: navigationOnline
