@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G307-more-scan-modes`. Added material and chamber-change scan modes so no-vision scanning can report carried materials, contract rewards, saved spend, restored rating, system status, planted seed persistence, seed moves, and environmental consequences.
 - Continued with `omx ultragoal complete-goals` for `G306-persistent-chamber-changes`. Added a Persistent Chamber Changes state that audits restored chamber ratings, environmental changes, planted seeds, material spend, and seed-move history from the save, then surfaced those persistent consequences in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G305-materials-and-crafting`. Added a Materials and Crafting state that audits spore tuning, resin locks, mycelium graft support, glass pollen, archive loam, dream compost, and embersap recipe paths across the Atlas and Seed Library.
 - Continued with `omx ultragoal complete-goals` for `G304-season-2-rootworks`. Added a Season 2 Rootworks state that audits required and optional Rootworks contracts, mechanics, objectives, and timing, then surfaced the season block in the Restoration Atlas.

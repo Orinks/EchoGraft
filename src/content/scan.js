@@ -5,7 +5,7 @@ function clamp(value, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value))
 }
 
-export const scanLogModes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network']
+export const scanLogModes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network', 'materials', 'chamber']
 
 export function scanLogFeedbackState(mode = 'objective', text = '') {
   const originalMode = mode
@@ -16,7 +16,7 @@ export function scanLogFeedbackState(mode = 'objective', text = '') {
     logged: true,
     mode: normalizedMode,
     originalMode,
-    text: report || `Scan log feedback: ${originalMode || 'unknown'} scan has no readable report; use objective scan or cycle scan mode for objective, boundaries, seeds, hazards, memory, or network feedback.`,
+    text: report || `Scan log feedback: ${originalMode || 'unknown'} scan has no readable report; use objective scan or cycle scan mode for ${scanLogModes.join(', ')} feedback.`,
   }
 }
 
@@ -699,6 +699,58 @@ export function hazardScanState(chamber = {}, plantedSeeds = []) {
     text: hazards.length
       ? `Hazard scan: forbidden intervals ${hazards.map((hazard) => `${hazard.axis.label} ${hazard.lower}-${hazard.upper}: ${hazard.message}`).join('; ')}. Unsafe zones: ${unsafeZones.length ? unsafeZones.join('; ') : 'none occupied by planted seeds'}.`
       : 'Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.',
+  }
+}
+
+export function materialScanState(chamber = {}, save = {}) {
+  const materials = save.materials ?? {}
+  const rewards = chamber.rewards?.materials ?? {}
+  const spent = save.resourcesSpentByChamber?.[chamber.id] ?? {}
+  const materialText = Object.entries(materials)
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${key} ${value}`)
+    .join(', ') || 'none carried'
+  const rewardText = Object.entries(rewards)
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${value} ${key}`)
+    .join(', ') || 'no material reward'
+  const spentText = Object.entries(spent)
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${value} ${key}`)
+    .join(', ') || 'no chamber spend recorded'
+  const costText = Object.entries(chamber.materialCost ?? {})
+    .filter(([, value]) => value > 0)
+    .map(([key, value]) => `${value} ${key}`)
+    .join(', ') || 'no material gate'
+
+  return {
+    cost: chamber.materialCost ?? {},
+    materials,
+    rewards,
+    spent,
+    text: `Material scan: carried ${materialText}. Current contract reward ${rewardText}; cost ${costText}; saved spend ${spentText}.`,
+  }
+}
+
+export function chamberChangeScanState(chamber = {}, save = {}, plantedSeeds = []) {
+  const solved = save.solvedChambers?.includes(chamber.id) ?? false
+  const rating = save.ratings?.[chamber.id] ?? (solved ? 'Restored' : 'Unrestored')
+  const systemOnline = save.restoredSystems?.includes(chamber.system) ?? false
+  const environmentalChange = (save.environmentalChanges ?? []).find((change) => change.includes(chamber.title))
+  const savedSeeds = save.plantedByChamber?.[chamber.id] ?? []
+  const activeSeedCount = plantedSeeds.length
+  const savedSeedCount = savedSeeds.length
+  const seedMoves = save.seedMovesByChamber?.[chamber.id] ?? 0
+
+  return {
+    activeSeedCount,
+    environmentalChange,
+    rating,
+    savedSeedCount,
+    seedMoves,
+    solved,
+    systemOnline,
+    text: `Chamber change scan: ${chamber.title ?? 'current chamber'} is ${solved ? 'restored' : 'unrestored'} with ${rating} rating; ${chamber.system ?? 'unknown system'} ${systemOnline ? 'online' : 'offline'}; ${savedSeedCount} saved planted seed(s), ${activeSeedCount} active seed voice(s), ${seedMoves} seed move(s). Environmental change: ${environmentalChange ?? 'none recorded yet'}.`,
   }
 }
 

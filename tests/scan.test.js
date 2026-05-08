@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, materialScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -25,7 +25,29 @@ describe('scan pulse', () => {
     const fallback = scanLogFeedbackState('unknown-mode', '')
     expect(fallback).toMatchObject({ logged: true, mode: 'objective', originalMode: 'unknown-mode' })
     expect(fallback.text).toContain('Scan log feedback')
-    expect(fallback.text).toContain('objective, boundaries, seeds, hazards, memory, or network feedback')
+    expect(fallback.text).toContain('objective, boundaries, seeds, hazards, memory, network, materials, chamber feedback')
+  })
+
+  it('adds material and chamber-change scan reports', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const save = {
+      environmentalChanges: ['Intake: Training Contract: First Breath stabilized with Resonant resonance'],
+      materials: { biomass: 1, spores: 1 },
+      plantedByChamber: { tutorial: [{ id: 'sol' }] },
+      ratings: { tutorial: 'Resonant' },
+      resourcesSpentByChamber: { tutorial: { spores: 1 } },
+      restoredSystems: ['Intake'],
+      seedMovesByChamber: { tutorial: 1 },
+      solvedChambers: ['tutorial'],
+    }
+    const material = materialScanState(chamber, save)
+    const chamberChange = chamberChangeScanState(chamber, save, [{ id: 'sol' }])
+
+    expect(scanLogModes).toEqual(['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network', 'materials', 'chamber'])
+    expect(material.text).toContain('Material scan: carried biomass 1, spores 1')
+    expect(material.text).toContain('saved spend 1 spores')
+    expect(chamberChange.text).toContain('Chamber change scan: Training Contract: First Breath is restored with Resonant rating')
+    expect(chamberChange.text).toContain('1 saved planted seed')
   })
 
   it('reflects scans from glass shear chambers', () => {

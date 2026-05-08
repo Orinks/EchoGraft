@@ -117,6 +117,12 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('z')
   await page.keyboard.press('b')
   await expect(eventLog.getByText(/Network scan: endgame multi-chamber resonance building; 0 online system/)).toBeVisible()
+  await page.keyboard.press('z')
+  await page.keyboard.press('b')
+  await expect(eventLog.getByText(/Material scan: carried none carried\. Current contract reward 1 biomass, 1 spores/)).toBeVisible()
+  await page.keyboard.press('z')
+  await page.keyboard.press('b')
+  await expect(eventLog.getByText(/Chamber change scan: Training Contract: First Breath is unrestored with Unrestored rating/)).toBeVisible()
 
   await page.keyboard.press('ArrowUp')
   await expect(eventLog.getByText(/Movement audio: spatial footstep, wall .* current .* landmark heart/)).toBeVisible()
@@ -397,7 +403,7 @@ test('uses Shift+Space for the scan mode menu', async ({ page }) => {
 
   const eventLog = page.getByLabel('Caption and event log')
   await page.keyboard.press('Shift+Space')
-  await expect(eventLog.getByText(/Scan mode menu: boundaries\. Available scan modes: objective, boundaries, seeds, hazards, memory, network\./)).toBeVisible()
+  await expect(eventLog.getByText(/Scan mode menu: boundaries\. Available scan modes: objective, boundaries, seeds, hazards, memory, network, materials, chamber\./)).toBeVisible()
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Boundary scan: chamber edges/)).toBeVisible()
 })
