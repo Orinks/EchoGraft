@@ -279,6 +279,27 @@ export function seasonOneOpeningContractMix(chamberList = chambers, target = { r
   }
 }
 
+export function seasonTwoRootworksState(chamberList = chambers) {
+  const seasonChambers = chamberList.filter((chamber) => chamber.season === 2)
+  const rootworks = seasonChambers.filter((chamber) => chamber.system === 'Rootworks')
+  const required = rootworks.filter((chamber) => !chamber.optional)
+  const optional = rootworks.filter((chamber) => chamber.optional)
+  const mechanics = Array.from(new Set(rootworks.map((chamber) => chamber.mechanic)))
+  const ready = required.length >= 4 && optional.length >= 2 && rootworks.every((chamber) => chamber.objective && chamber.solveTimeMinutes)
+
+  return {
+    mechanics,
+    optional,
+    ready,
+    required,
+    rootworks,
+    season: 2,
+    text: ready
+      ? `Season 2 Rootworks ready: ${rootworks.length} Rootworks contract(s), ${required.length} required and ${optional.length} optional, covering ${mechanics.join(', ')}.`
+      : `Season 2 Rootworks incomplete: ${required.length} required and ${optional.length} optional Rootworks contract(s) staged.`,
+  }
+}
+
 export const majorArkSystems = [
   { id: 'intake', name: 'Intake', unlock: 'longer scan range and pressure awareness' },
   { id: 'navigation', name: 'Navigation', unlock: 'atlas previews, objective scan, and chamber compass cues' },

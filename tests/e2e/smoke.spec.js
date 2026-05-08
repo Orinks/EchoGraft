@@ -166,6 +166,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Season 1 Opening Contract Mix' })).toBeVisible()
   await expect(page.getByText(/Season 1 opening contract mix ready: 6 required and 2 optional contract\(s\) staged/)).toBeVisible()
   await expect(page.getByText(/Optional: Optional Contract: Twin Roots, Optional Contract: Splice Nursery/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Season 2 Rootworks' })).toBeVisible()
+  await expect(page.getByText(/Season 2 Rootworks ready: \d+ Rootworks contract\(s\), \d+ required and \d+ optional/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Atlas V1 Checklist' })).toBeVisible()
   await expect(page.getByText(/Restoration atlas v1 ready: work orders, planning, materials, return contracts, codex payoff, and function-menu exits are available/)).toBeVisible()
   await expect(page.getByText(/Functions menu exits: active chamber, seed library, codex perceptions, settings, main menu/)).toBeVisible()

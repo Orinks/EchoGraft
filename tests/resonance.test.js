@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -605,6 +605,17 @@ describe('resonance evaluation', () => {
     expect(mix.required.map((chamber) => chamber.id)).toEqual(['direction', 'binaural', 'pitch', 'rhythm', 'timbre', 'phase'])
     expect(mix.optional.map((chamber) => chamber.id)).toEqual(['harmony', 'graft'])
     expect(mix.text).toContain('6 required and 2 optional')
+  })
+
+  it('blocks in Season 2 as a Rootworks-focused season', () => {
+    const state = seasonTwoRootworksState(chambers)
+
+    expect(state.ready).toBe(true)
+    expect(state.season).toBe(2)
+    expect(state.rootworks.length).toBeGreaterThanOrEqual(6)
+    expect(state.required.map((chamber) => chamber.id)).toEqual(expect.arrayContaining(['root-reservoir', 'root-choir', 'mycelium-gate', 'nutrient-lattice']))
+    expect(state.optional.map((chamber) => chamber.id)).toEqual(expect.arrayContaining(['optional-root-echo', 'optional-deep-root']))
+    expect(state.text).toContain('Season 2 Rootworks ready')
   })
 
   it('keeps the authored chamber contract set in the 40 to 50 band', () => {
