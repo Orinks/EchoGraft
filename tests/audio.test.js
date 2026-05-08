@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -260,6 +260,25 @@ describe('audio movement cues', () => {
       tone: { mode: 'additive' },
     })
     expect(payload.position.y).toBeGreaterThan(player.y)
+  })
+
+  it('models chamber ambience as a named AmbientBed layer', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const bed = new AmbientBed({
+      chamber,
+      index: 1,
+      seed: { ...chamber.target, position: chamber.target, waveform: 'sine' },
+    })
+    const payload = bed.toVoicePayload()
+
+    expect(bed.text).toContain('Ambient bed:')
+    expect(payload).toMatchObject({
+      category: 'ambience',
+      position: chamber.target,
+      seed: { ambientBed: true },
+      tone: { mode: 'am', type: 'sine' },
+    })
+    expect(payload.duration).toBeGreaterThan(0.1)
   })
 
   it('spatializes every footstep at the current player position', () => {

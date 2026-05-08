@@ -821,6 +821,46 @@ export class StepVoice {
   }
 }
 
+export class AmbientBed {
+  constructor({ chamber = {}, index = 0, seed = {} } = {}) {
+    this.chamber = chamber
+    this.index = index
+    this.seed = seed
+    this.target = chamber.target ?? { brightness: 0.45, pitchRatio: 1, pulseRate: 1, x: 0, y: 0 }
+    this.ratio = seed.pitchRatio ?? this.target.pitchRatio
+    this.pulseRate = seed.pulseRate ?? this.target.pulseRate
+    this.text = `Ambient bed: ${chamber.title ?? 'chamber'} layer ${index + 1} at ${seed.position?.x ?? this.target.x ?? 0}, ${seed.position?.y ?? this.target.y ?? 0}.`
+  }
+
+  toVoicePayload() {
+    return {
+      category: 'ambience',
+      duration: durationFromPulse(this.pulseRate) * 2.5,
+      gain: dbGain(-20 + clamp(this.target.brightness) * 5),
+      position: this.seed.position ?? this.target,
+      seed: {
+        ...this.seed,
+        ambientBed: true,
+        brightness: this.seed.brightness ?? this.target.brightness,
+        oscillatorType: this.seed.oscillatorType ?? 'am',
+        pulseRate: this.pulseRate,
+        waveform: this.seed.waveform ?? 'sine',
+      },
+      tone: {
+        brightness: this.seed.brightness ?? this.target.brightness,
+        frequency: ratioToFrequency(this.ratio, 38 + this.index * 5),
+        mode: 'am',
+        pulseRate: this.pulseRate,
+        type: this.seed.waveform ?? 'sine',
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1389,29 +1429,8 @@ export class AudioEngine {
     this.syncSeedObjects(chamber.id, plantedSeeds)
     const ecology = plantedSeeds.length ? plantedSeeds : [{ ...chamber.target, waveform: 'sine', oscillatorType: 'am', fmAmount: 0.1, amAmount: 0.2, noiseAmount: 0.05 }]
     ecology.forEach((seed, index) => {
-      const ratio = seed.pitchRatio ?? chamber.target.pitchRatio
-      const pulseRate = seed.pulseRate ?? chamber.target.pulseRate
       setTimeout(() => {
-        this.voice({
-          category: 'ambience',
-          duration: durationFromPulse(pulseRate) * 2.5,
-          gain: dbGain(-20 + clamp(chamber.target.brightness) * 5),
-          position: seed.position ?? chamber.target,
-          seed: {
-            ...seed,
-            brightness: seed.brightness ?? chamber.target.brightness,
-            oscillatorType: seed.oscillatorType ?? 'am',
-            pulseRate,
-            waveform: seed.waveform ?? 'sine',
-          },
-          tone: {
-            brightness: seed.brightness ?? chamber.target.brightness,
-            frequency: ratioToFrequency(ratio, 38 + index * 5),
-            mode: 'am',
-            pulseRate,
-            type: seed.waveform ?? 'sine',
-          },
-        })
+        new AmbientBed({ chamber, index, seed }).play(this)
       }, index * 140)
     })
   }
