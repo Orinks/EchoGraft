@@ -11,7 +11,7 @@ import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletio
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
 const eventLog = createEventLog()
@@ -558,6 +558,19 @@ function composeConservatory() {
   log(`Compose: playing ${inventory.length} recovered seed voice(s) as a living conservatory chord. Mode ${composition.mode.title}: ${composition.mode.text}`)
 }
 
+function growMutationGarden() {
+  const garden = postgameEndlessMutationGarden(save, inventory)
+  if (!garden.ready) {
+    log(garden.text)
+    return
+  }
+  save.endlessMutationSeeds = [...(save.endlessMutationSeeds ?? []), garden.nextMutation]
+  inventory = [...inventory, garden.nextMutation.seed]
+  persist()
+  audio.seed(garden.nextMutation.seed)
+  log(garden.nextMutation.text, 'success')
+}
+
 function selectSeed(index) {
   selectedSeedIndex = seedCarryState(inventory, index).selectedCarryIndex
   audio.seed(currentSeed())
@@ -860,6 +873,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'previewSeed') previewSelectedSeed()
   if (action === 'wild') acceptWildInstability()
   if (action === 'compose') composeConservatory()
+  if (action === 'mutateGarden') growMutationGarden()
   if (action === 'compositionMode') {
     conservatoryMode = event.target.dataset.mode ?? conservatoryMode
     const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
@@ -1269,6 +1283,7 @@ function conservatory() {
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
   const savedCompositions = save.conservatoryCompositions ?? []
   const latestComposition = savedCompositions.at(-1)
+  const mutationGarden = postgameEndlessMutationGarden(save, inventory)
   shell(`
     <main class="screen" aria-labelledby="conservatory-title">
       <h1 id="conservatory-title">Conservatory</h1>
@@ -1283,6 +1298,12 @@ function conservatory() {
         <p>Saved compositions: ${savedCompositions.length}${latestComposition ? `. Latest: ${latestComposition.modeTitle} with ${latestComposition.voiceCount} voice(s).` : '.'}</p>
         <p>${inventory.map((seed) => seed.name).join(', ')}.</p>
         ${composition.modes.map((mode) => `<button data-action="compositionMode" data-mode="${mode.id}"${mode.id === composition.mode.id ? ' aria-pressed="true"' : ''}>${mode.title}</button>`).join('')}
+      </section>
+      <section aria-labelledby="mutation-garden-title">
+        <h2 id="mutation-garden-title">Endless Mutation Garden</h2>
+        <p>${mutationGarden.text}</p>
+        ${mutationGarden.gardenSeeds.length ? `<ol>${mutationGarden.gardenSeeds.slice(-5).map((record) => `<li>${record.text}</li>`).join('')}</ol>` : '<p>No mutation garden seeds grown yet.</p>'}
+        <button data-action="mutateGarden">Grow mutation seed</button>
       </section>
       <button data-action="compose">Compose conservatory chord</button>
       <button data-action="atlas">Atlas</button>

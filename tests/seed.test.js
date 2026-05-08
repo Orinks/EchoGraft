@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -655,6 +655,29 @@ describe('seed DNA', () => {
     expect(report.text).toContain('Rare graft rewards')
     expect(report.text).toContain('bonus contract lead')
     expect(report.text).toContain('improved restoration rating option')
+  })
+
+  it('grows deterministic postgame endless mutation seeds', () => {
+    const save = {
+      postgameUnlocked: true,
+      proceduralSeed: 'garden-alpha',
+      endlessMutationSeeds: [],
+      wildMutationIds: ['pitch-wild-mutation'],
+    }
+    const inventory = [
+      createSeedDNA('sol-garden', { name: 'Sol garden' }),
+      createSeedDNA('lumen-garden', { name: 'Lumen garden' }),
+    ]
+    const garden = postgameEndlessMutationGarden(save, inventory)
+
+    expect(garden.ready).toBe(true)
+    expect(garden.nextMutation.seed).toMatchObject({
+      grafted: true,
+      id: 'endless-mutation-1',
+      name: 'Endless Mutation 1',
+    })
+    expect(garden.nextMutation.text).toContain('Endless mutation garden grew Endless Mutation 1')
+    expect(postgameEndlessMutationGarden({ postgameUnlocked: false }, inventory).ready).toBe(false)
   })
 
   it('reports graft ancestry as parent seed lines and archive record', () => {

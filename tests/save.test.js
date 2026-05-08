@@ -31,6 +31,7 @@ describe('save system', () => {
       voices: ['Sol'],
     })
     save.lowCycleChallengeIds.push('tutorial')
+    save.endlessMutationSeeds.push({ id: 'endless-mutation-1', text: 'Mutation grown.' })
     save.unlockedGraftMechanics.push('hybrid resonance planting')
     save.bonusContractIds.push('bonus-sol-myco')
     save.graftRatingBoosts.push('rating-sol-myco')
@@ -55,6 +56,7 @@ describe('save system', () => {
     expect(loadSave(storage).postgameUnlocked).toBe(true)
     expect(loadSave(storage).conservatoryCompositions).toHaveLength(1)
     expect(loadSave(storage).lowCycleChallengeIds).toEqual(['tutorial'])
+    expect(loadSave(storage).endlessMutationSeeds).toHaveLength(1)
     expect(loadSave(storage).unlockedGraftMechanics).toEqual(['hybrid resonance planting'])
     expect(loadSave(storage).bonusContractIds).toEqual(['bonus-sol-myco'])
     expect(loadSave(storage).graftRatingBoosts).toEqual(['rating-sol-myco'])
@@ -87,6 +89,7 @@ describe('save system', () => {
     expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.conservatoryCompositions).toEqual([])
     expect(loaded.lowCycleChallengeIds).toEqual([])
+    expect(loaded.endlessMutationSeeds).toEqual([])
     expect(loaded.unlockedGraftMechanics).toEqual([])
     expect(loaded.bonusContractIds).toEqual([])
     expect(loaded.graftRatingBoosts).toEqual([])

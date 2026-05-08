@@ -642,6 +642,65 @@ export function graftSeeds(seedA, seedB, id = `${seedA.id}-${seedB.id}-graft`) {
   })
 }
 
+export function postgameEndlessMutationGarden(save = {}, inventory = []) {
+  const gardenSeeds = save.endlessMutationSeeds ?? []
+  const unlocked = Boolean(save.postgameUnlocked)
+  const baseVoices = inventory.filter(Boolean)
+  const index = gardenSeeds.length + 1
+  const parentA = baseVoices[(index - 1) % Math.max(1, baseVoices.length)]
+  const parentB = baseVoices[index % Math.max(1, baseVoices.length)]
+  const ready = unlocked && baseVoices.length >= 2
+
+  if (!ready) {
+    return {
+      gardenSeeds,
+      nextMutation: null,
+      ready,
+      seedCount: gardenSeeds.length,
+      text: unlocked
+        ? 'Endless mutation garden needs at least two recovered seed voices before it can grow a new postgame mutation.'
+        : 'Endless mutation garden locked until a finale resolution opens postgame restoration.',
+      unlocked,
+    }
+  }
+
+  const rng = createRng(`endless-mutation-${save.proceduralSeed ?? 'ark'}-${index}-${save.wildMutationIds?.length ?? 0}`)
+  const graft = graftSeeds(parentA, parentB, `endless-mutation-${index}`)
+  const mutationSeed = normalizeSeed({
+    ...graft,
+    amAmount: clamp(Number((graft.amAmount + rng() * 0.18).toFixed(2)), 0, 1),
+    brightness: clamp(Number((graft.brightness + rng() * 0.16 - 0.08).toFixed(2)), 0.1, 1),
+    discoveredOrigin: `Postgame endless mutation garden cycle ${index}.`,
+    fmAmount: clamp(Number((graft.fmAmount + rng() * 0.22).toFixed(2)), 0, 1),
+    grafted: true,
+    growthBehavior: pick(growthBehaviors, rng),
+    id: `endless-mutation-${index}`,
+    lineageHistory: [
+      ...(graft.lineageHistory ?? []),
+      `Endless mutation garden cycle ${index} braided ${parentA.name} with ${parentB.name}.`,
+    ],
+    name: `Endless Mutation ${index}`,
+    noiseAmount: clamp(Number((graft.noiseAmount + 0.08 + rng() * 0.2).toFixed(2)), 0, 1),
+    phase: Math.round((graft.phase + rng() * 90) % 360),
+    pulseRate: clamp(Number((graft.pulseRate + rng() * 0.4 - 0.2).toFixed(2)), 0.25, 6),
+  })
+  const nextMutation = {
+    id: mutationSeed.id,
+    parentNames: [parentA.name, parentB.name],
+    seed: mutationSeed,
+    text: `Endless mutation garden grew ${mutationSeed.name} from ${parentA.name} and ${parentB.name}; noise ${mutationSeed.noiseAmount}, phase ${mutationSeed.phase}, growth ${mutationSeed.growthBehavior}.`,
+  }
+
+  return {
+    gardenSeeds,
+    nextMutation,
+    ready,
+    seedCount: gardenSeeds.length,
+    text: `Endless mutation garden ready: ${gardenSeeds.length} mutation seed(s) grown; next braid uses ${parentA.name} and ${parentB.name}.`,
+    unlocked,
+  }
+}
+
 export function failedGraftUtility(seedA, seedB, id = `${seedA.id}-${seedB.id}-failed-graft`) {
   const noisyTool = normalizeSeed({
     amAmount: Math.max(seedA.amAmount ?? 0, seedB.amAmount ?? 0),
