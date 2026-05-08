@@ -7,6 +7,17 @@ function clamp(value, min = 0, max = 1) {
 
 export const scanLogModes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network', 'materials', 'chamber']
 
+export const scanModeLabels = {
+  objective: 'Objective scan',
+  boundaries: 'Boundary scan',
+  seeds: 'Planted seed scan',
+  hazards: 'Hazard scan',
+  memory: 'Memory scan',
+  network: 'Network scan',
+  materials: 'Material scan',
+  chamber: 'Chamber change scan',
+}
+
 export function scanLogFeedbackState(mode = 'objective', text = '') {
   const originalMode = mode
   const normalizedMode = scanLogModes.includes(mode) ? mode : 'objective'

@@ -466,6 +466,27 @@ test('uses Shift+Space for the scan mode menu', async ({ page }) => {
   await expect(eventLog.getByText(/Boundary scan: chamber edges/)).toBeVisible()
 })
 
+test('scan mode buttons directly run objective boundary seed and hazard scans', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.getByRole('button', { name: 'Objective scan' }).click()
+  await expect(page.getByRole('button', { name: 'Objective scan' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(eventLog.getByText(/Objective scan: heart is .* Heart scan: direction .* distance .* objective/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Boundary scan' }).click()
+  await expect(eventLog.getByText(/Scan mode menu: boundaries\. Boundary scan selected/)).toBeVisible()
+  await expect(eventLog.getByText(/^Boundary scan: chamber edges/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Planted seed scan' }).click()
+  await expect(eventLog.getByText(/Seed scan: no planted seed objects/)).toBeVisible()
+
+  await page.getByRole('button', { name: 'Hazard scan' }).click()
+  await expect(eventLog.getByText('Hazard scan: no forbidden intervals or unsafe zones detected in this chamber.', { exact: true })).toBeVisible()
+})
+
 test('uses Enter to plant interact and confirm after solving', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Interact to Begin' }).click()

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
-import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, materialScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
+import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, glassShearReflectionState, hazardScanState, heartScanState, materialScanState, memoryLoopState, memoryScanState, navigationScanState, networkScanState, phaseFogDirectionState, scanLogFeedbackState, scanLogModes, scanModeLabels, scanPulse, scanRangeState, seedAmDepthScanState, seedBrightnessFilterScanState, seedEnvelopeShapeScanState, seedFamilyScanState, seedFmDepthScanState, seedHarmonicRelationshipScanState, seedHazardAvoidanceScanState, seedNearbyInteractionState, seedNetworkContributionScanState, seedNoiseAmountScanState, seedPhaseMatchScanState, seedPitchMatchScanState, seedPositionMatchScanState, seedPositionState, seedRhythmMatchScanState, seedScanState, seedSpatialRadiusScanState, seedSubstrateScanState, seedTimbreMatchScanState, seedTuningScanState, windCarriedEcho } from '../src/content/scan.js'
 
 describe('scan pulse', () => {
   it('reports direction, distance, and delay trail for no-vision scanning', () => {
@@ -21,6 +21,14 @@ describe('scan pulse', () => {
       expect(feedback).toMatchObject({ logged: true, mode })
       expect(feedback.text).toContain(`${mode} scan`)
     }
+
+    expect(scanModeLabels).toMatchObject({
+      objective: 'Objective scan',
+      boundaries: 'Boundary scan',
+      seeds: 'Planted seed scan',
+      hazards: 'Hazard scan',
+    })
+    expect(scanLogModes.every((mode) => scanModeLabels[mode])).toBe(true)
 
     const fallback = scanLogFeedbackState('unknown-mode', '')
     expect(fallback).toMatchObject({ logged: true, mode: 'objective', originalMode: 'unknown-mode' })

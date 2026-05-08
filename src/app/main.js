@@ -8,7 +8,7 @@ import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
 import { allMenusAccessibleState, arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, e2eKeyFlowCoverageState, embersapEndgameMutationState, endToEndProgressionState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, manualCompleteState, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, packagingDeploymentState, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, screenReaderTestingState, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
-import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
+import { boundaryObjectiveScanV1State, boundaryScanState, chamberChangeScanState, chamberCompassCue, hazardScanState, heartScanState, materialScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanLogModes, scanModeLabels, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, normalizeSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame, saveLoadCompletenessState } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
@@ -779,6 +779,12 @@ function cycleScanMode() {
   log(`Scan mode menu: ${scanMode}. Available scan modes: ${scanLogModes.join(', ')}.`)
 }
 
+function selectScanMode(mode, { report = false } = {}) {
+  scanMode = scanLogModes.includes(mode) ? mode : 'objective'
+  log(`Scan mode menu: ${scanMode}. ${scanModeLabels[scanMode] ?? scanMode} selected. Available scan modes: ${scanLogModes.join(', ')}.`)
+  if (report) scan()
+}
+
 function logInformationCommand(action) {
   if (action === 'objectiveInfo') log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
   else if (action === 'positionInfo') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
@@ -887,10 +893,7 @@ app.addEventListener('click', async (event) => {
   if (action === 'scan') scan()
   if (action === 'listen') listen()
   if (action === 'locate') locate()
-  if (action === 'scanMode') {
-    scanMode = event.target.dataset.mode
-    log(`Scan mode: ${scanMode}.`)
-  }
+  if (action === 'scanMode') selectScanMode(event.target.dataset.mode, { report: true })
   if (action === 'tuningParameter') setTuningParameter(event.target.dataset.parameter)
   if (action === 'plant') plantOrPickUp()
   if (action === 'tuneDown') tune(-1)
@@ -983,6 +986,7 @@ function splash() {
 
 function game() {
   const carry = currentCarry()
+  const scanModeButtons = scanLogModes.map((mode) => `<button data-action="scanMode" data-mode="${mode}" aria-pressed="${scanMode === mode ? 'true' : 'false'}">${scanModeLabels[mode]}</button>`).join('')
   shell(`
     <main class="game" aria-labelledby="chamber-title">
       <section class="hud" aria-live="polite">
@@ -1004,14 +1008,7 @@ function game() {
           <button data-action="listen">Listen</button>
           <button data-action="locate">Locate heart</button>
           <button data-action="scan">Scan pulse</button>
-          <button data-action="scanMode" data-mode="objective">Objective scan</button>
-          <button data-action="scanMode" data-mode="boundaries">Boundary scan</button>
-          <button data-action="scanMode" data-mode="seeds">Seed scan</button>
-          <button data-action="scanMode" data-mode="hazards">Hazard scan</button>
-          <button data-action="scanMode" data-mode="memory">Memory scan</button>
-          <button data-action="scanMode" data-mode="network">Network scan</button>
-          <button data-action="scanMode" data-mode="materials">Material scan</button>
-          <button data-action="scanMode" data-mode="chamber">Chamber change scan</button>
+          ${scanModeButtons}
           <button data-action="plant">Plant or pick up</button>
         <button data-action="tuneDown">Tune down</button>
         <button data-action="tuneUp">Tune up</button>
