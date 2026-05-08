@@ -250,3 +250,4 @@
 - Continued with `omx ultragoal complete-goals` for `G220-materials`. Added a Materials Ledger to the Atlas and Seed Library so resource counts explain their restoration, tuning, grafting, codex, and ending uses.
 - Continued with `omx ultragoal complete-goals` for `G221-restoration-atlas`. Added an Atlas status summary and semantic Restoration atlas actions navigation for chamber, seed library, codex, conservatory, and main menu routing.
 - Continued with `omx ultragoal complete-goals` for `G222-codex-perceptions`. Added Codex perception recovery status and semantic actions for Atlas, Seed Library, and chamber return routing.
+- Continued with `omx ultragoal complete-goals` for `G223-settings`. Expanded Settings with a current audio/display status summary, clearer volume labels, grouped controls, and semantic actions navigation.

@@ -327,6 +327,10 @@ function atlasStatusText() {
   return `Atlas status: active work ${chamber.title}; next available contract ${next?.title ?? 'none available'}; ${restorationProgressText()}`
 }
 
+function settingsStatusText() {
+  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}.`
+}
+
 function graftingBenchText() {
   const parentA = inventory[0]
   const parentB = inventory[1]
@@ -1107,18 +1111,37 @@ function conservatory() {
 
 function settings() {
   audio.setMusicScene('menu')
-  const sliders = ['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans']
-    .map((key) => `<label>${key}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
+  const sliderLabels = {
+    master: 'Master volume',
+    ambience: 'Ambience volume',
+    music: 'Music volume',
+    ui: 'UI volume',
+    seeds: 'Seed voice volume',
+    hazards: 'Hazard voice volume',
+    scans: 'Scan pulse volume',
+  }
+  const sliders = Object.entries(sliderLabels)
+    .map(([key, label]) => `<label>${label}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
     .join('')
   shell(`
     <main class="screen" aria-labelledby="settings-title">
       <h1 id="settings-title">Settings</h1>
-      <form>${sliders}
-        <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
-        <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
+      <p>${settingsStatusText()}</p>
+      <form aria-label="Settings controls">
+        <fieldset>
+          <legend>Audio volumes</legend>
+          ${sliders}
+        </fieldset>
+        <fieldset>
+          <legend>Display options</legend>
+          <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
+          <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
+        </fieldset>
       </form>
-      <button data-action="game">Back to game</button>
-      <button data-action="menu">Main menu</button>
+      <nav aria-label="Settings actions">
+        <button data-action="game">Back to game</button>
+        <button data-action="menu">Main menu</button>
+      </nav>
     </main>
   `)
 }
