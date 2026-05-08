@@ -69,7 +69,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('Enter')
   await expect(eventLog.getByText(/Meaningful position: within .* chamber heart/)).toBeVisible()
   await page.keyboard.press('v')
-  await expect(eventLog.getByText(/Planted voices: Sol phonoseed at/)).toBeVisible()
+  await expect(eventLog.getByText(/Planted voices: Sol phonoseed at .* persistent Sol voice; Tuning state:/)).toBeVisible()
   await page.keyboard.press('z')
   await page.keyboard.press('z')
   await page.keyboard.press('z')
