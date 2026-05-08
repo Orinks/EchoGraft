@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
@@ -1031,6 +1031,7 @@ function atlas() {
   const canopyDoors = canopyDoorState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
+  const arkOrigin = arkOriginMysteryState(save)
   const embersapMutations = embersapEndgameMutationState(save)
   const decision = decisionSummary(chambers, save.solvedChambers)
   const activeCycle = chamberCycleState(chamber, save.arkClock)
@@ -1062,6 +1063,11 @@ function atlas() {
         <h2 id="stewardship-title">Stewardship Review</h2>
         <p>${stewardship.restoredCount} of ${stewardship.totalCount} contracts restored. Materials: ${stewardship.materialSummary}.</p>
         <p>${stewardship.nextAction}</p>
+      </section>
+      <section aria-labelledby="ark-origin-title">
+        <h2 id="ark-origin-title">Ark Origin Mystery</h2>
+        <p>${arkOrigin.text}</p>
+        <ol>${arkOrigin.tracks.map((track) => `<li>${track.text}</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="navigation-atlas-title">
         <h2 id="navigation-atlas-title">Navigation Atlas</h2>
@@ -1255,6 +1261,7 @@ function codex() {
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const recovery = codexRecoverySummary(chambers, save)
   const completion = codexCompletionState(save, availableCodexRecords())
+  const arkOrigin = arkOriginMysteryState(save)
   shell(`
     <main class="screen" aria-labelledby="codex-title">
       <h1 id="codex-title">Codex</h1>
@@ -1266,6 +1273,10 @@ function codex() {
       <section aria-labelledby="codex-echo-title">
         <h2 id="codex-echo-title">Memory Codex Echoes</h2>
         <p>${memoryEchoes.text}</p>
+      </section>
+      <section aria-labelledby="codex-ark-origin-title">
+        <h2 id="codex-ark-origin-title">Ark Origin Mystery</h2>
+        <p>${arkOrigin.text}</p>
       </section>
       ${trees.length ? trees.map((tree) => `<section aria-labelledby="codex-${tree.id}"><h2 id="codex-${tree.id}">${tree.title}</h2><ol>${tree.records.map((record) => `<li><h3>${record.title ?? record.id}</h3><p>${record.text ?? 'Recovered record.'}</p></li>`).join('')}</ol></section>`).join('') : '<p>No perceptions recovered yet.</p>'}
       <nav aria-label="Codex perception actions">

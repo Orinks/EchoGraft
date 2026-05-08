@@ -157,6 +157,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Heart: network resonance and endgame resolutions/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Stewardship Review' })).toBeVisible()
   await expect(page.locator('section[aria-labelledby="stewardship-title"] p').filter({ hasText: /1 of 4\d contracts restored/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Ark Origin Mystery' })).toBeVisible()
+  await expect(page.getByText(/Ark origin mystery: abandoned/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Navigation Atlas' })).toBeVisible()
   await expect(page.getByText(/Navigation atlas previews limited/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Water Root Routing' })).toBeVisible()

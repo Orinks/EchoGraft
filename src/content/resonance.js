@@ -415,6 +415,63 @@ export function finalEcologyPhilosophySummary(save = {}) {
   }
 }
 
+export const arkOriginEvidence = {
+  abandoned: [
+    { id: 'crew-message-07', clue: 'the crew entered preservation sleep before the final mission decision' },
+    { id: 'crew-message-09', clue: 'the crew debate ended mid-vote' },
+    { id: 'crew-message-10', clue: 'the last bridge voice deferred revival until consent could be remembered' },
+  ],
+  protected: [
+    { id: 'crew-message-08', clue: 'seed dispersal was logged as a mercy protocol' },
+    { id: 'gardener-note-09', clue: 'gardeners were instructed to leave return paths through hard repairs' },
+    { id: 'seed-ancestry-03', clue: 'Umbra lines were bred to protect silence instead of erase it' },
+  ],
+  sabotaged: [
+    { id: 'crew-message-06', clue: 'unauthorized graft harmonics appeared in the network' },
+    { id: 'crew-message-11', clue: 'the crew found no proven sabotage flag' },
+    { id: 'system-diagnostic-11', clue: 'environmental evidence is retained rather than overwritten' },
+  ],
+}
+
+export function arkOriginMysteryState(save = {}) {
+  const recovered = new Set(save.codexIds ?? [])
+  const tracks = Object.entries(arkOriginEvidence).map(([id, evidence]) => {
+    const found = evidence.filter((item) => recovered.has(item.id))
+    return {
+      evidence,
+      found,
+      id,
+      recoveredCount: found.length,
+      text: `${id}: ${found.length} of ${evidence.length} clue(s) recovered${found.length ? `; ${found.map((item) => item.clue).join('; ')}` : ''}.`,
+      totalCount: evidence.length,
+    }
+  })
+  const protectedTrack = tracks.find((track) => track.id === 'protected')
+  const sabotageTrack = tracks.find((track) => track.id === 'sabotaged')
+  const abandonedTrack = tracks.find((track) => track.id === 'abandoned')
+  const verdict = protectedTrack.recoveredCount >= 2
+    ? 'protected'
+    : sabotageTrack.recoveredCount >= 2 && !recovered.has('crew-message-11')
+      ? 'sabotaged'
+      : abandonedTrack.recoveredCount >= 2
+        ? 'abandoned'
+        : 'unresolved'
+  const interpretation = verdict === 'protected'
+    ? 'Current reading: the Ark was protected through emergency stewardship, with sabotage still unproven.'
+    : verdict === 'sabotaged'
+      ? 'Current reading: sabotage remains plausible, but needs a recovered proof flag before the crew can trust it.'
+      : verdict === 'abandoned'
+        ? 'Current reading: abandonment is plausible, though the consent and mercy records may reframe it as protection.'
+        : 'Current reading: unresolved; recover crew messages, gardener notes, and diagnostics before naming the Ark history.'
+
+  return {
+    interpretation,
+    tracks,
+    verdict,
+    text: `Ark origin mystery: abandoned ${abandonedTrack.recoveredCount}/${abandonedTrack.totalCount}, sabotaged ${sabotageTrack.recoveredCount}/${sabotageTrack.totalCount}, protected ${protectedTrack.recoveredCount}/${protectedTrack.totalCount}. ${interpretation}`,
+  }
+}
+
 export function embersapEndgameMutationState(save = {}) {
   const count = save.materials?.embersap ?? 0
   const mutations = save.wildMutationIds ?? []
