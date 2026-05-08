@@ -95,6 +95,16 @@ const seedFamilyDefaults = {
     pulseRate: 3,
     waveform: 'sawtooth',
   },
+  tide: {
+    amAmount: 0.42,
+    brightness: 0.5,
+    growthBehavior: 'breathing',
+    oscillatorType: 'am',
+    phase: 60,
+    pitchRatio: 1.1,
+    pulseRate: 1.75,
+    waveform: 'sine',
+  },
   umbra: {
     brightness: 0.25,
     growthBehavior: 'twining',

@@ -297,6 +297,26 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['triangle'])).toMatchObject({ matchesRequirement: true, waveform: 'triangle' })
   })
 
+  it('gives Tide seeds an AM current-system archetype', () => {
+    const seed = createSeedDNA('tide-pump')
+
+    expect(seed).toMatchObject({
+      amAmount: 0.42,
+      brightness: 0.5,
+      ecologicalAffinity: 'AM current systems',
+      family: 'Tide',
+      growthBehavior: 'breathing',
+      oscillatorType: 'am',
+      phase: 60,
+      pitchRatio: 1.1,
+      pulseRate: 1.75,
+      waveform: 'sine',
+    })
+    expect(seedModulationProfileState(seed)).toMatchObject({ amAmount: 0.42, dominantLayer: 'AM' })
+    expect(seedPulseRateState(seed, 1)).toMatchObject({ pulseRate: 1.75, targetDelta: 0.75 })
+    expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'breathing' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)
