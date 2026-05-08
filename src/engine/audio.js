@@ -695,6 +695,46 @@ export class BoundaryVoice {
   }
 }
 
+export class MemoryVoice {
+  constructor({ record = {}, position = { x: 0, y: 0 } } = {}) {
+    this.record = record
+    this.position = position
+    this.profile = memoryRecordVoiceProfile(record)
+    this.text = `MemoryVoice: ${record.title ?? record.id ?? 'codex perception'} reveal through ${this.profile.formantPair.join(' to ')} formants.`
+  }
+
+  toVoicePayload() {
+    return {
+      category: 'ambience',
+      duration: 0.9,
+      gain: dbGain(-15),
+      position: this.position,
+      seed: {
+        brightness: 0.38,
+        fmAmount: 0.12,
+        memoryVoice: true,
+        oscillatorType: 'am',
+        pulseRate: this.profile.pulseRate,
+        waveform: 'triangle',
+      },
+      tone: {
+        brightness: 0.38,
+        effectChain: ['talkbox', 'multitapDelay'],
+        formantMix: this.profile.formantMix,
+        formantPair: this.profile.formantPair,
+        frequency: ratioToFrequency(this.profile.pitchRatio, 44),
+        mode: 'am',
+        pulseRate: this.profile.pulseRate,
+        type: 'triangle',
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1261,30 +1301,7 @@ export class AudioEngine {
   }
 
   memory(record = {}, position = { x: 0, y: 0 }) {
-    const profile = memoryRecordVoiceProfile(record)
-    this.voice({
-      category: 'ambience',
-      duration: 0.9,
-      gain: dbGain(-15),
-      position,
-      seed: {
-        brightness: 0.38,
-        fmAmount: 0.12,
-        oscillatorType: 'am',
-        pulseRate: profile.pulseRate,
-        waveform: 'triangle',
-      },
-      tone: {
-        brightness: 0.38,
-        effectChain: ['talkbox', 'multitapDelay'],
-        formantMix: profile.formantMix,
-        formantPair: profile.formantPair,
-        frequency: ratioToFrequency(profile.pitchRatio, 44),
-        mode: 'am',
-        pulseRate: profile.pulseRate,
-        type: 'triangle',
-      },
-    })
+    new MemoryVoice({ record, position }).play(this)
   }
 
   chamber(chamber, plantedSeeds = []) {

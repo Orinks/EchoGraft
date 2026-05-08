@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -206,6 +206,27 @@ describe('audio movement cues', () => {
       category: 'scan',
       seed: { boundaryVoice: true, kind: 'return' },
       tone: { effectChain: ['feedbackDelay'], type: 'triangle' },
+    })
+  })
+
+  it('models codex perception reveals as a named MemoryVoice', () => {
+    const voice = new MemoryVoice({
+      position: { x: 1, y: 2 },
+      record: { id: 'seed-ancestry-01', title: 'Seed Ancestry 01' },
+    })
+    const payload = voice.toVoicePayload()
+
+    expect(voice.text).toContain('MemoryVoice: Seed Ancestry 01 reveal')
+    expect(payload).toMatchObject({
+      category: 'ambience',
+      position: { x: 1, y: 2 },
+      seed: { memoryVoice: true, oscillatorType: 'am' },
+      tone: {
+        effectChain: ['talkbox', 'multitapDelay'],
+        formantPair: ['createI', 'createE'],
+        mode: 'am',
+        type: 'triangle',
+      },
     })
   })
 
