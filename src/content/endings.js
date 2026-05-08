@@ -347,6 +347,39 @@ export function releasePathState(save = {}) {
   }
 }
 
+export function conservatoryPathState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const codexCount = save.codexIds?.length ?? 0
+  const compositionCount = save.conservatoryCompositions?.length ?? 0
+  const memoryArchiveReady = solved.has('optional-heart-memory') || codexCount >= 20
+  const resolutionSelected = save.endgameResolution === 'conservatory'
+  const archiveEvidence = codexCount + (compositionCount * 3) + (save.endlessMutationSeeds?.length ?? 0)
+  const stage = resolutionSelected && (save.postgameUnlocked || compositionCount > 0)
+    ? 'living-archive'
+    : memoryArchiveReady
+      ? 'open'
+      : archiveEvidence > 0
+        ? 'cataloguing'
+        : 'sealed'
+  const recommendation = stage === 'living-archive'
+    ? 'Conservatory is active: the Ark remains a living musical archive where restored voices can keep composing.'
+    : stage === 'open'
+      ? 'Conservatory is available: memory context is deep enough to preserve the Ark as an ongoing archive.'
+      : stage === 'cataloguing'
+        ? 'Conservatory is cataloguing: keep recovering codex records and seed voices before choosing archive life.'
+        : 'Conservatory sealed: recover memories, records, and seed voices before the Ark can become a living archive.'
+
+  return {
+    archiveEvidence,
+    codexCount,
+    compositionCount,
+    memoryArchiveReady,
+    resolutionSelected,
+    stage,
+    text: `Conservatory path: ${stage}; archive evidence ${archiveEvidence}, codex ${codexCount}, compositions ${compositionCount}, memory archive ${memoryArchiveReady ? 'ready' : 'locked'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation

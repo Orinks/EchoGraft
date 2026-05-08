@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1026,6 +1026,7 @@ function atlas() {
   const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
   const releasePath = releasePathState(save)
+  const conservatoryPath = conservatoryPathState(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const navigationAtlas = navigationAtlasState(chambers, save)
@@ -1139,6 +1140,7 @@ function atlas() {
         <p>${restorationIdentity.text}</p>
         <p>${preservationPath.text}</p>
         <p>${adaptationPath.text}</p>
+        <p>${conservatoryPath.text}</p>
         <p>${originalMission.text}</p>
         <p>${embersapMutations.text}</p>
       </section>
@@ -1306,6 +1308,7 @@ function codex() {
 function conservatory() {
   audio.setMusicScene('ending', { inventory })
   const composition = freeCompositionConservatory(save, inventory, conservatoryMode)
+  const conservatoryPath = conservatoryPathState(save)
   const savedCompositions = save.conservatoryCompositions ?? []
   const latestComposition = savedCompositions.at(-1)
   const mutationGarden = postgameEndlessMutationGarden(save, inventory)
@@ -1316,6 +1319,7 @@ function conservatory() {
       <section aria-labelledby="restored-title">
         <h2 id="restored-title">Restoration Collection</h2>
         <p>${save.solvedChambers.length} contracts restored. ${save.codexIds.length} codex records recovered.</p>
+        <p>${conservatoryPath.text}</p>
       </section>
       <section aria-labelledby="composition-title">
         <h2 id="composition-title">Composition Palette</h2>
@@ -1446,6 +1450,7 @@ function ending() {
   const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
   const releasePath = releasePathState(save)
+  const conservatoryPath = conservatoryPathState(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const embersapMutations = embersapEndgameMutationState(save)
@@ -1472,6 +1477,7 @@ function ending() {
       <p>${restorationIdentity.text}</p>
       <p>${preservationPath.text}</p>
       <p>${adaptationPath.text}</p>
+      <p>${conservatoryPath.text}</p>
       <p>${originalMission.text}</p>
       <p>${embersapMutations.text}</p>
       <section aria-labelledby="alternate-endings-title">

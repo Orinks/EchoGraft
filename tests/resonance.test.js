@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -784,6 +784,23 @@ describe('resonance evaluation', () => {
     expect(releasePathState(armed)).toMatchObject({ stage: 'armed', crewWakeDeferred: true })
     expect(releasePathState(dispersed)).toMatchObject({ stage: 'dispersed', resolutionSelected: true })
     expect(releasePathState(dispersed).text).toContain('Release path')
+  })
+
+  it('tracks the conservatory path for keeping the Ark as a living musical archive', () => {
+    const cataloguing = createDefaultSave()
+    cataloguing.codexIds = ['first-breath']
+    const open = createDefaultSave()
+    open.codexIds = Array.from({ length: 20 }, (_, index) => `record-${index}`)
+    const archive = createDefaultSave()
+    archive.endgameResolution = 'conservatory'
+    archive.postgameUnlocked = true
+    archive.conservatoryCompositions = [{ id: 'composition-1' }]
+
+    expect(conservatoryPathState(createDefaultSave()).stage).toBe('sealed')
+    expect(conservatoryPathState(cataloguing).stage).toBe('cataloguing')
+    expect(conservatoryPathState(open).stage).toBe('open')
+    expect(conservatoryPathState(archive)).toMatchObject({ stage: 'living-archive', resolutionSelected: true })
+    expect(conservatoryPathState(archive).text).toContain('Conservatory path')
   })
 
   it('builds a multi-chamber resonance network from restored systems and ratings', () => {
