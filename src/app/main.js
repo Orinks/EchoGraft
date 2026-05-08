@@ -269,7 +269,8 @@ function recentLogText() {
 
 function boundaryInfoText() {
   const boundary = boundaryScanState(player, chamber)
-  return `Boundaries: west ${boundary.edges.west}, east ${boundary.edges.east}, south ${boundary.edges.south}, north ${boundary.edges.north}. Return point ${boundary.safeReturnPoint.x}, ${boundary.safeReturnPoint.y}. ${boundary.text}`
+  const returnPulse = scanPulse(player, boundary.safeReturnPoint, chamber)
+  return `Boundaries for ${chamber.title ?? chamber.name ?? 'current chamber'}: west ${boundary.edges.west}, east ${boundary.edges.east}, south ${boundary.edges.south}, north ${boundary.edges.north}. Return point ${boundary.safeReturnPoint.x}, ${boundary.safeReturnPoint.y}; ${returnPulse.distance.toFixed(1)} step(s) ${returnPulse.direction.horizontal}, ${returnPulse.direction.vertical}. ${boundary.text}`
 }
 
 function plantedVoicesText() {

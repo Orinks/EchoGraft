@@ -35,7 +35,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('Shift+L')
   await expect(eventLog.getByText(/Recent log: Recent log entries \d+ of \d+: .*Latest log entry: Inventory:/)).toBeVisible()
   await page.keyboard.press('x')
-  await expect(eventLog.getByText(/Boundaries: west .* Return point/)).toBeVisible()
+  await expect(eventLog.getByText(/Boundaries for Training Contract: First Breath: west .* Return point .* step\(s\)/)).toBeVisible()
   await expect(eventLog.getByText(/Boundary scan: chamber edges .* Exits: safe return point .* Safe return point/)).toBeVisible()
   await page.keyboard.press('v')
   await expect(eventLog.getByText(/Planted voices: none in this chamber/)).toBeVisible()
