@@ -39,7 +39,13 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback/)).toBeVisible()
   await expect(page.locator('.screen').first()).toHaveCSS('transition-duration', '0s')
   await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Reduced motion set to on/)).toBeVisible()
+  await page.getByLabel('Minimal visual mode').check()
+  await expect(page.locator('#app')).toHaveClass(/minimal-visual/)
+  await expect(page.getByText(/Minimal visual mode hides the abstract radar and keeps the chamber playable through text, controls, and audio feedback/)).toBeVisible()
+  await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Minimal visual mode set to on/)).toBeVisible()
   await page.getByRole('button', { name: 'Back to game' }).click()
+  await expect(page.locator('.radar')).toBeHidden()
+  await expect(page.getByLabel('Caption and event log')).toBeVisible()
 
   const eventLog = page.getByLabel('Caption and event log')
   await page.getByRole('button', { name: 'Listen' }).click()

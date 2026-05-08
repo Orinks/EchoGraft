@@ -1149,6 +1149,7 @@ function settings() {
         <fieldset>
           <legend>Display options</legend>
           <p>Reduced motion removes screen transitions and animations while preserving all audio cues and caption-log feedback.</p>
+          <p>Minimal visual mode hides the abstract radar and keeps the chamber playable through text, controls, and audio feedback.</p>
           <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
           <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
         </fieldset>
