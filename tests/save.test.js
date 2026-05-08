@@ -31,6 +31,7 @@ describe('save system', () => {
     save.ratings.tutorial = 'Resonant'
     save.restoredSystems.push('Intake')
     save.codexIds.push('first-breath')
+    save.graftDiscoveryIds.push('sol-lumen')
     save.graftRecords.push({ id: 'graft-record-sol-lumen', title: 'Sol-Lumen graft record', text: 'A remembered graft.' })
     save.materials.biomass = 2
     save.proceduralSeed = 'ark-alpha'
@@ -51,6 +52,7 @@ describe('save system', () => {
     expect(loadSave(storage).ratings.tutorial).toBe('Resonant')
     expect(loadSave(storage).restoredSystems).toEqual(['Intake'])
     expect(loadSave(storage).codexIds).toEqual(['first-breath'])
+    expect(loadSave(storage).graftDiscoveryIds).toEqual(['sol-lumen'])
     expect(loadSave(storage).graftRecords).toHaveLength(1)
     expect(loadSave(storage).materials.biomass).toBe(2)
     expect(loadSave(storage).proceduralSeed).toBe('ark-alpha')
@@ -66,6 +68,7 @@ describe('save system', () => {
     expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, dreamCompost: 0, embersap: 0, glassPollen: 0, memory: 0, mycelium: 0, resin: 0, spores: 0, archiveLoam: 0 })
     expect(loaded.environmentalChanges).toEqual([])
     expect(loaded.graftRecords).toEqual([])
+    expect(loaded.graftDiscoveryIds).toEqual([])
     expect(loaded.plantedByChamber).toEqual({})
     expect(loaded.postgameUnlocked).toBe(false)
     expect(loaded.unlockedGraftMechanics).toEqual([])

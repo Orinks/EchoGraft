@@ -497,6 +497,9 @@ function graft() {
   selectedSeedIndex = seedCarryState(inventory, inventory.length - 1).selectedCarryIndex
   const newDiscoveries = report.discoveries.filter((discovery) => !save.unlockedGraftMechanics.includes(discovery))
   save.unlockedGraftMechanics = [...save.unlockedGraftMechanics, ...newDiscoveries]
+  if (next.discoveryId) {
+    save.graftDiscoveryIds = Array.from(new Set([...(save.graftDiscoveryIds ?? []), next.discoveryId]))
+  }
   if (report.record && !(save.graftRecords ?? []).some((record) => record.id === report.record.id)) {
     save.graftRecords = [...(save.graftRecords ?? []), report.record]
     if (!save.codexIds.includes(report.record.id)) save.codexIds.push(report.record.id)
@@ -1161,6 +1164,7 @@ function library() {
         <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
         <p>Curated seed: ${appraisal.curatedSeed}. Playable voices: ${appraisal.playableVoices.join(', ')}.</p>
         <p>${appraisal.rareHunting.text}</p>
+        <p>${appraisal.graftCatalog.text}</p>
         <p>${appraisal.restorationUse} ${appraisal.commerceBoundary}</p>
         <p>${dreamCompost.text}</p>
         <p>${pollinatorVault.text}</p>

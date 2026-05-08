@@ -1,6 +1,6 @@
 import { weatherWindowState } from './chambers.js'
 import { plantingCoverage } from './planting.js'
-import { seedFamilies } from './seeds.js'
+import { graftDiscoveryCatalog, seedFamilies } from './seeds.js'
 import { createWorldLayoutIndex } from './world-layout.js'
 
 function distance(a, b) {
@@ -563,8 +563,10 @@ export function seedCollectionAppraisal(inventory, save, selectedSeed = inventor
   const families = Array.from(new Set(inventory.map((seed) => seed.family ?? 'unknown')))
   const materials = Object.entries(save.materials ?? {}).filter(([, value]) => value > 0)
   const rareHunting = rareSeedHuntingState(inventory, save)
+  const graftCatalog = graftCatalogCompletionState(save)
   return {
     gathered: inventory.length,
+    graftCatalog,
     identifiedFamilies: families,
     curatedSeed: selectedSeed?.name ?? 'No seed selected',
     playableVoices: inventory.map((seed) => seed.name),
@@ -573,6 +575,28 @@ export function seedCollectionAppraisal(inventory, save, selectedSeed = inventor
       ? `Exchange ${materials.map(([key, value]) => `${value} ${key}`).join(', ')} for tuning and restoration work.`
       : 'Restore contracts to gather tuning exchange materials.',
     commerceBoundary: 'Exchange remains restoration support, not museum commerce.',
+  }
+}
+
+export function graftCatalogCompletionState(save = {}, catalog = graftDiscoveryCatalog) {
+  const fromRecords = (save.graftRecords ?? [])
+    .map((record) => String(record.id ?? '').replace(/^graft-record-/, ''))
+    .filter(Boolean)
+  const discoveredIds = Array.from(new Set([...(save.graftDiscoveryIds ?? []), ...fromRecords]))
+  const discovered = discoveredIds.filter((id) => catalog.some((entry) => entry.id === id))
+  const undiscovered = catalog.filter((entry) => !discovered.includes(entry.id))
+  const nextDiscovery = undiscovered[0]
+
+  return {
+    complete: undiscovered.length === 0,
+    discoveredCount: discovered.length,
+    discoveredIds,
+    nextDiscovery,
+    remainingCount: undiscovered.length,
+    total: catalog.length,
+    text: undiscovered.length
+      ? `Graft catalog completion: ${discovered.length} of ${catalog.length} discoveries recorded; next unknown pairing hint ${nextDiscovery.families.join(' plus ')}.`
+      : `Graft catalog complete: all ${catalog.length} graft discoveries recorded.`,
   }
 }
 

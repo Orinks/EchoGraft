@@ -41,6 +41,7 @@ export function createDefaultSave() {
     codexIds: [],
     endgameResolution: null,
     environmentalChanges: [],
+    graftDiscoveryIds: [],
     graftRecords: [],
     materials: {
       biomass: 0,
@@ -99,6 +100,7 @@ export function loadSave(storage = globalThis.localStorage) {
       settings: { ...defaults.settings, ...(parsed.settings ?? {}) },
       keyboardBindings: { ...defaults.keyboardBindings, ...(parsed.keyboardBindings ?? {}) },
       bonusContractIds: parsed.bonusContractIds ?? defaults.bonusContractIds,
+      graftDiscoveryIds: parsed.graftDiscoveryIds ?? defaults.graftDiscoveryIds,
       graftRatingBoosts: parsed.graftRatingBoosts ?? defaults.graftRatingBoosts,
       wildChamberIds: parsed.wildChamberIds ?? defaults.wildChamberIds,
       wildMutationIds: parsed.wildMutationIds ?? defaults.wildMutationIds,
