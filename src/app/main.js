@@ -708,6 +708,17 @@ function cycleScanMode() {
   log(`Scan mode menu: ${scanMode}. Available scan modes: ${modes.join(', ')}.`)
 }
 
+function logInformationCommand(action) {
+  if (action === 'objectiveInfo') log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
+  else if (action === 'positionInfo') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
+  else if (action === 'inventoryInfo') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
+  else if (action === 'recentLog') log(`Recent log: ${recentLogText()}`)
+  else if (action === 'latestLog') log(`Latest log entry: ${latestLogText()}`)
+  else if (action === 'boundaryInfo') log(boundaryInfoText())
+  else if (action === 'plantedVoices') log(plantedVoicesText())
+  else if (action === 'codexInfo') log(codexInfoText())
+}
+
 function handleInputIntent(intent) {
   if (intent.action === 'move') movement(intent.dx, intent.dy)
   else if (intent.action === 'scan') scan()
@@ -725,6 +736,7 @@ function handleInputIntent(intent) {
   else if (intent.action === 'graft') graft()
   else if (intent.action === 'restoreAdvance') restoreOrAdvance()
   else if (intent.action === 'cycleScanMode') cycleScanMode()
+  else if (['objectiveInfo', 'positionInfo', 'inventoryInfo', 'recentLog', 'latestLog', 'boundaryInfo', 'plantedVoices', 'codexInfo'].includes(intent.action)) logInformationCommand(intent.action)
   else if (intent.action === 'pause') setScreen('pause')
 }
 
@@ -737,14 +749,14 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (keyMatches('rotateRight', event)) rotate(15)
   else if (keyMatches('cycleScanMode', event)) cycleScanMode()
   else if (keyMatches('scan', event)) scan()
-  else if (keyMatches('objectiveInfo', event)) log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
-  else if (keyMatches('positionInfo', event)) log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
-  else if (keyMatches('inventoryInfo', event)) log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
-  else if (keyMatches('recentLog', event)) log(`Recent log: ${recentLogText()}`)
-  else if (keyMatches('latestLog', event)) log(`Latest log entry: ${latestLogText()}`)
-  else if (keyMatches('boundaryInfo', event)) log(boundaryInfoText())
-  else if (keyMatches('plantedVoices', event)) log(plantedVoicesText())
-  else if (keyMatches('codexInfo', event)) log(codexInfoText())
+  else if (keyMatches('objectiveInfo', event)) logInformationCommand('objectiveInfo')
+  else if (keyMatches('positionInfo', event)) logInformationCommand('positionInfo')
+  else if (keyMatches('inventoryInfo', event)) logInformationCommand('inventoryInfo')
+  else if (keyMatches('recentLog', event)) logInformationCommand('recentLog')
+  else if (keyMatches('latestLog', event)) logInformationCommand('latestLog')
+  else if (keyMatches('boundaryInfo', event)) logInformationCommand('boundaryInfo')
+  else if (keyMatches('plantedVoices', event)) logInformationCommand('plantedVoices')
+  else if (keyMatches('codexInfo', event)) logInformationCommand('codexInfo')
   else if (keyMatches('controlsInfo', event)) log(controlsText())
   else if (keyMatches('plant', event)) enterInteractConfirm()
   else if (keyMatches('previousSeed', event)) {

@@ -24,6 +24,14 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ keyboard: { BracketRight: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'tuneUp', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { KeyG: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'graft', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { KeyN: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'restoreAdvance', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyO: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'objectiveInfo', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyP: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'positionInfo', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyI: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'inventoryInfo', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyL: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'latestLog', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ShiftLeft: true, KeyL: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'recentLog', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyX: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'boundaryInfo', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyV: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'plantedVoices', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { KeyC: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'codexInfo', source: 'keyboard' })
   })
 
   it('normalizes gamepad state into game intents', () => {
