@@ -361,7 +361,7 @@ function codexInfoText() {
 
 function controlsText() {
   const bindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}) }
-  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant/interact/confirm ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; previous seed ${bindings.previousSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; restore or advance ${bindings.restoreAdvance}; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants/interacts, east button scans, west button cycles seeds, north button interacts/confirms, shoulder buttons tune, menu button pauses.`
+  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant/interact/confirm ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; previous seed ${bindings.previousSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; restore or advance ${bindings.restoreAdvance}; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants/interacts, east button scans, west button cycles seeds, north button interacts/confirms, shoulder buttons tune, hold either trigger plus D-pad for objective, position, inventory, or latest log, and menu button pauses.`
 }
 
 function mainMenuStatusText() {
@@ -1294,7 +1294,7 @@ function settings() {
         </fieldset>
         <fieldset>
           <legend>Gamepad support</legend>
-          <p>Syngen gamepad input supports left stick or D-pad movement, south button plant/interact, east button primary scan, west button seed cycling, north button interact/confirm, shoulder tuning, and menu/start pause.</p>
+          <p>Syngen gamepad input supports left stick or D-pad movement, south button plant/interact, east button primary scan, west button seed cycling, north button interact/confirm, shoulder tuning, either trigger plus D-pad for objective, position, inventory, and latest log, and menu/start pause.</p>
         </fieldset>
       </form>
       <nav aria-label="Settings actions">

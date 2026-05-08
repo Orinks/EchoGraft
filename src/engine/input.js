@@ -10,6 +10,10 @@ function gamepadDown(gamepad = {}, ...buttons) {
   return buttons.some((button) => Boolean(gamepad.digital?.[button]))
 }
 
+function gamepadInfoModifierDown(gamepad = {}) {
+  return gamepadDown(gamepad, 6, 7)
+}
+
 function keyboardDigitIndex(keyboard = {}, max = 10) {
   for (let index = 0; index < max; index += 1) {
     const digit = index === 9 ? 0 : index + 1
@@ -36,6 +40,10 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   const axisX = gamepad.axis?.[0] ?? 0
   const axisY = gamepad.axis?.[1] ?? 0
 
+  if (gamepadInfoModifierDown(gamepad) && gamepadDown(gamepad, 12)) return { action: 'objectiveInfo', source: 'gamepad' }
+  if (gamepadInfoModifierDown(gamepad) && gamepadDown(gamepad, 15)) return { action: 'positionInfo', source: 'gamepad' }
+  if (gamepadInfoModifierDown(gamepad) && gamepadDown(gamepad, 13)) return { action: 'inventoryInfo', source: 'gamepad' }
+  if (gamepadInfoModifierDown(gamepad) && gamepadDown(gamepad, 14)) return { action: 'latestLog', source: 'gamepad' }
   if (keyboardDown(keyboard, 'KeyW', 'ArrowUp')) return { action: 'move', dx: 0, dy: 1, source: 'keyboard' }
   if (gamepadDown(gamepad, 12) || axisY < -0.55) return { action: 'move', dx: 0, dy: 1, source: 'gamepad' }
   if (keyboardDown(keyboard, 'KeyS', 'ArrowDown')) return { action: 'move', dx: 0, dy: -1, source: 'keyboard' }
