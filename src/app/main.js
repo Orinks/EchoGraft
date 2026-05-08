@@ -345,9 +345,10 @@ function boundaryInfoText() {
 
 function plantedVoicesText() {
   const scan = seedScanState(plantedSeeds, chamber)
+  const soundObjects = audio.seedObjectState(chamber.id, plantedSeeds)
   return scan.seeds.length
-    ? `Planted voices: ${scan.seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; persistent ${seed.family} voice; ${seed.tuningState.text} ${seed.spatialRadiusState.text} ${seed.nearbyState.text} ${plantedSeeds.find((item) => item.name === seed.name)?.growthTiming?.text ?? 'Growth timing: not recorded yet. No reflex timing required.'}`).join('; ')}.`
-    : 'Planted voices: none in this chamber.'
+    ? `Planted voices: ${scan.seeds.map((seed) => `${seed.name} at ${seed.position.x}, ${seed.position.y}; persistent ${seed.family} voice; ${seed.tuningState.text} ${seed.spatialRadiusState.text} ${seed.nearbyState.text} ${plantedSeeds.find((item) => item.name === seed.name)?.growthTiming?.text ?? 'Growth timing: not recorded yet. No reflex timing required.'}`).join('; ')}. ${soundObjects.text}`
+    : `Planted voices: none in this chamber. ${soundObjects.text}`
 }
 
 function codexInfoText() {

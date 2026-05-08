@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G295-persistent-planted-syngen-sound-obje`. Added an auditable persistent planted Syngen sound object state that reports active, missing, and stale `SeedVoice` loops, returns it from seed synchronization, and surfaces the active-loop count in the planted-voices info command.
 - Continued with `omx ultragoal complete-goals` for `G294-seed-library-menu`. Added a Seed Library Menu readiness state that verifies collection appraisal, selected DNA, materials, grafting, family catalog, preview actions, and navigation, then surfaced it in the Seed Library.
 - Continued with `omx ultragoal complete-goals` for `G293-restoration-atlas-v1`. Added an explicit Atlas V1 checklist state that verifies work orders, the 20 to 40 minute planning window, materials, return contracts, codex payoff, and no-vision function-menu exits, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G292-8-to-10-chambers`. Added a Prototype Chamber Slice summary that counts Season 1 playable chambers separately from the training contract, keeping the milestone in the 8 to 10 chamber range while preserving the full authored campaign.

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createSeedDNA } from '../src/content/seeds.js'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, plantedSeedSoundObjectState, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -112,6 +112,32 @@ describe('audio movement cues', () => {
     expect(played).toHaveLength(2)
     expect(played[1]).toMatchObject({ id: 'sol', persistent: true })
     expect([...audio.seedLoops.values()][0].nextBeat).toBeCloseTo(12.3)
+  })
+
+  it('reports persistent planted Syngen sound object sync state', () => {
+    const audio = new AudioEngine()
+    audio.enabled = true
+    audio.audioTime = () => 5
+    audio.seed = () => {}
+    const sol = { brightness: 0.5, id: 'sol', name: 'Sol phonoseed', pitchRatio: 1, position: { x: 0, y: 0 }, pulseRate: 1, waveform: 'sine' }
+    const lumen = { brightness: 0.6, id: 'lumen', name: 'Lumen phonoseed', pitchRatio: 1.25, position: { x: 1, y: 0 }, pulseRate: 1.2, waveform: 'triangle' }
+
+    const state = audio.syncSeedObjects('tutorial', [sol, lumen])
+
+    expect(state.ready).toBe(true)
+    expect(state.activeCount).toBe(2)
+    expect(state.text).toContain('Persistent planted Syngen sound objects active: 2 SeedVoice loop(s) for tutorial')
+    expect(state.voices.map((voice) => voice.seedName)).toEqual(['Sol phonoseed', 'Lumen phonoseed'])
+
+    const stale = plantedSeedSoundObjectState('different-chamber', [sol], audio.seedLoops)
+    expect(stale.ready).toBe(false)
+    expect(stale.missingKeys).toHaveLength(1)
+    expect(stale.staleKeys).toHaveLength(2)
+
+    const resynced = audio.syncSeedObjects('tutorial', [sol])
+    expect(resynced.ready).toBe(true)
+    expect(resynced.activeCount).toBe(1)
+    expect(resynced.staleKeys).toEqual([])
   })
 
   it('models a planted seed as a named persistent SeedVoice', () => {

@@ -447,6 +447,36 @@ export class SeedVoice {
   }
 }
 
+export function plantedSeedSoundObjectState(chamberId = 'unknown', plantedSeeds = [], seedLoops = new Map()) {
+  const expectedKeys = plantedSeeds.map((seed, index) => SeedVoice.key(chamberId, seed, index))
+  const activeKeys = Array.from(seedLoops.keys())
+  const missingKeys = expectedKeys.filter((key) => !seedLoops.has(key))
+  const staleKeys = activeKeys.filter((key) => !expectedKeys.includes(key))
+  const activeVoices = activeKeys
+    .map((key) => seedLoops.get(key))
+    .filter(Boolean)
+
+  return {
+    activeCount: activeVoices.length,
+    activeKeys,
+    expectedCount: expectedKeys.length,
+    expectedKeys,
+    missingKeys,
+    ready: missingKeys.length === 0 && staleKeys.length === 0,
+    staleKeys,
+    text: missingKeys.length || staleKeys.length
+      ? `Persistent planted Syngen sound objects need sync: ${missingKeys.length} missing, ${staleKeys.length} stale.`
+      : `Persistent planted Syngen sound objects active: ${activeVoices.length} SeedVoice loop(s) for ${chamberId}.`,
+    voices: activeVoices.map((voice) => ({
+      interval: voice.interval,
+      key: voice.key,
+      nextBeat: voice.nextBeat,
+      seedName: voice.seed.name ?? voice.seed.id ?? 'planted seed',
+      text: voice.text,
+    })),
+  }
+}
+
 export class HeartVoice {
   constructor({ chamber = {}, player, result = {}, restored = false } = {}) {
     this.chamber = chamber
@@ -1018,10 +1048,15 @@ export class AudioEngine {
       this.seedLoops.set(key, voice)
     })
     this.startFrameLoop()
+    return this.seedObjectState(chamberId, plantedSeeds)
   }
 
   clearSeedObjects() {
     this.seedLoops.clear()
+  }
+
+  seedObjectState(chamberId, plantedSeeds = []) {
+    return plantedSeedSoundObjectState(chamberId, plantedSeeds, this.seedLoops)
   }
 
   async start() {
