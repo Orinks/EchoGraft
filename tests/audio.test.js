@@ -273,6 +273,19 @@ describe('audio movement cues', () => {
     expect(phrase.sustain).toBe(2.6)
   })
 
+  it('adds hazard intervals to unstable chamber music phrases', () => {
+    const chamber = chambers.find((item) => item.hazards?.some((hazard) => hazard.pitchRatio))
+    const audio = new AudioEngine()
+
+    audio.setMusicScene('game', { chamber, resonance: { score: 0.25, solved: false } })
+    const phrase = audio.createChamberMusicPhrase()
+
+    expect(phrase.hazardUnstableIntervals).toEqual(chamber.hazards.map((hazard) => hazard.pitchRatio))
+    expect(phrase.harmonics).toEqual(expect.arrayContaining(phrase.hazardUnstableIntervals))
+    expect(phrase.ratios).toEqual(expect.arrayContaining(phrase.hazardUnstableIntervals))
+    expect(phrase.mode).toBe('fm')
+  })
+
   it('models player movement feedback as a named StepVoice', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)

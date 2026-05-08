@@ -1171,6 +1171,7 @@ export class AudioEngine {
       gain: phrase.gain,
       position: phrase.position,
       seed: {
+        hazardUnstableIntervals: phrase.hazardUnstableIntervals,
         musicLayer: true,
         restoredSystemLayers: phrase.restoredSystemLayers,
       },
@@ -1270,6 +1271,9 @@ export class AudioEngine {
     const rng = createRng(`music-${chamber.id}`)
     const tension = 1 - score
     const hazard = chamber.hazards?.length ? 0.2 : 0
+    const hazardIntervals = solved
+      ? []
+      : (chamber.hazards ?? []).map((item, index) => item.pitchRatio ?? item.pulseRate ?? (1.11 + index * 0.17))
 
     return {
       brightness: [
@@ -1290,14 +1294,15 @@ export class AudioEngine {
       },
       consonanceModulation: solved,
       gain: dbGain(-20 + consonance * 6),
-      harmonics: [1, target.pitchRatio, ...restoredLayers.map((layer) => layer.ratio), solved ? 2 : chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
+      harmonics: [1, target.pitchRatio, ...hazardIntervals, ...restoredLayers.map((layer) => layer.ratio), solved ? 2 : chamber.harmonic ? 1.5 : 2 + rng() * 0.25],
+      hazardUnstableIntervals: hazardIntervals,
       mode: solved || planted.length ? 'additive' : chamber.hazards?.length ? 'fm' : 'am',
       octaveSpan: chamber.ending ? 5 : 3,
       phase: target.phase,
       phaseMotion: solved ? 2 : chamber.id === 'phase' ? 24 : 6 + tension * 12,
       position: target,
       pulses: [target.pulseRate, ...seedPulses].map((pulse) => Math.max(0.4, pulse)),
-      ratios: [target.pitchRatio, ...seedRatios, target.pitchRatio * (chamber.harmonic ? 1.5 : 1.25)],
+      ratios: [target.pitchRatio, ...seedRatios, ...hazardIntervals, target.pitchRatio * (chamber.harmonic ? 1.5 : 1.25)],
       restoredSystemLayers: restoredLayers.map((layer) => layer.system),
       rootMidi: 38 + Math.round(target.brightness * 12),
       spacing: clamp(1.2 - consonance * 0.45, 0.55, 1.3),
