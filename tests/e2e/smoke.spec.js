@@ -4,6 +4,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.goto('/')
   await expect(page.getByRole('heading', { name: 'EchoGraft' })).toBeVisible()
   await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await expect(page.getByRole('navigation', { name: 'Main menu' })).toBeVisible()
+  await expect(page.getByText(/Current save: 0 of \d+ contracts restored; 0 of \d+ Ark systems online/)).toBeVisible()
   await page.getByRole('button', { name: 'New game' }).click()
 
   await expect(page.getByRole('heading', { name: /Training Contract: First Breath/ })).toBeVisible()

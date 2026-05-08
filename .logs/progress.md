@@ -243,3 +243,4 @@
 - Continued with `omx ultragoal complete-goals` for `G213-v-planted-seed-voices`. Hardened the `V` info command so planted voice reports include persistent voice identity, tuning state, spatial radius, nearby interactions, and growth timing.
 - Continued with `omx ultragoal complete-goals` for `G214-c-codex-perception-updates`. Hardened the `C` info command so codex reports include recovered records, next available perception recovery, and current chamber memory-scan state.
 - Continued with `omx ultragoal complete-goals` for `G215-controls`. Added the `?` info command for in-game controls and reused the same controls text in the Help screen.
+- Continued with `omx ultragoal complete-goals` for `G216-main-menu`. Hardened the main menu with a current-save status summary while preserving the semantic main navigation.

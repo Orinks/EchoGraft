@@ -293,6 +293,10 @@ function controlsText() {
   return 'Controls: WASD or arrow keys move; Q and E rotate; Space scans; Z cycles scan mode; Enter plants or picks up; Tab cycles seeds; 1 through 4 select seeds; Minus or brackets tune; Shift cycles tuning parameter; G grafts; N restores or advances; O objective, P position, I inventory, L latest log, Shift+L recent log, X boundaries, V planted voices, C codex, question mark controls; R resets; H opens help; Escape pauses.'
 }
 
+function mainMenuStatusText() {
+  return `Current save: ${save.solvedChambers.length} of ${chambers.length} contracts restored; ${save.restoredSystems.length} of ${majorArkSystems.length} Ark systems online. Active work: ${chamber.title ?? 'no active chamber'}.`
+}
+
 function positionMeaningText(position) {
   return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
@@ -689,6 +693,7 @@ function menu() {
     <main class="screen menu" aria-labelledby="title">
       <h1 id="title">EchoGraft</h1>
       <p>Repair the Verdancy Ark by listening, planting, tuning, and grafting procedural phonoseeds.</p>
+      <p>${mainMenuStatusText()}</p>
       <nav aria-label="Main menu">
         <button data-action="new">New game</button>
         <button data-action="continue">Continue</button>
