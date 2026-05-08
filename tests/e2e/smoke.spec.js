@@ -173,6 +173,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Training Contract: First Breath: Resonant rating, 1 persistent planted seed\(s\), 1 seed move\(s\), no saved material spend, Intake: Training Contract: First Breath stabilized with Resonant resonance/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Prototype Chamber Slice' })).toBeVisible()
   await expect(page.getByText(/Prototype chamber slice: 10 playable chamber\(s\) in Season 1, plus 1 training contract\(s\); target 8 to 10/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: '40+ Main Chambers' })).toBeVisible()
+  await expect(page.getByText(/40\+ main chambers ready: 40 authored campaign chamber\(s\) excluding tutorial and postgame conservatory; 24 required and 16 optional across 5 season\(s\)/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Five Season Block' })).toBeVisible()
   await expect(page.getByText(/All five seasons blocked in: Season 1 Intake and Orientation has 10 playable contract\(s\); Season 2 Rootworks has 8 playable contract\(s\); Season 3 Glass Weather has 8 playable contract\(s\); Season 4 Memory Orchard has 9 playable contract\(s\); Season 5 Verdancy Heart has 6 playable contract\(s\)/)).toBeVisible()
   await expect(page.getByText(/Season 5 Verdancy Heart: 6 playable contract\(s\), 1 required, 5 optional, systems Verdancy Heart/)).toBeVisible()

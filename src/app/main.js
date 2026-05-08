@@ -1,7 +1,7 @@
 import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
-import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
+import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
@@ -1050,6 +1050,7 @@ function atlas() {
   const plan = restorationPlanningSession(chambers, save.solvedChambers, { min: 20, max: 40 }, save.arkClock)
   const campaign = firstFullCampaignEstimate(campaignScope)
   const milestoneSlice = milestoneChamberSlice(chambers, 1)
+  const mainChamberCatalog = mainChamberCatalogState(chambers)
   const seasonBlock = allFiveSeasonsBlockedInState(chambers)
   const openingMix = seasonOneOpeningContractMix(chambers)
   const rootworksSeason = seasonTwoRootworksState(chambers)
@@ -1123,6 +1124,11 @@ function atlas() {
       <section aria-labelledby="milestone-slice-title">
         <h2 id="milestone-slice-title">Prototype Chamber Slice</h2>
         <p>${milestoneSlice.text}</p>
+      </section>
+      <section aria-labelledby="main-chamber-catalog-title">
+        <h2 id="main-chamber-catalog-title">40+ Main Chambers</h2>
+        <p>${mainChamberCatalog.text}</p>
+        <ol>${mainChamberCatalog.seasons.map((season) => `<li>${season.text}</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="season-block-title">
         <h2 id="season-block-title">Five Season Block</h2>

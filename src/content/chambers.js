@@ -260,6 +260,36 @@ export function milestoneChamberSlice(chamberList = chambers, season = 1, target
   }
 }
 
+export function mainChamberCatalogState(chamberList = chambers, target = 40) {
+  const mainChambers = chamberList.filter((chamber) => !['training', 'conservatory'].includes(chamber.contractType))
+  const required = mainChambers.filter((chamber) => !chamber.optional)
+  const optional = mainChambers.filter((chamber) => chamber.optional)
+  const seasons = campaignScope.seasons.map((season) => {
+    const chambersForSeason = mainChambers.filter((chamber) => chamber.season === season.id)
+    const requiredForSeason = chambersForSeason.filter((chamber) => !chamber.optional)
+    const optionalForSeason = chambersForSeason.filter((chamber) => chamber.optional)
+
+    return {
+      ...season,
+      chambers: chambersForSeason,
+      optional: optionalForSeason,
+      required: requiredForSeason,
+      text: `Season ${season.id} ${season.name}: ${chambersForSeason.length} main chamber(s), ${requiredForSeason.length} required, ${optionalForSeason.length} optional.`,
+    }
+  })
+
+  return {
+    count: mainChambers.length,
+    mainChambers,
+    optional,
+    ready: mainChambers.length >= target,
+    required,
+    seasons,
+    target,
+    text: `40+ main chambers ${mainChambers.length >= target ? 'ready' : 'incomplete'}: ${mainChambers.length} authored campaign chamber(s) excluding tutorial and postgame conservatory; ${required.length} required and ${optional.length} optional across ${seasons.length} season(s).`,
+  }
+}
+
 export function seasonOneOpeningContractMix(chamberList = chambers, target = { required: 6, optional: 2 }) {
   const seasonChambers = chamberList.filter((chamber) => chamber.season === 1 && chamber.contractType !== 'training')
   const required = seasonChambers.filter((chamber) => !chamber.optional).slice(0, target.required)
