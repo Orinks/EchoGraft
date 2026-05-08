@@ -10,7 +10,7 @@ export const defaultKeyboardBindings = {
   rotateLeft: 'q',
   rotateRight: 'e',
   scan: 'Space',
-  cycleScanMode: 'z',
+  cycleScanMode: 'z, Shift+Space',
   plant: 'Enter',
   cycleSeed: 'Tab',
   tuneDown: '-, [',

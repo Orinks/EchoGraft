@@ -338,6 +338,18 @@ test('uses Space for the primary objective scan', async ({ page }) => {
   await expect(eventLog.getByText(/Objective scan: heart is .* Heart scan: direction .* distance .* objective/)).toBeVisible()
 })
 
+test('uses Shift+Space for the scan mode menu', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('Shift+Space')
+  await expect(eventLog.getByText(/Scan mode menu: boundaries\. Available scan modes: objective, boundaries, seeds, hazards, memory, network\./)).toBeVisible()
+  await page.keyboard.press('Space')
+  await expect(eventLog.getByText(/Boundary scan: chamber edges/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

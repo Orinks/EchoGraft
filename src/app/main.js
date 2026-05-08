@@ -682,7 +682,7 @@ function updateKeyBinding(action, value) {
 function cycleScanMode() {
   const modes = ['objective', 'boundaries', 'seeds', 'hazards', 'memory', 'network']
   scanMode = modes[(modes.indexOf(scanMode) + 1) % modes.length]
-  log(`Scan mode: ${scanMode}.`)
+  log(`Scan mode menu: ${scanMode}. Available scan modes: ${modes.join(', ')}.`)
 }
 
 function handleInputIntent(intent) {
@@ -703,8 +703,8 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (keyMatches('moveRight', event)) movement(1, 0)
   else if (keyMatches('rotateLeft', event)) rotate(-15)
   else if (keyMatches('rotateRight', event)) rotate(15)
-  else if (keyMatches('scan', event)) scan()
   else if (keyMatches('cycleScanMode', event)) cycleScanMode()
+  else if (keyMatches('scan', event)) scan()
   else if (keyMatches('objectiveInfo', event)) log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
   else if (keyMatches('positionInfo', event)) log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${restorationProgressText()} ${lastResult.accuracy.text}`)
   else if (keyMatches('inventoryInfo', event)) log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)

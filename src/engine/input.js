@@ -36,6 +36,7 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (gamepadDown(gamepad, 14) || axisX < -0.55) return { action: 'move', dx: -1, dy: 0, source: 'gamepad' }
   if (keyboardDown(keyboard, 'KeyD', 'ArrowRight')) return { action: 'move', dx: 1, dy: 0, source: 'keyboard' }
   if (gamepadDown(gamepad, 15) || axisX > 0.55) return { action: 'move', dx: 1, dy: 0, source: 'gamepad' }
+  if (keyboardDown(keyboard, 'Space') && keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight')) return { action: 'cycleScanMode', source: 'keyboard' }
   if (keyboardDown(keyboard, 'Space')) return { action: 'scan', source: 'keyboard' }
   if (gamepadDown(gamepad, 1)) return { action: 'scan', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Enter')) return { action: 'plant', source: 'keyboard' }

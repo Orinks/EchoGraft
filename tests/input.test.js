@@ -15,6 +15,7 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ keyboard: { KeyD: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { ArrowRight: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'move', dx: 1, dy: 0, source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { Space: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'scan', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ShiftLeft: true, Space: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'cycleScanMode', source: 'keyboard' })
   })
 
   it('normalizes gamepad state into game intents', () => {
