@@ -25,6 +25,7 @@ All audio is generated procedurally at runtime with Syngen/Web Audio. The projec
 - Dynamic Syngen-generated music for menus, chamber play, pause/help/settings, and the ending.
 - Reduced-motion and minimal-visual modes.
 - No mandatory reflex timing in the campaign.
+- The in-game Help screen includes a screen-reader simulation matrix for reading order, heading navigation, tab navigation, form navigation, live-region caption updates, and no-vision keyboard command routes.
 
 Manual screen reader testing is still recommended before formal accessibility claims.
 

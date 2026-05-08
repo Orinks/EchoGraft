@@ -668,6 +668,33 @@ export function manualCompleteState(sections = manualCompleteSections) {
   }
 }
 
+export const screenReaderTestRoutes = [
+  { id: 'splash-menu', mode: 'tab navigation', route: 'Splash to Main menu to New game', expected: 'Interact to Begin, main menu buttons, and current-save status are named in order.' },
+  { id: 'game-reading-order', mode: 'reading order', route: 'Active chamber', expected: 'H1 chamber title, live HUD, objective controls, inventory, and caption log read without requiring the radar.' },
+  { id: 'heading-navigation', mode: 'heading navigation', route: 'Atlas, Seed Library, Codex, Help, Settings', expected: 'Each screen exposes one H1 and section H2 landmarks for fast navigation.' },
+  { id: 'settings-forms', mode: 'form navigation', route: 'Settings controls', expected: 'Volume sliders, scan verbosity, checkboxes, and remappable keyboard inputs have explicit labels.' },
+  { id: 'live-regions', mode: 'live region review', route: 'Movement, scan, tuning, graft, restore, and settings updates', expected: 'Caption/event logs use polite live regions and repeat important audio cues as text.' },
+  { id: 'no-vision-commands', mode: 'keyboard command route', route: 'O/P/I/L/Shift+L/X/V/C/?', expected: 'Objective, position, inventory, logs, boundaries, planted voices, codex, and controls are reachable from the keyboard.' },
+]
+
+export function screenReaderTestingState(routes = screenReaderTestRoutes) {
+  const modes = new Set(routes.map((route) => route.mode))
+  const requiredModes = ['tab navigation', 'reading order', 'heading navigation', 'form navigation', 'live region review', 'keyboard command route']
+  const missingModes = requiredModes.filter((mode) => !modes.has(mode))
+  const incompleteRoutes = routes.filter((route) => !route.id || !route.mode || !route.route || !route.expected)
+  const ready = missingModes.length === 0 && incompleteRoutes.length === 0
+
+  return {
+    incompleteRoutes,
+    missingModes,
+    ready,
+    routes,
+    text: ready
+      ? `Screen reader testing pass ready: ${routes.length} simulated route(s) cover reading order, heading navigation, tab navigation, form navigation, live-region caption updates, and no-vision keyboard commands; real NVDA, JAWS, Narrator, or VoiceOver validation remains recommended before formal accessibility claims.`
+      : `Screen reader testing pass incomplete: missing modes ${missingModes.join(', ') || 'none'}; incomplete routes ${incompleteRoutes.map((route) => route.id).join(', ') || 'none'}.`,
+  }
+}
+
 export function restorationPlanningSession(chambers, solvedIds, target = { min: 20, max: 40 }, arkClock = 0) {
   const solved = new Set(solvedIds)
   const ready = new Set(availableChambers(chambers, solvedIds).map((chamber) => chamber.id))
