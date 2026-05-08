@@ -350,6 +350,21 @@ test('uses Shift+Space for the scan mode menu', async ({ page }) => {
   await expect(eventLog.getByText(/Boundary scan: chamber edges/)).toBeVisible()
 })
 
+test('uses Enter to plant interact and confirm after solving', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('ArrowUp')
+  await page.keyboard.press('Enter')
+  await expect(eventLog.getByText(/Planted Sol phonoseed/)).toBeVisible()
+  await expect(eventLog.getByText(/Training Contract: First Breath solved with Resonant rating/)).toBeVisible()
+  await page.keyboard.press('Enter')
+  await expect(page.getByRole('heading', { name: 'Restoration Atlas' })).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

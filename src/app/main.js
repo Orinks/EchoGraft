@@ -359,7 +359,7 @@ function codexInfoText() {
 
 function controlsText() {
   const bindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}) }
-  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants, east button scans, shoulder buttons cycle scan mode and seeds, menu button pauses.`
+  return `Controls: move ${bindings.moveUp}/${bindings.moveDown}/${bindings.moveLeft}/${bindings.moveRight}; scan ${bindings.scan}; scan mode ${bindings.cycleScanMode}; plant/interact/confirm ${bindings.plant}; cycle seeds ${bindings.cycleSeed}; tune ${bindings.tuneDown}/${bindings.tuneUp}; Shift cycles tuning parameter; graft ${bindings.graft}; N restores or advances; objective ${bindings.objectiveInfo}, position ${bindings.positionInfo}, inventory ${bindings.inventoryInfo}, latest log ${bindings.latestLog}, recent log ${bindings.recentLog}, boundaries ${bindings.boundaryInfo}, planted voices ${bindings.plantedVoices}, codex ${bindings.codexInfo}, controls ${bindings.controlsInfo}; reset ${bindings.reset}; help ${bindings.help}; pause ${bindings.pause}. Gamepad: left stick or D-pad moves, south button plants, east button scans, shoulder buttons cycle scan mode and seeds, menu button pauses.`
 }
 
 function mainMenuStatusText() {
@@ -435,6 +435,15 @@ function plantOrPickUp() {
   }
   audio.syncSeedObjects(chamber.id, plantedSeeds)
   evaluate()
+}
+
+function enterInteractConfirm() {
+  if (lastResult.solved) {
+    log('Enter confirm: choosing the next restoration contract from the Atlas.')
+    setScreen('atlas')
+    return
+  }
+  plantOrPickUp()
 }
 
 function tune(direction) {
@@ -688,7 +697,7 @@ function cycleScanMode() {
 function handleInputIntent(intent) {
   if (intent.action === 'move') movement(intent.dx, intent.dy)
   else if (intent.action === 'scan') scan()
-  else if (intent.action === 'plant') plantOrPickUp()
+  else if (intent.action === 'plant') enterInteractConfirm()
   else if (intent.action === 'cycleSeed') {
     const carry = currentCarry()
     selectSeed(carry.carried.length ? (selectedSeedIndex + 1) % carry.carried.length : 0)
@@ -714,7 +723,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (keyMatches('plantedVoices', event)) log(plantedVoicesText())
   else if (keyMatches('codexInfo', event)) log(codexInfoText())
   else if (keyMatches('controlsInfo', event)) log(controlsText())
-  else if (keyMatches('plant', event)) plantOrPickUp()
+  else if (keyMatches('plant', event)) enterInteractConfirm()
   else if (keyMatches('cycleSeed', event)) {
     event.preventDefault()
     const carry = currentCarry()
