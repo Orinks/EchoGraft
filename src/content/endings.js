@@ -244,6 +244,43 @@ export function crewWakeCycleSummary(save) {
   }
 }
 
+export function crewAwakeningQuestionState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const heartReady = save.postgameUnlocked || solved.has('finale') || solved.has('heart-atria')
+  const memoryContext = solved.has('optional-heart-memory') || (save.codexIds?.length ?? 0) >= 20
+  const releasePrepared = resolution === 'release' || solved.has('optional-heart-root')
+  const changedEcology = save.restorationPhilosophy === 'adaptation' || (save.unlockedGraftMechanics?.length ?? 0) > 0 || (save.wildMutationIds?.length ?? 0) > 0
+  const stance = releasePrepared
+    ? 'defer'
+    : !heartReady
+      ? 'not-ready'
+      : memoryContext
+        ? 'consent-first'
+        : changedEcology
+          ? 'changed-context'
+          : 'unchanged'
+  const recommendation = stance === 'defer'
+    ? 'Do not wake unchanged yet; seed release takes priority until dispersed gardens report back.'
+    : stance === 'not-ready'
+      ? 'Do not wake the crew; restore Heart and memory context first.'
+      : stance === 'consent-first'
+        ? 'Wake with consent records and orientation, not as if nothing changed.'
+        : stance === 'changed-context'
+          ? 'Wake slowly into the changed Ark, with adaptation briefings before full revival.'
+          : 'Unchanged wake is viable, but still needs consent review before revival.'
+
+  return {
+    changedEcology,
+    heartReady,
+    memoryContext,
+    recommendation,
+    releasePrepared,
+    stance,
+    text: `Crew awakening question: ${stance}; heart ready ${heartReady ? 'yes' : 'no'}, memory context ${memoryContext ? 'yes' : 'no'}, changed ecology ${changedEcology ? 'yes' : 'no'}. ${recommendation}`,
+  }
+}
+
 export function launchGardenSummary(save) {
   const solved = new Set(save.solvedChambers ?? [])
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id

@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1023,6 +1023,7 @@ function atlas() {
   const memoryEchoes = memoryCodexEchoState(chambers, save)
   const centralHeart = centralHeartSummary(chambers, save)
   const crewWakeCycle = crewWakeCycleSummary(save)
+  const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const heartUnlock = heartNetworkEndingState(chambers, save)
@@ -1135,6 +1136,7 @@ function atlas() {
       <section aria-labelledby="crew-wake-title">
         <h2 id="crew-wake-title">Crew Wake Cycle</h2>
         <p>${crewWakeCycle.text}</p>
+        <p>${crewAwakening.text}</p>
       </section>
       <section aria-labelledby="launch-garden-title">
         <h2 id="launch-garden-title">Launch Garden</h2>
@@ -1431,6 +1433,7 @@ function ending() {
   const resolution = endgameResolutions.find((item) => item.id === save.endgameResolution) ?? chooseEndgameResolution(save)
   const endingScene = resolutionSpecificEnding(save)
   const crewWakeCycle = crewWakeCycleSummary(save)
+  const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
@@ -1447,6 +1450,7 @@ function ending() {
         <p>${heartUnlock.text}</p>
       </section>
       <p>${crewWakeCycle.text}</p>
+      <p>${crewAwakening.text}</p>
       <p>${launchGarden.text}</p>
       <p>${originalMission.text}</p>
       <p>${embersapMutations.text}</p>

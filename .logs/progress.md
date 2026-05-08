@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G279-should-the-sleeping-crew-be-awakened`. Added a Crew Awakening Question state that reports not-ready, unchanged, consent-first, changed-context, or deferred wake recommendations from Heart, memory, release, and adaptation evidence.
 - Continued with `omx ultragoal complete-goals` for `G278-should-the-ark-return-to-its-origina`. Added an Original Mission Question state that weighs careful restorations, adaptation signals, and release preparation, then surfaces return/revise/release recommendations in the Atlas and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G277-was-the-ark-abandoned-sabotaged-or-p`. Added an Ark Origin Mystery evidence model that tracks abandoned, sabotaged, and protected readings from recovered records, keeps sabotage unproven when the crew evidence says so, and surfaces the mystery in the Atlas and Codex.
 - Continued with `omx ultragoal complete-goals` for `G276-postgame-endless-mutation-garden`. Added a postgame Endless Mutation Garden that deterministically grows new synthesized mutation seeds from recovered voices, persists mutation garden records, adds grown seeds to the playable inventory, and logs every growth for no-vision feedback.

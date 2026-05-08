@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, resolutionEndingScenes, resolutionSpecificEnding, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -675,6 +675,14 @@ describe('resonance evaluation', () => {
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-memory'] }).stageId).toBe('consent-check')
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['finale'], postgameUnlocked: true }).stageId).toBe('wake')
     expect(crewWakeCycleSummary({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], postgameUnlocked: true }).text).toContain('deferred')
+  })
+
+  it('answers whether the sleeping crew should be awakened unchanged', () => {
+    expect(crewAwakeningQuestionState(createDefaultSave()).stance).toBe('not-ready')
+    expect(crewAwakeningQuestionState({ ...createDefaultSave(), solvedChambers: ['heart-atria'] }).stance).toBe('unchanged')
+    expect(crewAwakeningQuestionState({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-memory'] }).stance).toBe('consent-first')
+    expect(crewAwakeningQuestionState({ ...createDefaultSave(), restorationPhilosophy: 'adaptation', solvedChambers: ['heart-atria'] }).stance).toBe('changed-context')
+    expect(crewAwakeningQuestionState({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], endgameResolution: 'release' }).stance).toBe('defer')
   })
 
   it('models launch garden readiness for the release path', () => {
