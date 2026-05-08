@@ -315,6 +315,38 @@ export function adaptationPathState(save = {}) {
   }
 }
 
+export function releasePathState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const codex = new Set(save.codexIds ?? [])
+  const launchRootReady = solved.has('optional-heart-root')
+  const resolutionSelected = save.endgameResolution === 'release'
+  const seedLibraryEvidence = [...codex].filter((id) => id.startsWith('seed-ancestry') || id.startsWith('plant-memory')).length + (save.customSeeds?.length ?? 0) + (save.endlessMutationSeeds?.length ?? 0)
+  const crewWakeDeferred = resolutionSelected || launchRootReady
+  const stage = resolutionSelected && (save.postgameUnlocked || solved.has('finale'))
+    ? 'dispersed'
+    : launchRootReady
+      ? 'armed'
+      : seedLibraryEvidence >= 4
+        ? 'catalogued'
+        : 'sealed'
+  const recommendation = stage === 'dispersed'
+    ? 'Release is active: seed libraries disperse first, and crew wake remains deferred until living ground reports back.'
+    : stage === 'armed'
+      ? 'Release is available: Heart Root can launch libraries if the final resolution chooses dispersal over immediate crew wake.'
+      : stage === 'catalogued'
+        ? 'Release has library depth but needs Heart Root before dispersal can replace crew wake.'
+        : 'Release sealed: recover seed libraries and restore Heart Root before choosing dispersal.'
+
+  return {
+    crewWakeDeferred,
+    launchRootReady,
+    resolutionSelected,
+    seedLibraryEvidence,
+    stage,
+    text: `Release path: ${stage}; seed library evidence ${seedLibraryEvidence}, launch root ${launchRootReady ? 'ready' : 'locked'}, crew wake ${crewWakeDeferred ? 'deferred' : 'not deferred'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation

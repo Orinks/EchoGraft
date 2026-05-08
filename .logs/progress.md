@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G284-release-disperse-seed-libraries-inst`. Added a Release Path state that reports sealed, catalogued, armed, or dispersed status from seed-library evidence, Heart Root readiness, release selection, and crew-wake deferral, then surfaced it in the Launch Garden and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G283-adaptation-evolve-the-ark-for-a-new`. Added an Adaptation Path state that reports dormant, experimental, evolving, or new-world status from graft mechanics, custom or mutation lineages, Heart graft readiness, careful restorations, and philosophy alignment, then surfaced it in the Atlas and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G282-preservation-restore-the-ark-as-desi`. Added a Preservation Path state that reports foundation, recovering-design, strained, or as-designed status from required systems, careful ratings, Heart readiness, philosophy alignment, and adaptive pressure, then surfaced it in the Atlas and ending screen.
 - Continued with `omx ultragoal complete-goals` for `G281-is-the-player-restoring-a-machine-a`. Added a Restoration Identity Question state that reads machine, garden, and living-instrument evidence from restored systems, plant/seed records, grafts, compositions, and instrument-coded perceptions, then surfaces the current answer in the Atlas and ending screen.

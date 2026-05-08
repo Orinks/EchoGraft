@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -767,6 +767,23 @@ describe('resonance evaluation', () => {
     expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria'] }).stageId).toBe('preparing')
     expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['heart-atria', 'optional-heart-root'] }).stageId).toBe('armed')
     expect(launchGardenSummary({ ...createDefaultSave(), solvedChambers: ['optional-heart-root', 'finale'], postgameUnlocked: true }).stageId).toBe('launched')
+  })
+
+  it('tracks the release path for dispersing seed libraries instead of waking the crew', () => {
+    const catalogued = createDefaultSave()
+    catalogued.codexIds = ['plant-memory-01', 'seed-ancestry-01', 'plant-memory-02', 'seed-ancestry-02']
+    const armed = createDefaultSave()
+    armed.solvedChambers = ['optional-heart-root']
+    const dispersed = createDefaultSave()
+    dispersed.solvedChambers = ['optional-heart-root', 'finale']
+    dispersed.endgameResolution = 'release'
+    dispersed.postgameUnlocked = true
+
+    expect(releasePathState(createDefaultSave()).stage).toBe('sealed')
+    expect(releasePathState(catalogued).stage).toBe('catalogued')
+    expect(releasePathState(armed)).toMatchObject({ stage: 'armed', crewWakeDeferred: true })
+    expect(releasePathState(dispersed)).toMatchObject({ stage: 'dispersed', resolutionSelected: true })
+    expect(releasePathState(dispersed).text).toContain('Release path')
   })
 
   it('builds a multi-chamber resonance network from restored systems and ratings', () => {

@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1025,6 +1025,7 @@ function atlas() {
   const crewWakeCycle = crewWakeCycleSummary(save)
   const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
+  const releasePath = releasePathState(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const navigationAtlas = navigationAtlasState(chambers, save)
@@ -1149,6 +1150,7 @@ function atlas() {
       <section aria-labelledby="launch-garden-title">
         <h2 id="launch-garden-title">Launch Garden</h2>
         <p>${launchGarden.text}</p>
+        <p>${releasePath.text}</p>
       </section>
       <section aria-labelledby="decision-title">
         <h2 id="decision-title">Decision Point</h2>
@@ -1443,6 +1445,7 @@ function ending() {
   const crewWakeCycle = crewWakeCycleSummary(save)
   const crewAwakening = crewAwakeningQuestionState(save)
   const launchGarden = launchGardenSummary(save)
+  const releasePath = releasePathState(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const embersapMutations = embersapEndgameMutationState(save)
@@ -1464,6 +1467,7 @@ function ending() {
       <p>${crewWakeCycle.text}</p>
       <p>${crewAwakening.text}</p>
       <p>${launchGarden.text}</p>
+      <p>${releasePath.text}</p>
       <p>${restoredEcology.text}</p>
       <p>${restorationIdentity.text}</p>
       <p>${preservationPath.text}</p>
