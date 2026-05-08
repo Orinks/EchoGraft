@@ -70,7 +70,7 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (keyboardDown(keyboard, 'KeyC')) return { action: 'codexInfo', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyZ')) return { action: 'cycleScanMode', source: 'keyboard' }
   if (keyboardDown(keyboard, 'Escape')) return { action: 'pause', source: 'keyboard' }
-  if (gamepadDown(gamepad, 9)) return { action: 'pause', source: 'gamepad' }
+  if (gamepadDown(gamepad, 8, 9)) return { action: 'pause', source: 'gamepad' }
   return undefined
 }
 

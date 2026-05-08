@@ -50,6 +50,7 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 3: true } }, keyboard: {} })).toEqual({ action: 'plant', source: 'gamepad' })
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 4: true } }, keyboard: {} })).toEqual({ action: 'tuneDown', source: 'gamepad' })
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 5: true } }, keyboard: {} })).toEqual({ action: 'tuneUp', source: 'gamepad' })
+    expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 8: true } }, keyboard: {} })).toEqual({ action: 'pause', source: 'gamepad' })
     expect(inputIntentFromSnapshot({ gamepad: { axis: {}, digital: { 9: true } }, keyboard: {} })).toEqual({ action: 'pause', source: 'gamepad' })
   })
 
