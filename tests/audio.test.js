@@ -180,7 +180,7 @@ describe('audio movement cues', () => {
     expect(payload).toMatchObject({
       category: 'hazard',
       position: chamber.target,
-      seed: { hazardVoice: true, id: 'unsafe', oscillatorType: 'fm' },
+      seed: { hazardVoice: true, id: 'unsafe', oscillatorType: 'fm', role: 'hazard-pitchRatio-voice' },
       tone: { effectChain: ['feedbackDelay'], mode: 'fm', type: 'sawtooth' },
     })
     expect(payload.duration).toBeGreaterThan(0.1)

@@ -573,6 +573,7 @@ export class HazardVoice {
     this.position = chamber.target ?? this.hazard.position ?? { x: 0, y: 0 }
     this.seed = seed
     this.forbiddenAxis = this.hazard.pitchRatio ? 'pitchRatio' : this.hazard.pulseRate ? 'pulseRate' : 'ecology'
+    this.role = `hazard-${this.forbiddenAxis}-voice`
     this.text = `HazardVoice: ${this.hazard.message ?? 'unstable ecology'} at ${this.position.x ?? 0}, ${this.position.y ?? 0}; forbidden ${this.forbiddenAxis}.`
   }
 
@@ -592,6 +593,7 @@ export class HazardVoice {
         hazardVoice: true,
         oscillatorType: 'fm',
         pulseRate,
+        role: this.role,
         waveform: 'sawtooth',
       },
       tone: {
