@@ -373,7 +373,10 @@ function graft() {
   if (report.rareRewards?.rare) log(report.rareRewards.text, 'success')
   log(`Grafted ${next.name}. ${heldInReserve ? 'Added to the library reserve because carried seeds are full' : 'Selected graft'}; pitch ${next.pitchRatio}, pulse ${next.pulseRate}, brightness ${next.brightness}.`, 'success')
   if (newDiscoveries.length) log(`Unlocked graft mechanic: ${newDiscoveries.join(', ')}.`, 'success')
-  if (report.record) log(`Graft record recovered: ${report.record.title}.`, 'success')
+  if (report.record) {
+    log(`Graft record recovered: ${report.record.title}.`, 'success')
+    audio.memory(report.record, player)
+  }
   audio.ui('success')
   persist()
 }
@@ -444,7 +447,10 @@ function evaluate() {
   }
   if (firstSolve && chamber.rewards?.materials) log(`Collected crafting resources: ${materialRewardText(chamber.rewards.materials)}.`, 'success')
   if (firstSolve && gatheredSeedNames.length) log(`Gathered phonoseed reward: ${gatheredSeedNames.join(', ')}.`, 'success')
-  if (firstSolve && chamber.rewards?.codex?.length) log(`Codex updated: ${chamber.rewards.codex.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
+  if (firstSolve && chamber.rewards?.codex?.length) {
+    log(`Codex updated: ${chamber.rewards.codex.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
+    audio.memory(availableCodexRecords()[chamber.rewards.codex[0]], chamber.target)
+  }
   persist()
   if (chamber.ending) {
     save.endgameResolution = chooseEndgameResolution(save).id

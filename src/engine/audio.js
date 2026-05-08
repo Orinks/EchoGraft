@@ -198,7 +198,7 @@ function createSpatialVoicePrototype() {
       seed,
       tone,
     } = {}) {
-      this.synth = applyEffectChain(createSynthForTone(tone, seed), tone.effectChain)
+      this.synth = applyEffectChain(createSynthForTone(tone, seed), tone.effectChain, tone)
         .filtered({
           frequency: syngen.utility.lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)),
           Q: 1 + clamp(seed?.fmAmount ?? 0) * 7,
@@ -248,12 +248,51 @@ export function chamberEffectChain(chamber = {}) {
   if (system.includes('memory') || mechanic.includes('echo') || mechanic.includes('record') || mechanic.includes('loop')) chain.push('multitapDelay')
   if (system.includes('heart') || mechanic.includes('finale') || mechanic.includes('network')) chain.push('pingPongDelay')
   if (mechanic.includes('phase') || id.includes('phase')) chain.push('phaser')
+  if (system.includes('memory') || mechanic.includes('formant') || mechanic.includes('record')) chain.push('talkbox')
   if ((chamber.hazards?.length ?? 0) > 0) chain.push('feedbackDelay')
 
   return Array.from(new Set(chain))
 }
 
-function createEffectPlugin(effect) {
+export function memoryRecordVoiceProfile(record = {}) {
+  const id = String(record.id ?? '').toLowerCase()
+  const title = String(record.title ?? record.id ?? 'Ark memory').toLowerCase()
+  const text = String(record.text ?? '').toLowerCase()
+  const source = `${id} ${title} ${text}`
+  const formantPair = source.includes('crew')
+    ? ['createO', 'createA']
+    : source.includes('plant-memory')
+      ? ['createU', 'createO']
+      : source.includes('gardener')
+        ? ['createE', 'createA']
+        : source.includes('seed-ancestry') || source.includes('archive')
+          ? ['createI', 'createE']
+          : source.includes('system')
+            ? ['createO', 'createU']
+            : ['createU', 'createA']
+
+  return {
+    formantMix: source.includes('memory') ? 0.62 : 0.42,
+    formantPair,
+    pitchRatio: source.includes('warning') || source.includes('diagnostic') ? 0.75 : 1,
+    pulseRate: source.includes('crew') ? 0.8 : 0.55,
+    text: `Memory voice: ${record.title ?? record.id ?? 'Ark record'} routed through ${formantPair.join(' to ')} talkbox formants.`,
+  }
+}
+
+const formantFactories = {
+  createA: () => syngen.formant.createA(),
+  createE: () => syngen.formant.createE(),
+  createI: () => syngen.formant.createI(),
+  createO: () => syngen.formant.createO(),
+  createU: () => syngen.formant.createU(),
+}
+
+function createFormant(factoryName = 'createU') {
+  return (formantFactories[factoryName] ?? formantFactories.createU)()
+}
+
+function createEffectPlugin(effect, tone = {}) {
   if (effect === 'feedbackDelay') return syngen.effect.feedbackDelay({ delay: 0.18, feedback: 0.28, wet: 0.18 })
   if (effect === 'multitapDelay') {
     return syngen.effect.multitapDelay({
@@ -266,12 +305,22 @@ function createEffectPlugin(effect) {
   }
   if (effect === 'phaser') return syngen.effect.phaser({ depth: 0.0008, delay: 0.006, feedback: 0.12, frequency: 0.18, wet: 0.2 })
   if (effect === 'pingPongDelay') return syngen.effect.pingPongDelay({ delay: 0.24, feedback: 0.2, wet: 0.16 })
+  if (effect === 'talkbox') {
+    const [formant0, formant1] = tone.formantPair ?? ['createU', 'createA']
+    return syngen.effect.talkbox({
+      dry: 0.18,
+      formant0: createFormant(formant0),
+      formant1: createFormant(formant1),
+      mix: tone.formantMix ?? 0.5,
+      wet: 0.72,
+    })
+  }
   return undefined
 }
 
-function applyEffectChain(synth, effects = []) {
+function applyEffectChain(synth, effects = [], tone = {}) {
   for (const effect of effects) {
-    const plugin = createEffectPlugin(effect)
+    const plugin = createEffectPlugin(effect, tone)
     if (plugin) synth.chain(plugin)
   }
   return synth
@@ -337,7 +386,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.sound?.extend && syngen?.sound?.instantiate)
+    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.chamberEffectChain = []
     this.music = {
@@ -468,7 +517,7 @@ export class AudioEngine {
     }
     const bus = this.bus(category)
     if (!spatial) {
-      const synth = applyEffectChain(createSynthForTone(activeTone, seed), activeTone.effectChain)
+      const synth = applyEffectChain(createSynthForTone(activeTone, seed), activeTone.effectChain, activeTone)
         .filtered({
           frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)),
           Q: 0.8 + clamp(seed?.fmAmount ?? 0) * 6,
@@ -894,6 +943,33 @@ export class AudioEngine {
         modAmount: 0.7,
         pulseRate: target.pulseRate ?? 0.75,
         type: 'sawtooth',
+      },
+    })
+  }
+
+  memory(record = {}, position = { x: 0, y: 0 }) {
+    const profile = memoryRecordVoiceProfile(record)
+    this.voice({
+      category: 'ambience',
+      duration: 0.9,
+      gain: dbGain(-15),
+      position,
+      seed: {
+        brightness: 0.38,
+        fmAmount: 0.12,
+        oscillatorType: 'am',
+        pulseRate: profile.pulseRate,
+        waveform: 'triangle',
+      },
+      tone: {
+        brightness: 0.38,
+        effectChain: ['talkbox', 'multitapDelay'],
+        formantMix: profile.formantMix,
+        formantPair: profile.formantPair,
+        frequency: ratioToFrequency(profile.pitchRatio, 44),
+        mode: 'am',
+        pulseRate: profile.pulseRate,
+        type: 'triangle',
       },
     })
   }

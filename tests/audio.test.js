@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, chamberEffectChain, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, chamberEffectChain, memoryRecordVoiceProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -15,10 +15,18 @@ function movementVoices(player, previous, chamber) {
 }
 
 describe('audio movement cues', () => {
+  it('maps memory record families to Ark voice formants', () => {
+    expect(memoryRecordVoiceProfile({ id: 'crew-message-01', title: 'Crew Message 01' }).formantPair).toEqual(['createO', 'createA'])
+    expect(memoryRecordVoiceProfile({ id: 'plant-memory-01', title: 'Plant Memory 01' }).formantPair).toEqual(['createU', 'createO'])
+    expect(memoryRecordVoiceProfile({ id: 'gardener-note-01', title: 'Gardener Note 01' }).formantPair).toEqual(['createE', 'createA'])
+    expect(memoryRecordVoiceProfile({ id: 'seed-ancestry-01', title: 'Seed Ancestry 01' }).formantPair).toEqual(['createI', 'createE'])
+    expect(memoryRecordVoiceProfile({ id: 'system-diagnostic-01', title: 'System Diagnostic 01' }).formantPair).toEqual(['createO', 'createU'])
+  })
+
   it('selects Syngen effect chains for chamber identity and mechanics', () => {
     expect(chamberEffectChain({ system: 'Water', mechanic: 'water current navigation' })).toEqual(['feedbackDelay'])
     expect(chamberEffectChain({ system: 'Canopy', mechanic: 'high-brightness prism focus' })).toEqual(['phaser'])
-    expect(chamberEffectChain({ system: 'Memory', mechanic: 'phase echo mapping' })).toEqual(['multitapDelay', 'phaser'])
+    expect(chamberEffectChain({ system: 'Memory', mechanic: 'phase echo mapping' })).toEqual(['multitapDelay', 'phaser', 'talkbox'])
     expect(chamberEffectChain({ system: 'Heart', mechanic: 'multi-chamber network finale' })).toEqual(['pingPongDelay'])
     expect(chamberEffectChain({ hazards: [{ message: 'mold' }] })).toEqual(['feedbackDelay'])
   })
