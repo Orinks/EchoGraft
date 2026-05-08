@@ -25,7 +25,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Evaluate resonance' }).click()
   await expect(eventLog.getByText(/Evaluate resonance: Resonance accuracy 0 percent \(weak\).*Plant 1 more seed/)).toBeVisible()
   await page.keyboard.press('o')
-  await expect(eventLog.getByText(/Objective:/)).toBeVisible()
+  await expect(eventLog.getByText(/Objective: .* Current system: Intake\./)).toBeVisible()
   await page.keyboard.press('p')
   await expect(eventLog.getByText(/Position:/)).toBeVisible()
   await page.keyboard.press('i')

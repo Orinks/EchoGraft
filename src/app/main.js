@@ -553,7 +553,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (event.key.toLowerCase() === 'e') rotate(15)
   else if (event.key === ' ') scan()
   else if (event.key.toLowerCase() === 'z') cycleScanMode()
-  else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
+  else if (event.key.toLowerCase() === 'o') log(`Objective: ${chamber.objective} Current system: ${chamber.system}. Contract ${contractStatus(chamber)}. ${lastResult.missing[0] ?? 'Requirements are satisfied.'}`)
   else if (event.key.toLowerCase() === 'p') log(`Position: ${player.x}, ${player.y}, facing ${player.facing} degrees. ${lastResult.accuracy.text}`)
   else if (event.key.toLowerCase() === 'i') log(`Inventory: ${seedCarryText(inventory, selectedSeedIndex)} Materials: ${materialsText()}.`)
   else if (event.key === 'L' && event.shiftKey) log(`Recent log: ${recentLogText()}`)
