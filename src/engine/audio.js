@@ -481,6 +481,7 @@ export class HeartVoice {
         pulseRate,
         restored: this.restored,
         role: this.role,
+        successCadence: this.restored,
         waveform,
       },
       tone: {

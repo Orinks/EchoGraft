@@ -227,3 +227,4 @@
 - Continued with `omx ultragoal complete-goals` for `G197-planted-seed-voices`. Audited the existing `SeedVoice` implementation and added an explicit planted-seed voice role marker to persistent planted seed payloads.
 - Continued with `omx ultragoal complete-goals` for `G198-hazard-voices`. Audited the existing `HazardVoice` implementation and added axis-specific hazard voice role markers for forbidden pitch, pulse, and unstable ecology payloads.
 - Continued with `omx ultragoal complete-goals` for `G199-scan-response-layer`. Audited the existing `ScanPulse` implementation and added explicit scan response layer markers for both the short ping and delay-trail payloads.
+- Continued with `omx ultragoal complete-goals` for `G200-success-cadence`. Audited the solved-resonance audio route and added explicit success cadence metadata to restored `HeartVoice` payloads while preserving the restored system drone layer.
