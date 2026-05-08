@@ -297,6 +297,13 @@ function mainMenuStatusText() {
   return `Current save: ${save.solvedChambers.length} of ${chambers.length} contracts restored; ${save.restoredSystems.length} of ${majorArkSystems.length} Ark systems online. Active work: ${chamber.title ?? 'no active chamber'}.`
 }
 
+function graftingBenchText() {
+  const parentA = inventory[0]
+  const parentB = inventory[1]
+  if (!parentA || !parentB) return 'Grafting bench needs two carried seeds before a graft can be attempted.'
+  return `Parent A: ${parentA.name}, controls root pitch ${parentA.pitchRatio} and waveform ${parentA.waveform}. Parent B: ${parentB.name}, controls modulation FM ${parentB.fmAmount}, AM ${parentB.amAmount}, noise ${parentB.noiseAmount}, and growth ${parentB.growthBehavior}. Materials: ${materialsText()}.`
+}
+
 function positionMeaningText(position) {
   return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
@@ -976,6 +983,12 @@ function library() {
         <button data-action="tuneUp">Tune up</button>
         <button data-action="lockTrait">Lock selected trait with resin</button>
       </section>
+      <section aria-labelledby="grafting-bench-title">
+        <h2 id="grafting-bench-title">Grafting Bench</h2>
+        <p>${graftingBenchText()}</p>
+        <p>Bench rule: Parent A passes root pitch and waveform; Parent B passes modulation and growth. Failed grafts return dream compost or noisy tools instead of ending progress.</p>
+        <button data-action="graft">Graft first two seeds</button>
+      </section>
       <section aria-labelledby="graft-mechanics-title">
         <h2 id="graft-mechanics-title">Unlocked Graft Mechanics</h2>
         <p>${save.unlockedGraftMechanics.length ? save.unlockedGraftMechanics.join(', ') : 'No graft mechanics unlocked yet.'}</p>
@@ -987,7 +1000,6 @@ function library() {
       <ol>${inventory.map((seed, index) => `<li${index === selectedSeedIndex ? ' aria-current="true"' : ''}>${index + 1}. ${seed.name}: ${seedDnaText(seed)}${seed.grafted ? ', grafted' : ''}. <button data-action="selectSeed" data-seed-index="${index}">Select ${seed.name}</button></li>`).join('')}</ol>
       <nav aria-label="Seed library actions">
         <button data-action="previewSeed">Preview selected seed</button>
-        <button data-action="graft">Graft first two seeds</button>
         <button data-action="atlas">Atlas</button>
         <button data-action="game">Back to chamber</button>
       </nav>

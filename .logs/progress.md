@@ -246,3 +246,4 @@
 - Continued with `omx ultragoal complete-goals` for `G216-main-menu`. Hardened the main menu with a current-save status summary while preserving the semantic main navigation.
 - Continued with `omx ultragoal complete-goals` for `G217-pause-functions-menu`. Expanded the pause surface into a semantic functions menu with resume, atlas, seed library, codex, settings, help, main menu, and current-save status.
 - Continued with `omx ultragoal complete-goals` for `G218-seed-library`. Hardened the Seed Library as a semantic menu with carried/selected seed status and grouped preview, graft, atlas, and chamber actions.
+- Continued with `omx ultragoal complete-goals` for `G219-grafting-bench`. Added an explicit Grafting Bench section with parent-slot inheritance, material context, failed-graft safety, and the primary graft action.
