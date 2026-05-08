@@ -2,7 +2,7 @@ import { AudioEngine, audioMixAccessibilityPassState } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneContractStructureState, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, playerRoleQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingChoiceModelState, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, playerRoleQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -919,6 +919,15 @@ app.addEventListener('click', async (event) => {
     persist()
     log(`Restoration philosophy: ${restorationPhilosophies.find((item) => item.id === save.restorationPhilosophy)?.title}.`)
   }
+  if (action === 'chooseResolution') {
+    const candidate = event.target.dataset.resolution
+    const path = alternateEndingPaths(save).paths.find((item) => item.id === candidate)
+    if (path?.available) {
+      save.endgameResolution = candidate
+      persist()
+      setScreen('ending')
+    }
+  }
   if (action === 'reset') resetChamber()
   if (action === 'next') setScreen('atlas')
   if (action === 'contract') {
@@ -1082,6 +1091,7 @@ function atlas() {
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const firstEndings = firstEndingsState(save)
+  const endingChoices = endingChoiceModelState(save)
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
   const canopyDoors = canopyDoorState(chambers, save)
@@ -1279,6 +1289,7 @@ function atlas() {
       </section>
       <section aria-labelledby="first-endings-title">
         <h2 id="first-endings-title">First Endings</h2>
+        <p>${endingChoices.text}</p>
         <p>${firstEndings.text}</p>
         <ol>${firstEndings.endings.map((ending) => `<li>${ending.text}</li>`).join('')}</ol>
       </section>
@@ -1742,6 +1753,7 @@ function ending() {
   const firstEndings = firstEndingsState(save)
   const embersapMutations = embersapEndgameMutationState(save)
   const alternateEndings = alternateEndingPaths(save)
+  const endingChoices = endingChoiceModelState(save)
   const originalMission = originalMissionQuestionState(save)
   const restoredEcology = restoredEcologyQuestionState(save)
   const restorationIdentity = restorationIdentityQuestionState(save)
@@ -1759,6 +1771,7 @@ function ending() {
       </section>
       <section aria-labelledby="first-endings-title">
         <h2 id="first-endings-title">First Endings</h2>
+        <p>${endingChoices.text}</p>
         <p>${firstEndings.text}</p>
         <ol>${firstEndings.endings.map((ending) => `<li>${ending.text}</li>`).join('')}</ol>
       </section>
@@ -1777,6 +1790,9 @@ function ending() {
       <section aria-labelledby="alternate-endings-title">
         <h2 id="alternate-endings-title">Alternate Endings</h2>
         <p>${alternateEndings.text}</p>
+        <nav aria-label="Ending resolution choices">
+          ${endingChoices.choices.map((choice) => `<button data-action="chooseResolution" data-resolution="${choice.id}"${choice.available ? '' : ' disabled'}>${choice.title}${choice.recommended ? ' recommended' : ''}${choice.selected ? ' selected' : ''}</button>`).join('')}
+        </nav>
         <ol>${alternateEndings.paths.map((path) => `<li>${path.text}${path.selected ? ' Selected finale path.' : ''}</li>`).join('')}</ol>
       </section>
       <p>${finalChord.text}</p>

@@ -151,6 +151,30 @@ export function alternateEndingPaths(save) {
   }
 }
 
+export function endingChoiceModelState(save = {}) {
+  const alternateEndings = alternateEndingPaths(save)
+  const recommended = chooseEndgameResolution(save).id
+  const selected = save.endgameResolution ?? recommended
+  const choices = alternateEndings.paths.map((path) => ({
+    id: path.id,
+    available: path.available,
+    recommended: path.id === recommended,
+    selected: path.id === selected,
+    title: path.title,
+    text: `${path.title}: ${path.available ? 'explicit choice available' : 'locked until pattern evidence'}; ${path.id === recommended ? 'emergent recommendation' : 'alternate resolution'}.`,
+  }))
+
+  return {
+    choices,
+    explicitChoices: true,
+    emergentPatterns: true,
+    policy: 'both',
+    recommended,
+    selected,
+    text: `Ending choice model: both. Explicit resolution choices select the final scene, while restoration patterns recommend ${recommended} and unlock ${alternateEndings.availableIds.length} alternate path(s); locked endings remain visible with requirements.`,
+  }
+}
+
 export function firstEndingsState(save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const selected = save.endgameResolution ?? chooseEndgameResolution(save).id
