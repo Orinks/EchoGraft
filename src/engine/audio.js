@@ -59,6 +59,98 @@ function durationFromPulse(pulseRate) {
   return clamp(0.65 / Math.max(pulseRate, 0.25), 0.08, 0.85)
 }
 
+function fallbackShape(values = [-1, 0, 1]) {
+  return new Float32Array(values)
+}
+
+function curveStats(curve = fallbackShape()) {
+  const samples = Array.from(curve)
+  const total = samples.reduce((sum, value) => sum + value, 0)
+  const positive = samples.filter((value) => value > 0).length
+  const max = Math.max(...samples)
+  const min = Math.min(...samples)
+
+  return {
+    edge: Number((max - min).toFixed(3)),
+    mean: Number((total / Math.max(samples.length, 1)).toFixed(3)),
+    positiveRatio: Number((positive / Math.max(samples.length, 1)).toFixed(3)),
+  }
+}
+
+const shapeFactories = {
+  brightness: {
+    equalFadeIn: () => (syngen?.shape?.equalFadeIn ? syngen.shape.equalFadeIn() : fallbackShape([-1, 0.25, 1])),
+    equalFadeOut: () => (syngen?.shape?.equalFadeOut ? syngen.shape.equalFadeOut() : fallbackShape([1, 0.25, -1])),
+    linear: () => (syngen?.shape?.linear ? syngen.shape.linear() : fallbackShape()),
+  },
+  distortion: {
+    distort: () => (syngen?.shape?.distort ? syngen.shape.distort() : fallbackShape([-1, -0.75, 0, 0.75, 1])),
+    hot: () => (syngen?.shape?.hot ? syngen.shape.hot() : fallbackShape([-1, -0.5, 0, 0.5, 1])),
+    warm: () => (syngen?.shape?.warm ? syngen.shape.warm() : fallbackShape()),
+  },
+  mutation: {
+    crush8: () => (syngen?.shape?.crush8 ? syngen.shape.crush8() : fallbackShape([-1, -0.5, 0, 0.5, 1])),
+    crush12: () => (syngen?.shape?.crush12 ? syngen.shape.crush12() : fallbackShape([-1, -0.25, 0, 0.25, 1])),
+    dither: () => (syngen?.shape?.dither ? syngen.shape.dither() : fallbackShape([0, 0])),
+    noise16: () => (syngen?.shape?.noise16 ? syngen.shape.noise16() : fallbackShape([-0.25, 0, 0.25])),
+    seededNoise: (seed) => (syngen?.shape?.createNoise ? syngen.shape.createNoise(clamp(seed?.noiseAmount ?? 0.05, 0.02, 0.35), 16) : fallbackShape([-0.15, 0, 0.15])),
+  },
+  pulse: {
+    doublePulse: () => (syngen?.shape?.doublePulse ? syngen.shape.doublePulse() : fallbackShape([1, 0, 0.5, 0])),
+    pulse: () => (syngen?.shape?.pulse ? syngen.shape.pulse() : fallbackShape([0, 0, 1])),
+    triplePulse: () => (syngen?.shape?.triplePulse ? syngen.shape.triplePulse() : fallbackShape([1, 0, 0.5, 0, 0.25, 0])),
+  },
+}
+
+export function seedShapeTimbreProfile(seed = {}, tone = {}) {
+  const brightness = clamp(seed?.brightness ?? tone.brightness ?? 0.5)
+  const noiseAmount = clamp(seed?.noiseAmount ?? tone.noiseAmount ?? 0)
+  const pulseRate = Math.max(seed?.pulseRate ?? tone.pulseRate ?? 1, 0.25)
+  const distortionCurve = noiseAmount > 0.45 || tone.mode === 'fm'
+    ? 'distort'
+    : noiseAmount > 0.18
+      ? 'hot'
+      : 'warm'
+  const pulseCurve = pulseRate >= 2.25
+    ? 'triplePulse'
+    : pulseRate >= 1.35
+      ? 'doublePulse'
+      : 'pulse'
+  const brightnessCurve = brightness >= 0.68
+    ? 'equalFadeIn'
+    : brightness <= 0.32
+      ? 'equalFadeOut'
+      : 'linear'
+  const mutationCurve = noiseAmount >= 0.45
+    ? 'crush8'
+    : noiseAmount >= 0.25
+      ? 'crush12'
+      : noiseAmount >= 0.08
+        ? 'noise16'
+        : 'dither'
+  const curves = {
+    brightness: shapeFactories.brightness[brightnessCurve](),
+    distortion: shapeFactories.distortion[distortionCurve](),
+    mutation: noiseAmount >= 0.08 ? shapeFactories.mutation.seededNoise(seed) : shapeFactories.mutation[mutationCurve](),
+    pulse: shapeFactories.pulse[pulseCurve](),
+  }
+  const stats = Object.fromEntries(Object.entries(curves).map(([key, curve]) => [key, curveStats(curve)]))
+
+  return {
+    brightnessCurve,
+    brightnessTilt: clamp(0.75 + stats.brightness.positiveRatio * 0.4 + brightness * 0.15, 0.5, 1.35),
+    curves,
+    distortionCurve,
+    distortionDrive: clamp(0.8 + stats.distortion.edge * 0.18 + noiseAmount * 0.45, 0.65, 1.65),
+    mutationCurve,
+    mutationSpread: clamp(stats.mutation.edge * 0.12 + noiseAmount * 0.7, 0, 0.65),
+    pulseAccent: clamp(0.75 + stats.pulse.positiveRatio * 0.45 + Math.min(pulseRate, 3) * 0.05, 0.75, 1.5),
+    pulseCurve,
+    stats,
+    text: `Shape timbre: distortion ${distortionCurve}, pulse ${pulseCurve}, brightness ${brightnessCurve}, mutation ${mutationCurve}.`,
+  }
+}
+
 const surfaceFootstepTimbres = {
   'archive loam': {
     brightness: 0.28,
@@ -161,10 +253,11 @@ function boundaryPresencePosition(player = {}, feedback = {}) {
 
 function seedHarmonics(seed) {
   const brightness = clamp(seed.brightness)
+  const shape = seedShapeTimbreProfile(seed)
   return [
     { coefficient: 1, gain: 1, type: seed.waveform },
-    { coefficient: 1 + seed.fmAmount, gain: 0.25 + brightness * 0.45, type: seed.waveform },
-    { coefficient: 2 + seed.amAmount, gain: 0.12 + seed.noiseAmount * 0.35, type: 'sine' },
+    { coefficient: 1 + seed.fmAmount + shape.mutationSpread * 0.2, gain: (0.25 + brightness * 0.45) * shape.brightnessTilt, type: seed.waveform },
+    { coefficient: 2 + seed.amAmount, gain: (0.12 + seed.noiseAmount * 0.35) * shape.distortionDrive, type: seed.noiseAmount > 0.2 ? 'sawtooth' : 'sine' },
   ]
 }
 
@@ -200,8 +293,8 @@ function createSpatialVoicePrototype() {
     } = {}) {
       this.synth = applyEffectChain(createSynthForTone(tone, seed), tone.effectChain, tone)
         .filtered({
-          frequency: syngen.utility.lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)),
-          Q: 1 + clamp(seed?.fmAmount ?? 0) * 7,
+          frequency: syngen.utility.lerp(600, 6200, clamp(seed?.brightness ?? tone.brightness ?? 0.5)) * seedShapeTimbreProfile(seed, tone).brightnessTilt,
+          Q: 1 + clamp(seed?.fmAmount ?? seedShapeTimbreProfile(seed, tone).mutationSpread) * 7,
           type: tone.filterType ?? 'lowpass',
         })
         .connect(this.output)
@@ -330,13 +423,14 @@ function createSynthForTone(tone, seed) {
   const frequency = tone.frequency
   const gain = syngen.const.zeroGain
   const factory = seedSynthFactoryName(seed, tone)
+  const shape = seedShapeTimbreProfile(seed, tone)
 
   if (factory === 'fm') {
     return syngen.synth.fm({
       carrierFrequency: frequency,
       carrierType: seed?.waveform ?? tone.type,
       gain,
-      modDepth: frequency * clamp(seed?.fmAmount ?? tone.modAmount ?? 0.2, 0.05, 0.9),
+      modDepth: frequency * clamp((seed?.fmAmount ?? tone.modAmount ?? 0.2) * shape.distortionDrive, 0.05, 1.1),
       modFrequency: frequency * (1 + clamp(seed?.amAmount ?? 0.2, 0, 1)),
     })
   }
@@ -347,8 +441,8 @@ function createSynthForTone(tone, seed) {
       carrierGain: 0.8,
       carrierType: seed?.waveform ?? tone.type,
       gain,
-      modDepth: clamp(seed?.amAmount ?? tone.modAmount ?? 0.25, 0.05, 0.9),
-      modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1),
+      modDepth: clamp((seed?.amAmount ?? tone.modAmount ?? 0.25) * shape.pulseAccent, 0.05, 0.95),
+      modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1) * shape.pulseAccent,
     })
   }
 
@@ -356,8 +450,8 @@ function createSynthForTone(tone, seed) {
     return syngen.synth.amBuffer({
       buffer: syngen.audio.buffer.noise.pink(),
       gain,
-      modDepth: clamp(seed?.noiseAmount ?? 0.2, 0.05, 0.8),
-      modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1),
+      modDepth: clamp((seed?.noiseAmount ?? 0.2) + shape.mutationSpread, 0.05, 0.9),
+      modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1) * shape.pulseAccent,
       playbackRate: clamp(frequency / syngen.utility.midiToFrequency(48), 0.25, 4),
     })
   }
@@ -386,7 +480,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
+    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.shape?.distort && syngen?.shape?.pulse && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.chamberEffectChain = []
     this.music = {
@@ -517,10 +611,11 @@ export class AudioEngine {
     }
     const bus = this.bus(category)
     if (!spatial) {
+      const shape = seedShapeTimbreProfile(seed, activeTone)
       const synth = applyEffectChain(createSynthForTone(activeTone, seed), activeTone.effectChain, activeTone)
         .filtered({
-          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)),
-          Q: 0.8 + clamp(seed?.fmAmount ?? 0) * 6,
+          frequency: syngen.utility.lerp(700, 7200, clamp(seed?.brightness ?? activeTone.brightness ?? 0.5)) * shape.brightnessTilt,
+          Q: 0.8 + clamp(seed?.fmAmount ?? shape.mutationSpread) * 6,
           type: activeTone.filterType ?? 'lowpass',
         })
       connectVoice(synth, bus)

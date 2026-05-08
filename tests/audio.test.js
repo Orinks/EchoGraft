@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, chamberEffectChain, memoryRecordVoiceProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, chamberEffectChain, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -37,6 +37,26 @@ describe('audio movement cues', () => {
     expect(seedSynthFactoryName({ oscillatorType: 'noise-kissed' })).toBe('amBuffer')
     expect(seedSynthFactoryName({ oscillatorType: 'pure' })).toBe('additive')
     expect(seedSynthFactoryName({}, { mode: 'fm' })).toBe('fm')
+  })
+
+  it('maps seed traits to Syngen shape timbre curves', () => {
+    const brightPulse = seedShapeTimbreProfile({ brightness: 0.82, noiseAmount: 0.04, pulseRate: 2.6 })
+    const mutation = seedShapeTimbreProfile({ brightness: 0.18, noiseAmount: 0.5, pulseRate: 0.8 }, { mode: 'fm' })
+
+    expect(brightPulse).toMatchObject({
+      brightnessCurve: 'equalFadeIn',
+      distortionCurve: 'warm',
+      mutationCurve: 'dither',
+      pulseCurve: 'triplePulse',
+    })
+    expect(mutation).toMatchObject({
+      brightnessCurve: 'equalFadeOut',
+      distortionCurve: 'distort',
+      mutationCurve: 'crush8',
+      pulseCurve: 'pulse',
+    })
+    expect(mutation.distortionDrive).toBeGreaterThan(brightPulse.distortionDrive)
+    expect(mutation.text).toContain('distortion distort, pulse pulse, brightness equalFadeOut, mutation crush8')
   })
 
   it('classifies spatial Syngen sound roles for gameplay voices', () => {
