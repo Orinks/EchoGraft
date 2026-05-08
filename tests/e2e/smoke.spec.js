@@ -151,6 +151,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('heading', { name: 'Materials Ledger' })).toBeVisible()
   await expect(page.getByText(/biomass: 1; basic restoration growth and repair work/)).toBeVisible()
   await expect(page.getByText(/spores: 1; common tuning currency/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Resource Dead-End Guard' })).toBeVisible()
+  await expect(page.getByText(/Resource dead-end prevention: safe/)).toBeVisible()
   await expect(page.getByText(/Systems online: Intake/)).toBeVisible()
   await expect(page.getByText(/Environmental changes: Intake: Training Contract: First Breath stabilized with Resonant resonance/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Major Ark Systems' })).toBeVisible()

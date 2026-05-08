@@ -587,6 +587,31 @@ export function restorationPlanningSession(chambers, solvedIds, target = { min: 
   return { contracts, min, max, target }
 }
 
+export function resourceDeadEndState(chambers, save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const available = availableChambers(chambers, save.solvedChambers ?? [])
+  const readyRequired = available.filter((chamber) => !chamber.optional && !solved.has(chamber.id))
+  const materialGatedRequired = readyRequired.filter((chamber) => Object.values(chamber.materialCost ?? {}).some((cost) => cost > 0))
+  const futureMaterialRewards = chambers.filter((chamber) => !solved.has(chamber.id) && Object.values(chamber.rewards?.materials ?? {}).some((value) => value > 0))
+  const spores = save.materials?.spores ?? 0
+  const resin = save.materials?.resin ?? 0
+  const deadEnded = materialGatedRequired.length > 0 && readyRequired.length === materialGatedRequired.length
+
+  return {
+    deadEnded,
+    freeTuningFallback: spores <= 0,
+    futureMaterialRewardCount: futureMaterialRewards.length,
+    materialGatedRequired,
+    readyRequired,
+    resetRecovery: true,
+    resin,
+    spores,
+    text: deadEnded
+      ? `Resource dead-end prevention: blocked; required contracts ${materialGatedRequired.map((chamber) => chamber.title).join(', ')} need materials before progress can continue.`
+      : `Resource dead-end prevention: safe; ${readyRequired.length} ready required contract(s), ${futureMaterialRewards.length} unresolved material reward contract(s), ${spores} spores and ${resin} resin. Tuning is free when spores are empty, and chamber reset clears local spend penalties.`,
+  }
+}
+
 export function navigationAtlasState(chambers, save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const restoredSystems = save.restoredSystems ?? []
