@@ -184,6 +184,24 @@ describe('seed DNA', () => {
     expect(seedWaveformState(seed, ['sine'])).toMatchObject({ matchesRequirement: true, waveform: 'sine' })
   })
 
+  it('gives Lumen seeds a bright triangle canopy light archetype', () => {
+    const seed = createSeedDNA('lumen-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.7,
+      ecologicalAffinity: 'canopy light and brightness',
+      family: 'Lumen',
+      growthBehavior: 'climbing',
+      oscillatorType: 'pure',
+      phase: 90,
+      pitchRatio: 1.5,
+      pulseRate: 2,
+      waveform: 'triangle',
+    })
+    expect(seedFamilyState(seed).text).toContain('canopy light and brightness')
+    expect(seedWaveformState(seed, ['triangle'])).toMatchObject({ matchesRequirement: true, waveform: 'triangle' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)
