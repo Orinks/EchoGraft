@@ -137,7 +137,7 @@ describe('audio movement cues', () => {
     expect(targetVoice.toVoicePayload()).toMatchObject({
       category: 'scan',
       position: chamber.target,
-      seed: { heartVoice: true, restored: false },
+      seed: { heartVoice: true, restored: false, role: 'target-heart' },
       tone: { type: 'sine' },
     })
 
@@ -145,7 +145,7 @@ describe('audio movement cues', () => {
     expect(restoredVoice.toVoicePayload()).toMatchObject({
       category: 'ui',
       position: chamber.target,
-      seed: { heartVoice: true, restored: true },
+      seed: { heartVoice: true, restored: true, role: 'restored-heart' },
       tone: { mode: 'additive', type: 'triangle' },
     })
   })

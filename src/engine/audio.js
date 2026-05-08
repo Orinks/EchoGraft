@@ -452,6 +452,7 @@ export class HeartVoice {
     this.target = chamber.target ?? { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, x: 0, y: 0 }
     this.pulse = player ? scanPulse(player, this.target) : null
     this.restored = restored || Boolean(result?.solved)
+    this.role = this.restored ? 'restored-heart' : 'target-heart'
     this.score = clamp(result?.score ?? (this.restored ? 1 : 0))
     this.text = this.restored
       ? `HeartVoice: ${chamber.title ?? 'chamber'} restored-state sound at ${this.target.x ?? 0}, ${this.target.y ?? 0}; consonance score ${this.score.toFixed(2)}.`
@@ -478,6 +479,7 @@ export class HeartVoice {
         oscillatorType: this.restored ? 'additive' : 'am',
         pulseRate,
         restored: this.restored,
+        role: this.role,
         waveform,
       },
       tone: {
