@@ -263,8 +263,8 @@ function latestLogText() {
 }
 
 function recentLogText() {
-  const recent = eventLog.entries.slice(0, 6).map((entry) => entry.message)
-  return recent.length ? recent.join(' | ') : 'No log entries yet.'
+  const recent = eventLog.entries.slice(0, 6).map((entry, index) => `${index + 1}. ${entry.message}`)
+  return recent.length ? `Recent log entries ${recent.length} of ${eventLog.entries.length}: ${recent.join(' | ')}` : 'No log entries yet.'
 }
 
 function boundaryInfoText() {

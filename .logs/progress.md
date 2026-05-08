@@ -238,3 +238,4 @@
 - Continued with `omx ultragoal complete-goals` for `G208-p-position-facing-progress`. Hardened the `P` info command so no-vision status includes position, facing, restoration progress, online Ark systems, and current resonance accuracy.
 - Continued with `omx ultragoal complete-goals` for `G209-i-selected-seed-and-inventory`. Hardened shared inventory text so the `I` info command names the selected seed before carried and reserve inventory status.
 - Continued with `omx ultragoal complete-goals` for `G210-l-latest-log-entry`. Hardened the `L` info command to announce the latest meaningful log entry explicitly and avoid self-echoing prior latest-log commands.
+- Continued with `omx ultragoal complete-goals` for `G211-shift-l-full-recent-log`. Hardened the `Shift+L` info command so recent log replay is counted and numbered for no-vision review.
