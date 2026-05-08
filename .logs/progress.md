@@ -220,3 +220,4 @@
 - Continued with `omx ultragoal complete-goals` for `G190-boundaryvoice-chamber-edge-doorway-o`. Added a named `BoundaryVoice` runtime object for chamber edge, doorway, return locator, and close-edge warning payloads, then routed movement boundary cues through it.
 - Continued with `omx ultragoal complete-goals` for `G191-memoryvoice-codex-perception-reveal`. Added a named `MemoryVoice` runtime object for codex/perception reveals, keeping the Syngen talkbox and multitap-delay formant route explicit.
 - Continued with `omx ultragoal complete-goals` for `G192-systemdrone-restored-system-layer`. Added a named `SystemDrone` runtime object for restored system music layers and trigger it after solved resonance feedback.
+- Continued with `omx ultragoal complete-goals` for `G193-stepvoice-player-movement-feedback`. Added a named `StepVoice` runtime object for player movement feedback and routed the spatial footstep cue through it.

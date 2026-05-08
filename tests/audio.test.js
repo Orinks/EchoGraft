@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -243,6 +243,23 @@ describe('audio movement cues', () => {
       tone: { effectChain: ['feedbackDelay'], mode: 'additive' },
     })
     expect(payload.duration).toBeGreaterThan(1)
+  })
+
+  it('models player movement feedback as a named StepVoice', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const previous = createPlayer(chamber.start)
+    const player = movePlayer(previous, 0, 1, chamber)
+    const step = new StepVoice({ chamber, player, previous })
+    const payload = step.toVoicePayload()
+
+    expect(step.text).toContain('StepVoice:')
+    expect(payload).toMatchObject({
+      category: 'ui',
+      seed: { stepVoice: true },
+      spatial: true,
+      tone: { mode: 'additive' },
+    })
+    expect(payload.position.y).toBeGreaterThan(player.y)
   })
 
   it('spatializes every footstep at the current player position', () => {

@@ -790,6 +790,37 @@ export class SystemDrone {
   }
 }
 
+export class StepVoice {
+  constructor({ chamber = {}, player = {}, previous = {} } = {}) {
+    this.chamber = chamber
+    this.player = player
+    this.previous = previous
+    this.feedback = movementFeedback(player, previous, chamber)
+    this.movedDistance = Math.hypot((player.x ?? 0) - (previous.x ?? 0), (player.y ?? 0) - (previous.y ?? 0))
+    this.position = directionalFootstepPosition(player, previous)
+    this.text = `StepVoice: ${this.feedback.surface ?? 'surface'} movement cue at ${this.position.x ?? 0}, ${this.position.y ?? 0}; distance ${this.movedDistance.toFixed(1)}.`
+  }
+
+  toVoicePayload() {
+    return {
+      category: 'ui',
+      duration: 0.11 + this.movedDistance * 0.04,
+      gain: dbGain(-13),
+      position: this.position,
+      seed: {
+        stepVoice: true,
+        surface: this.feedback.surface,
+      },
+      spatial: true,
+      tone: footstepTone(this.feedback.surface, this.player),
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1271,18 +1302,10 @@ export class AudioEngine {
 
   movement(player, previous, chamber = {}) {
     this.updateListener(player)
-    const movedDistance = Math.hypot(player.x - previous.x, player.y - previous.y)
     const feedback = movementFeedback(player, previous, chamber)
     const wallPosition = boundaryPresencePosition(player, feedback)
 
-    this.voice({
-      category: 'ui',
-      duration: 0.11 + movedDistance * 0.04,
-      gain: dbGain(-13),
-      position: directionalFootstepPosition(player, previous),
-      spatial: true,
-      tone: footstepTone(feedback.surface, player),
-    })
+    new StepVoice({ chamber, player, previous }).play(this)
 
     this.voice({
       category: 'ambience',
