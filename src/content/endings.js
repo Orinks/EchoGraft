@@ -151,6 +151,43 @@ export function alternateEndingPaths(save) {
   }
 }
 
+export function firstEndingsState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const selected = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const alternateEndings = alternateEndingPaths({ ...save, endgameResolution: selected })
+  const finaleComplete = solved.has('finale') || Boolean(save.postgameUnlocked)
+  const postgameUnlocked = Boolean(save.postgameUnlocked)
+  const endings = endgameResolutions.map((resolution) => {
+    const scene = resolutionEndingScenes[resolution.id]
+    const path = alternateEndings.paths.find((item) => item.id === resolution.id)
+
+    return {
+      ...resolution,
+      available: Boolean(path?.available),
+      firstPlayable: finaleComplete && resolution.id === selected,
+      selected: resolution.id === selected,
+      scene,
+      text: `${resolution.title}: ${path?.available ? 'available' : 'locked'}, ${resolution.id === selected && finaleComplete ? 'first playable ending' : 'alternate path'}; ${scene.title}.`,
+    }
+  })
+  const playable = endings.filter((ending) => ending.firstPlayable)
+  const authored = endings.filter((ending) => ending.scene?.text)
+
+  return {
+    authoredCount: authored.length,
+    availableIds: alternateEndings.availableIds,
+    endings,
+    finaleComplete,
+    playable,
+    postgameUnlocked,
+    ready: playable.length > 0 && authored.length === endgameResolutions.length && postgameUnlocked,
+    selected,
+    text: playable.length
+      ? `First endings ready: ${playable[0].title} is playable now; ${authored.length} authored resolution scene(s) are present; available alternates ${alternateEndings.availableIds.join(', ') || 'none'}; postgame handoff ${postgameUnlocked ? 'unlocked' : 'pending'}.`
+      : `First endings locked: finish the finale to play the first ending; ${authored.length} authored resolution scene(s) are staged and available alternates ${alternateEndings.availableIds.join(', ') || 'none'}.`,
+  }
+}
+
 export function originalMissionQuestionState(save = {}) {
   const solved = new Set(save.solvedChambers ?? [])
   const ratings = Object.values(save.ratings ?? {})

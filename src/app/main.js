@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
-import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, firstEndingsState, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1081,6 +1081,7 @@ function atlas() {
   const conservatoryPath = conservatoryPathState(save)
   const resonanceNetwork = multiChamberResonanceNetwork(chambers, save)
   const heartUnlock = heartNetworkEndingState(chambers, save)
+  const firstEndings = firstEndingsState(save)
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
   const canopyDoors = canopyDoorState(chambers, save)
@@ -1235,6 +1236,11 @@ function atlas() {
       <section aria-labelledby="heart-unlock-title">
         <h2 id="heart-unlock-title">Heart Network Endings</h2>
         <p>${heartUnlock.text}</p>
+      </section>
+      <section aria-labelledby="first-endings-title">
+        <h2 id="first-endings-title">First Endings</h2>
+        <p>${firstEndings.text}</p>
+        <ol>${firstEndings.endings.map((ending) => `<li>${ending.text}</li>`).join('')}</ol>
       </section>
       <section aria-labelledby="final-chord-title">
         <h2 id="final-chord-title">Player-Built Final Chord</h2>
@@ -1579,6 +1585,7 @@ function ending() {
   const conservatoryPath = conservatoryPathState(save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
+  const firstEndings = firstEndingsState(save)
   const embersapMutations = embersapEndgameMutationState(save)
   const alternateEndings = alternateEndingPaths(save)
   const originalMission = originalMissionQuestionState(save)
@@ -1594,6 +1601,11 @@ function ending() {
         <h2 id="resolution-ending-title">${endingScene.title}</h2>
         <p>${endingScene.text}</p>
         <p>${heartUnlock.text}</p>
+      </section>
+      <section aria-labelledby="first-endings-title">
+        <h2 id="first-endings-title">First Endings</h2>
+        <p>${firstEndings.text}</p>
+        <ol>${firstEndings.endings.map((ending) => `<li>${ending.text}</li>`).join('')}</ol>
       </section>
       <p>${crewWakeCycle.text}</p>
       <p>${crewAwakening.text}</p>
