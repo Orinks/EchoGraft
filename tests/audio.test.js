@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, HazardVoice, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, ScanPulse, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -184,6 +184,29 @@ describe('audio movement cues', () => {
       tone: { effectChain: ['feedbackDelay'], mode: 'fm', type: 'sawtooth' },
     })
     expect(payload.duration).toBeGreaterThan(0.1)
+  })
+
+  it('models chamber edges, doorways, and return locators as BoundaryVoice payloads', () => {
+    const edge = new BoundaryVoice({ kind: 'edge', position: { x: -5, y: 1 }, proximity: 1.4 })
+    const doorway = new BoundaryVoice({ kind: 'doorway', position: { x: 0, y: -1 }, proximity: 2 })
+    const returns = new BoundaryVoice({ kind: 'return', position: { x: 0, y: 0 }, proximity: 0 })
+
+    expect(edge.text).toContain('BoundaryVoice: edge locator')
+    expect(edge.toVoicePayload()).toMatchObject({
+      category: 'ambience',
+      seed: { boundaryVoice: true, kind: 'edge' },
+      tone: { brightness: 0.18, mode: 'am' },
+    })
+    expect(doorway.toVoicePayload()).toMatchObject({
+      category: 'ambience',
+      seed: { boundaryVoice: true, kind: 'doorway' },
+      tone: { brightness: 0.42, mode: 'additive' },
+    })
+    expect(returns.toVoicePayload()).toMatchObject({
+      category: 'scan',
+      seed: { boundaryVoice: true, kind: 'return' },
+      tone: { effectChain: ['feedbackDelay'], type: 'triangle' },
+    })
   })
 
   it('spatializes every footstep at the current player position', () => {

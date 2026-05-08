@@ -608,6 +608,93 @@ export class HazardVoice {
   }
 }
 
+export class BoundaryVoice {
+  constructor({ kind = 'edge', position = { x: 0, y: 0 }, proximity = 0 } = {}) {
+    this.kind = kind
+    this.position = position
+    this.proximity = proximity
+    this.text = `BoundaryVoice: ${kind} locator at ${position.x ?? 0}, ${position.y ?? 0}; proximity ${Number(proximity).toFixed(1)} step(s).`
+  }
+
+  toVoicePayload() {
+    if (this.kind === 'doorway') {
+      return {
+        category: 'ambience',
+        duration: 0.3,
+        gain: dbGain(-30),
+        position: this.position,
+        seed: { boundaryVoice: true, kind: this.kind },
+        tone: {
+          brightness: 0.42,
+          frequency: ratioToFrequency(1.2, 45),
+          harmonic: [
+            { coefficient: 1, gain: 1, type: 'sine' },
+            { coefficient: 2, gain: 0.16, type: 'triangle' },
+          ],
+          mode: 'additive',
+          pulseRate: 0.8,
+          type: 'sine',
+        },
+      }
+    }
+
+    if (this.kind === 'return') {
+      return {
+        category: 'scan',
+        duration: 0.32,
+        gain: dbGain(-24),
+        position: this.position,
+        seed: { boundaryVoice: true, kind: this.kind },
+        tone: {
+          brightness: 0.5,
+          effectChain: ['feedbackDelay'],
+          frequency: ratioToFrequency(1, 42),
+          mode: 'additive',
+          pulseRate: 0.7,
+          type: 'triangle',
+        },
+      }
+    }
+
+    if (this.kind === 'edge-warning') {
+      return {
+        category: 'hazard',
+        duration: 0.22,
+        gain: dbGain(-16),
+        position: this.position,
+        seed: { boundaryVoice: true, kind: this.kind },
+        tone: {
+          brightness: 0.22,
+          frequency: ratioToFrequency(0.75, 38),
+          mode: 'fm',
+          modAmount: 0.45,
+          pulseRate: 0.8,
+          type: 'square',
+        },
+      }
+    }
+
+    return {
+      category: 'ambience',
+      duration: 0.28,
+      gain: dbGain(-31),
+      position: this.position,
+      seed: { boundaryVoice: true, kind: this.kind },
+      tone: {
+        brightness: 0.18,
+        frequency: ratioToFrequency(0.65, 34),
+        mode: 'am',
+        pulseRate: 0.5,
+        type: 'sine',
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -1134,56 +1221,15 @@ export class AudioEngine {
     })
 
     if (feedback.nearestWall <= 2.5) {
-      this.voice({
-        category: 'ambience',
-        duration: 0.28,
-        gain: dbGain(-31),
-        position: wallPosition,
-        tone: {
-          brightness: 0.18,
-          frequency: ratioToFrequency(0.65, 34),
-          mode: 'am',
-          pulseRate: 0.5,
-          type: 'sine',
-        },
-      })
+      new BoundaryVoice({ kind: 'edge', position: wallPosition, proximity: feedback.nearestWall }).play(this)
     }
 
     if (feedback.exitDistance <= 2.5) {
-      this.voice({
-        category: 'ambience',
-        duration: 0.3,
-        gain: dbGain(-30),
-        position: feedback.exitPosition,
-        tone: {
-          brightness: 0.42,
-          frequency: ratioToFrequency(1.2, 45),
-          harmonic: [
-            { coefficient: 1, gain: 1, type: 'sine' },
-            { coefficient: 2, gain: 0.16, type: 'triangle' },
-          ],
-          mode: 'additive',
-          pulseRate: 0.8,
-          type: 'sine',
-        },
-      })
+      new BoundaryVoice({ kind: 'doorway', position: feedback.exitPosition, proximity: feedback.exitDistance }).play(this)
     }
 
     if (feedback.nearestWall <= 1.5) {
-      this.voice({
-        category: 'hazard',
-        duration: 0.22,
-        gain: dbGain(-16),
-        position: wallPosition,
-        tone: {
-          brightness: 0.22,
-          frequency: ratioToFrequency(0.75, 38),
-          mode: 'fm',
-          modAmount: 0.45,
-          pulseRate: 0.8,
-          type: 'square',
-        },
-      })
+      new BoundaryVoice({ kind: 'edge-warning', position: wallPosition, proximity: feedback.nearestWall }).play(this)
     }
   }
 
