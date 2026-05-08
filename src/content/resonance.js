@@ -914,6 +914,44 @@ export function materialsCraftingState(save = {}) {
   }
 }
 
+export function persistentChamberChangesState(chambers, save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const environmentalChanges = save.environmentalChanges ?? []
+  const plantedByChamber = save.plantedByChamber ?? {}
+  const ratings = save.ratings ?? {}
+  const resourcesSpentByChamber = save.resourcesSpentByChamber ?? {}
+  const seedMovesByChamber = save.seedMovesByChamber ?? {}
+  const entries = chambers
+    .filter((chamber) => solved.has(chamber.id))
+    .map((chamber) => {
+      const environmentalChange = environmentalChanges.find((change) => change.includes(chamber.title)) ?? ''
+      const plantedSeeds = plantedByChamber[chamber.id] ?? []
+      const materialSpend = resourcesSpentByChamber[chamber.id] ?? {}
+      return {
+        environmentalChange,
+        id: chamber.id,
+        materialSpend,
+        plantedSeedCount: plantedSeeds.length,
+        rating: ratings[chamber.id] ?? 'Restored',
+        seedMoves: seedMovesByChamber[chamber.id] ?? 0,
+        system: chamber.system,
+        title: chamber.title,
+        text: `${chamber.title}: ${ratings[chamber.id] ?? 'Restored'} rating, ${plantedSeeds.length} persistent planted seed(s), ${seedMovesByChamber[chamber.id] ?? 0} seed move(s), ${Object.keys(materialSpend).length ? `spend ${Object.entries(materialSpend).map(([key, value]) => `${value} ${key}`).join(', ')}` : 'no saved material spend'}, ${environmentalChange || 'environmental change pending'}.`,
+      }
+    })
+  const missing = entries.filter((entry) => !entry.rating || !entry.environmentalChange)
+
+  return {
+    entries,
+    missing,
+    persistentFields: ['ratings', 'environmental changes', 'planted seeds', 'material spend', 'seed-move history'],
+    ready: entries.length === 0 || missing.length === 0,
+    text: entries.length
+      ? `Persistent chamber changes ready: ${entries.length} restored chamber change(s) preserve ratings, environmental changes, planted seeds, material spend, and seed-move history.`
+      : 'Persistent chamber changes ready: no restored chambers yet; save fields are prepared for ratings, environmental changes, planted seeds, material spend, and seed-move history.',
+  }
+}
+
 export function firstChamberRatingImprovementState(chambers, save = {}) {
   const firstContract = chambers.find((chamber) => chamber.id === 'tutorial') ?? chambers[0]
   const currentRating = save.ratings?.[firstContract.id] ?? 'Unrated'

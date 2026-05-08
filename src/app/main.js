@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstChamberRatingImprovementState, firstCodexRecordsState, firstFourArkSystemsState, firstFullCampaignEstimate, firstMaterialLoopState, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, materialsCraftingState, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, persistentChamberChangesState, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1059,6 +1059,7 @@ function atlas() {
   const atlasV1 = restorationAtlasV1State(chambers, save, save.arkClock)
   const stewardship = stewardshipSummary(chambers, save)
   const firstRatingImprovement = firstChamberRatingImprovementState(chambers, save)
+  const persistentChanges = persistentChamberChangesState(chambers, save)
   const resourceGuard = resourceDeadEndState(chambers, save)
   const firstMaterialLoop = firstMaterialLoopState(chambers, save)
   const crafting = materialsCraftingState(save)
@@ -1108,6 +1109,11 @@ function atlas() {
       </section>
       <p>Systems online: ${save.restoredSystems.join(', ') || 'none yet'}.</p>
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
+      <section aria-labelledby="persistent-chamber-changes-title">
+        <h2 id="persistent-chamber-changes-title">Persistent Chamber Changes</h2>
+        <p>${persistentChanges.text}</p>
+        ${persistentChanges.entries.length ? `<ol>${persistentChanges.entries.map((entry) => `<li>${entry.text}</li>`).join('')}</ol>` : '<p>No restored chamber changes have been written yet.</p>'}
+      </section>
       <p>Ark clock: cycle ${save.arkClock}.</p>
       <p>${lowCycleChallenge.text}</p>
       ${activeCycle ? `<p>Active chamber cycle: ${activeCycle.text}</p>` : ''}
