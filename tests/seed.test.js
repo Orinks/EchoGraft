@@ -278,6 +278,25 @@ describe('seed DNA', () => {
     expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'twining' })
   })
 
+  it('gives Glass seeds a high-brightness reflective chamber archetype', () => {
+    const seed = createSeedDNA('glass-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.92,
+      ecologicalAffinity: 'high brightness and reflections',
+      family: 'Glass',
+      fmAmount: 0.12,
+      growthBehavior: 'steady',
+      oscillatorType: 'pure',
+      phase: 120,
+      pitchRatio: 1.5,
+      pulseRate: 2,
+      waveform: 'triangle',
+    })
+    expect(seedBrightnessState(seed, 0.7)).toMatchObject({ brightness: 0.92, targetDelta: 0.22 })
+    expect(seedWaveformState(seed, ['triangle'])).toMatchObject({ matchesRequirement: true, waveform: 'triangle' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)

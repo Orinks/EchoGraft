@@ -46,6 +46,16 @@ export const seedFamilies = [
 ]
 
 const seedFamilyDefaults = {
+  glass: {
+    brightness: 0.92,
+    fmAmount: 0.12,
+    growthBehavior: 'steady',
+    oscillatorType: 'pure',
+    phase: 120,
+    pitchRatio: 1.5,
+    pulseRate: 2,
+    waveform: 'triangle',
+  },
   lumen: {
     brightness: 0.7,
     growthBehavior: 'climbing',
