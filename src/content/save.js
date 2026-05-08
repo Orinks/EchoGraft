@@ -125,6 +125,22 @@ export function saveGame(save, storage = globalThis.localStorage) {
   return save
 }
 
+export function resetChamberProgress(save, chamberId) {
+  const resourcesSpentByChamber = { ...(save.resourcesSpentByChamber ?? {}) }
+  delete resourcesSpentByChamber[chamberId]
+
+  return {
+    ...save,
+    plantedByChamber: { ...(save.plantedByChamber ?? {}), [chamberId]: [] },
+    resourcesSpentByChamber,
+    seedMovesByChamber: { ...(save.seedMovesByChamber ?? {}), [chamberId]: 0 },
+  }
+}
+
+export function resetWithoutPunishmentText(chamberTitle = 'current chamber') {
+  return `Chamber reset without punishment: ${chamberTitle} planted seeds cleared; seed moves and chamber spend penalties reset; Ark clock, materials, ratings, solved contracts, and codex remain unchanged.`
+}
+
 export function clearSave(storage = globalThis.localStorage) {
   storage?.removeItem(saveKey)
 }

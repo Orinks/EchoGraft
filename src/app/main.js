@@ -10,7 +10,7 @@ import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedCh
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
-import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../content/save.js'
+import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
 import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, glassPollenUnlockedTraits, graftDiscoveryCatalog, graftSeedsWithReport, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, resinTraitLockState, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeedWithReport, tuningLabel, tuningParameters, tuningValue } from '../content/seeds.js'
 
 const app = document.querySelector('#app')
@@ -684,12 +684,10 @@ function advanceArkClock() {
 
 function resetChamber() {
   plantedSeeds = []
-  save.plantedByChamber[chamber.id] = []
-  save.seedMovesByChamber = save.seedMovesByChamber ?? {}
-  save.seedMovesByChamber[chamber.id] = 0
+  save = resetChamberProgress(save, chamber.id)
   audio.syncSeedObjects(chamber.id, plantedSeeds)
   startChamber(chamber)
-  log('Chamber reset.')
+  log(resetWithoutPunishmentText(chamber.title))
 }
 
 function setScreen(next) {

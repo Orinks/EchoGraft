@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultProceduralSeed } from '../src/content/rng.js'
-import { createDefaultSave, defaultKeyboardBindings, loadSave, saveGame } from '../src/content/save.js'
+import { createDefaultSave, defaultKeyboardBindings, loadSave, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../src/content/save.js'
 
 function memoryStorage() {
   const store = new Map()
@@ -102,5 +102,29 @@ describe('save system', () => {
     expect(loaded.restorationPhilosophy).toBe('preservation')
     expect(loaded.proceduralSeed).toBe(defaultProceduralSeed)
     expect(loaded.keyboardBindings).toEqual(defaultKeyboardBindings)
+  })
+
+  it('resets chamber-local progress without punishing campaign progress', () => {
+    const save = createDefaultSave()
+    save.arkClock = 3
+    save.codexIds = ['first-breath']
+    save.materials.biomass = 4
+    save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
+    save.ratings.tutorial = 'Resonant'
+    save.resourcesSpentByChamber.tutorial = { biomass: 2 }
+    save.seedMovesByChamber.tutorial = 5
+    save.solvedChambers = ['tutorial']
+
+    const reset = resetChamberProgress(save, 'tutorial')
+
+    expect(reset.plantedByChamber.tutorial).toEqual([])
+    expect(reset.seedMovesByChamber.tutorial).toBe(0)
+    expect(reset.resourcesSpentByChamber.tutorial).toBeUndefined()
+    expect(reset.arkClock).toBe(3)
+    expect(reset.codexIds).toEqual(['first-breath'])
+    expect(reset.materials.biomass).toBe(4)
+    expect(reset.ratings.tutorial).toBe('Resonant')
+    expect(reset.solvedChambers).toEqual(['tutorial'])
+    expect(resetWithoutPunishmentText('Training Contract: First Breath')).toContain('without punishment')
   })
 })
