@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createSeedDNA } from '../src/content/seeds.js'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, plantedSeedSoundObjectState, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AmbientBed, AudioEngine, BoundaryVoice, HazardVoice, HeartVoice, MemoryVoice, ScanPulse, SeedVoice, StepVoice, SystemDrone, audioMixAccessibilityPassState, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, normalizeAudioMixSettings, plantedSeedSoundObjectState, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -16,6 +16,30 @@ function movementVoices(player, previous, chamber) {
 }
 
 describe('audio movement cues', () => {
+  it('normalizes audio mix settings and audits accessibility surfaces', () => {
+    const normalized = normalizeAudioMixSettings({ ambience: 0.5, hazards: 2, master: -1 })
+    const state = audioMixAccessibilityPassState({
+      ambience: 0.5,
+      hazards: 2,
+      master: -1,
+      music: 0.6,
+      scans: 0.75,
+      seeds: 0.75,
+      ui: 0.7,
+    })
+
+    expect(normalized).toMatchObject({
+      ambience: 0.5,
+      hazards: 1,
+      master: 0,
+    })
+    expect(state.ready).toBe(true)
+    expect(state.categories).toEqual(['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans'])
+    expect(state.text).toContain('Audio mix/accessibility pass ready')
+    expect(state.text).toContain('caption log')
+    expect(state.text).toContain('remappable keyboard')
+  })
+
   it('maps memory record families to Ark voice formants', () => {
     expect(memoryRecordVoiceProfile({ id: 'crew-message-01', title: 'Crew Message 01' }).formantPair).toEqual(['createO', 'createA'])
     expect(memoryRecordVoiceProfile({ id: 'plant-memory-01', title: 'Plant Memory 01' }).formantPair).toEqual(['createU', 'createO'])

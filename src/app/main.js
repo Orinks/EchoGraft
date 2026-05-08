@@ -1,4 +1,4 @@
-import { AudioEngine } from '../engine/audio.js'
+import { AudioEngine, audioMixAccessibilityPassState } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { allFiveSeasonsBlockedInState, axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, chamberSeeds, codexCompleteState, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, mainChamberCatalogState, majorArkSystems, milestoneChamberSlice, optionalComplexitySummary, optionalContentPassState, researchContractSummary, restorationContractSummary, rewardSummary, seasonOneOpeningContractMix, seasonTwoRootworksState, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../content/chambers.js'
@@ -1499,6 +1499,16 @@ function conservatory() {
 
 function settings() {
   audio.setMusicScene('menu')
+  const mixPass = audioMixAccessibilityPassState(save.settings, {
+    captionLog: true,
+    gamepadSupport: true,
+    highContrast: true,
+    minimalVisual: true,
+    reducedMotion: true,
+    remappableKeyboard: true,
+    scanVerbosity: true,
+    textOnlyHints: true,
+  })
   const sliders = ['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans']
     .map((key) => `<label>${settingLabels[key]}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
     .join('')
@@ -1509,6 +1519,10 @@ function settings() {
     <main class="screen" aria-labelledby="settings-title">
       <h1 id="settings-title">Settings</h1>
       <p>${settingsStatusText()}</p>
+      <section aria-labelledby="audio-accessibility-pass-title">
+        <h2 id="audio-accessibility-pass-title">Audio Mix and Accessibility Pass</h2>
+        <p>${mixPass.text}</p>
+      </section>
       <form aria-label="Settings controls">
         <fieldset>
           <legend>Independent volume controls</legend>

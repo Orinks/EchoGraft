@@ -20,6 +20,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByLabel('Settings controls')).toBeVisible()
   await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off; high contrast off; scan verbosity detailed; text-only hints off/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Settings actions' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Audio Mix and Accessibility Pass' })).toBeVisible()
+  await expect(page.getByText(/Audio mix\/accessibility pass ready: 7 independent Syngen bus control\(s\) normalized; caption log, reduced motion, minimal visual mode, high contrast, scan verbosity, text-only hints, remappable keyboard, gamepad support remain surfaced with captioned feedback/)).toBeVisible()
   await expect(page.getByText(/Adjust master, ambience, music, UI, seed voice, hazard voice, and scan pulse levels independently/)).toBeVisible()
   await expect(page.getByLabel('Master volume')).toBeVisible()
   await expect(page.getByLabel('Ambience volume')).toBeVisible()

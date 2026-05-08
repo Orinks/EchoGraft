@@ -14,6 +14,43 @@ const categoryDefaults = {
   scans: 0.75,
 }
 
+export const audioMixCategories = Object.keys(categoryDefaults)
+
+export function normalizeAudioMixSettings(settings = {}) {
+  return Object.fromEntries(audioMixCategories.map((key) => [
+    key,
+    clamp(Number.isFinite(Number(settings[key])) ? Number(settings[key]) : categoryDefaults[key]),
+  ]))
+}
+
+export function audioMixAccessibilityPassState(settings = {}, surfaces = {}) {
+  const mix = normalizeAudioMixSettings(settings)
+  const missingMix = audioMixCategories.filter((key) => !Number.isFinite(Number(settings[key])))
+  const accessibilitySurfaces = [
+    { id: 'captionLog', label: 'caption log' },
+    { id: 'reducedMotion', label: 'reduced motion' },
+    { id: 'minimalVisual', label: 'minimal visual mode' },
+    { id: 'highContrast', label: 'high contrast' },
+    { id: 'scanVerbosity', label: 'scan verbosity' },
+    { id: 'textOnlyHints', label: 'text-only hints' },
+    { id: 'remappableKeyboard', label: 'remappable keyboard' },
+    { id: 'gamepadSupport', label: 'gamepad support' },
+  ]
+  const missingSurfaces = accessibilitySurfaces.filter((surface) => surfaces[surface.id] === false)
+  const ready = missingMix.length === 0 && missingSurfaces.length === 0
+
+  return {
+    categories: audioMixCategories,
+    missingMix,
+    missingSurfaces,
+    mix,
+    ready,
+    text: ready
+      ? `Audio mix/accessibility pass ready: ${audioMixCategories.length} independent Syngen bus control(s) normalized; ${accessibilitySurfaces.map((surface) => surface.label).join(', ')} remain surfaced with captioned feedback.`
+      : `Audio mix/accessibility pass incomplete: missing mix ${missingMix.join(', ') || 'none'}; missing accessibility surfaces ${missingSurfaces.map((surface) => surface.label).join(', ') || 'none'}.`,
+  }
+}
+
 const categoryBus = {
   ambience: 'ambience',
   hazard: 'hazards',
@@ -1011,7 +1048,7 @@ function createSynthForTone(tone, seed) {
 
 export class AudioEngine {
   constructor(settings = {}) {
-    this.settings = { ...categoryDefaults, ...settings }
+    this.settings = { ...settings, ...normalizeAudioMixSettings(settings) }
     this.enabled = false
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
@@ -1100,7 +1137,7 @@ export class AudioEngine {
   }
 
   setSettings(settings) {
-    this.settings = { ...this.settings, ...settings }
+    this.settings = { ...this.settings, ...settings, ...normalizeAudioMixSettings({ ...this.settings, ...settings }) }
     this.applySettings()
   }
 
