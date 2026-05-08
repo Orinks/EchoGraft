@@ -19,9 +19,10 @@ export function seedCarryState(inventory = [], selectedIndex = 0, limit = seedCa
 export function seedCarryText(inventory = [], selectedIndex = 0, limit = seedCarryLimit) {
   const carry = seedCarryState(inventory, selectedIndex, limit)
   const carriedNames = carry.carried.map((seed, index) => `${index + 1}. ${seed.name}`).join('; ') || 'none'
+  const selectedText = carry.selectedSeed ? `Selected seed: ${carry.selectedSeed.name}.` : 'Selected seed: none.'
   const reserveText = carry.reserveCount
     ? `${carry.reserveCount} seed voice(s) held in the library reserve.`
     : 'No seed voices in reserve.'
 
-  return `Seed carry limit: ${carry.carried.length} of ${carry.limit} carried. Carried: ${carriedNames}. ${reserveText}`
+  return `${selectedText} Seed carry limit: ${carry.carried.length} of ${carry.limit} carried. Carried: ${carriedNames}. ${reserveText}`
 }

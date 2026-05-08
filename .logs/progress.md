@@ -236,3 +236,4 @@
 - Continued with `omx ultragoal complete-goals` for `G206-endgame-network-music-is-literally-t`. Reworked ending music to derive phrase ratios, brightness, waveforms, and playback seeds from the player's solved/restored Ark chambers rather than all authored chambers.
 - Continued with `omx ultragoal complete-goals` for `G207-o-objective-current-system`. Hardened the `O` info command so it reports the current Ark system alongside the chamber objective, contract status, and active requirement.
 - Continued with `omx ultragoal complete-goals` for `G208-p-position-facing-progress`. Hardened the `P` info command so no-vision status includes position, facing, restoration progress, online Ark systems, and current resonance accuracy.
+- Continued with `omx ultragoal complete-goals` for `G209-i-selected-seed-and-inventory`. Hardened shared inventory text so the `I` info command names the selected seed before carried and reserve inventory status.

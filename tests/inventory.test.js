@@ -15,6 +15,7 @@ describe('seed carry limits', () => {
   })
 
   it('reports the active carry set for no-vision inventory checks', () => {
+    expect(seedCarryText(seeds, 1)).toContain('Selected seed: Lumen')
     expect(seedCarryText(seeds, 1)).toContain('Seed carry limit: 4 of 4 carried')
     expect(seedCarryText(seeds, 1)).toContain('1 seed voice(s) held in the library reserve')
   })

@@ -29,7 +29,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.keyboard.press('p')
   await expect(eventLog.getByText(/Position: .* facing .* Progress: 0 of \d+ contracts restored; 0 of \d+ Ark systems online/)).toBeVisible()
   await page.keyboard.press('i')
-  await expect(eventLog.getByText(/Inventory:/)).toBeVisible()
+  await expect(eventLog.getByText(/Inventory: Selected seed: Sol phonoseed\. Seed carry limit: \d+ of \d+ carried/)).toBeVisible()
   await page.keyboard.press('l')
   await expect(eventLog.getByText(/Latest log: Inventory:/)).toBeVisible()
   await page.keyboard.press('Shift+L')
