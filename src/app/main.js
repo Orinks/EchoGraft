@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
+import { alternateEndingPaths, chooseEndgameResolution, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, resolutionSpecificEnding, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -617,9 +617,12 @@ function evaluate() {
   persist()
   if (chamber.ending) {
     save.endgameResolution = chooseEndgameResolution(save).id
+    const alternateEndings = alternateEndingPaths(save)
+    save.alternateEndingIds = Array.from(new Set([...(save.alternateEndingIds ?? []), ...alternateEndings.availableIds]))
     const reflectionRewards = endingResolutionReflectionRewards(save)
     save = mergeEndingResolutionReflections(save)
     save.postgameUnlocked = true
+    log(alternateEndings.text, 'success')
     log(`Ending reflections recovered: ${reflectionRewards.recordIds.map((id) => availableCodexRecords()[id]?.title).filter(Boolean).join(', ')}.`, 'success')
     persist()
     audio.ending(chambers.filter((item) => save.solvedChambers.includes(item.id)), inventory, { restoredSystems: save.restoredSystems, solvedChambers: save.solvedChambers })
@@ -1398,6 +1401,7 @@ function ending() {
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const heartUnlock = heartNetworkEndingState(chambers, save)
   const embersapMutations = embersapEndgameMutationState(save)
+  const alternateEndings = alternateEndingPaths(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -1410,6 +1414,11 @@ function ending() {
       <p>${crewWakeCycle.text}</p>
       <p>${launchGarden.text}</p>
       <p>${embersapMutations.text}</p>
+      <section aria-labelledby="alternate-endings-title">
+        <h2 id="alternate-endings-title">Alternate Endings</h2>
+        <p>${alternateEndings.text}</p>
+        <ol>${alternateEndings.paths.map((path) => `<li>${path.text}${path.selected ? ' Selected finale path.' : ''}</li>`).join('')}</ol>
+      </section>
       <p>${finalChord.text}</p>
       <p>The repaired resonance gardens answer one another. Every grafted voice becomes part of a living orbital chord.</p>
       <button data-action="atlas">Return to atlas</button>

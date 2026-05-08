@@ -466,6 +466,7 @@ test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.getByRole('button', { name: 'Interact to Begin' }).click()
   await page.getByRole('button', { name: 'Ending resolution' }).click()
   await expect(page.getByText(/Resolution: Conservatory/)).toBeVisible()
+  await expect(page.getByText(/Alternate endings: .* selected path conservatory/)).toBeVisible()
   await page.getByRole('button', { name: 'Main menu' }).click()
   await page.getByRole('button', { name: 'Conservatory' }).click()
   await expect(page.getByRole('heading', { name: 'Conservatory' })).toBeVisible()

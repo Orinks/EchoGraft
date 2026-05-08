@@ -106,6 +106,13 @@ export const endingResolutionReflectionIds = {
   conservatory: ['ending-reflection-04', 'ending-reflection-05', 'ending-reflection-07', 'ending-reflection-08'],
 }
 
+export const alternateEndingRequirements = {
+  preservation: 'available through preservation philosophy or any careful Stable/Resonant restoration pattern',
+  adaptation: 'available through adaptation philosophy, heart graft work, or three unlocked graft mechanics',
+  release: 'available after Heart Root prepares launch garden dispersal',
+  conservatory: 'available after Heart Memory, broad Codex recovery, or a conservatory finale',
+}
+
 export function chooseEndgameResolution(save) {
   const solved = new Set(save.solvedChambers ?? [])
   if (solved.has('optional-heart-root')) return endgameResolutions.find((resolution) => resolution.id === 'release')
@@ -114,6 +121,34 @@ export function chooseEndgameResolution(save) {
   if (save.restorationPhilosophy === 'preservation') return endgameResolutions.find((resolution) => resolution.id === 'preservation')
   if (solved.has('optional-heart-graft') || (save.unlockedGraftMechanics?.length ?? 0) >= 3) return endgameResolutions.find((resolution) => resolution.id === 'adaptation')
   return endgameResolutions.find((resolution) => resolution.id === 'preservation')
+}
+
+export function alternateEndingPaths(save) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const availableById = {
+    preservation: save.restorationPhilosophy === 'preservation' || carefulRestorations > 0 || (save.postgameUnlocked && save.endgameResolution === 'preservation'),
+    adaptation: save.restorationPhilosophy === 'adaptation' || solved.has('optional-heart-graft') || (save.unlockedGraftMechanics?.length ?? 0) >= 3 || (save.postgameUnlocked && save.endgameResolution === 'adaptation'),
+    release: solved.has('optional-heart-root') || (save.postgameUnlocked && save.endgameResolution === 'release'),
+    conservatory: solved.has('optional-heart-memory') || (save.codexIds?.length ?? 0) >= 40 || (save.postgameUnlocked && save.endgameResolution === 'conservatory'),
+  }
+  const selected = save.endgameResolution ?? chooseEndgameResolution(save).id
+  const paths = endgameResolutions.map((resolution) => ({
+    ...resolution,
+    available: Boolean(availableById[resolution.id]),
+    requirement: alternateEndingRequirements[resolution.id],
+    selected: resolution.id === selected,
+    text: `${resolution.title}: ${availableById[resolution.id] ? 'available' : 'locked'}; ${alternateEndingRequirements[resolution.id]}.`,
+  }))
+  const availableIds = paths.filter((path) => path.available).map((path) => path.id)
+
+  return {
+    availableIds,
+    paths,
+    selected,
+    text: `Alternate endings: ${availableIds.length} of ${paths.length} path(s) available; selected path ${selected}.`,
+  }
 }
 
 export function endingResolutionReflectionRewards(save) {

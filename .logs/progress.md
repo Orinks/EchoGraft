@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G275-alternate-endings`. Added alternate ending path availability across Preservation, Adaptation, Release, and Conservatory, persisted unlocked alternate ending ids at finale resolution, and surfaced the available/locked paths on the ending screen.
 - Continued with `omx ultragoal complete-goals` for `G274-low-cycle-restoration-challenges`. Added Ark-clock low-cycle restoration challenges that show active/missed/achieved text in the Atlas and caption log, persist achieved challenge ids, and preserve no-vision feedback for efficient solves.
 - Continued with `omx ultragoal complete-goals` for `G273-conservatory-composition`. Added saved Conservatory composition snapshots so postgame compositions record mode, voice count, voice names, and readable playback text while preserving the live Syngen ending chord.
 - Repository was empty except `.omx`; initialized a Vite/Electron source layout based on the requested `app`, `engine`, and `content` organization.

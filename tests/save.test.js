@@ -17,6 +17,7 @@ describe('save system', () => {
     const save = createDefaultSave()
     save.arkClock = 2
     save.endgameResolution = 'preservation'
+    save.alternateEndingIds.push('preservation')
     save.solvedChambers.push('tutorial')
     save.environmentalChanges.push('Intake stabilized')
     save.plantedByChamber.tutorial = [{ id: 'sol', position: { x: 0, y: 0 } }]
@@ -48,6 +49,7 @@ describe('save system', () => {
     expect(loadSave(storage).solvedChambers).toEqual(['tutorial'])
     expect(loadSave(storage).arkClock).toBe(2)
     expect(loadSave(storage).endgameResolution).toBe('preservation')
+    expect(loadSave(storage).alternateEndingIds).toEqual(['preservation'])
     expect(loadSave(storage).environmentalChanges).toEqual(['Intake stabilized'])
     expect(loadSave(storage).plantedByChamber.tutorial).toHaveLength(1)
     expect(loadSave(storage).postgameUnlocked).toBe(true)
@@ -76,6 +78,7 @@ describe('save system', () => {
     const loaded = loadSave(storage)
     expect(loaded.arkClock).toBe(0)
     expect(loaded.endgameResolution).toBeNull()
+    expect(loaded.alternateEndingIds).toEqual([])
     expect(loaded.materials).toEqual({ biomass: 0, crystal: 0, dreamCompost: 0, embersap: 0, glassPollen: 0, memory: 0, mycelium: 0, resin: 0, spores: 0, archiveLoam: 0 })
     expect(loaded.environmentalChanges).toEqual([])
     expect(loaded.graftRecords).toEqual([])
