@@ -446,6 +446,65 @@ export class SeedVoice {
   }
 }
 
+export class HeartVoice {
+  constructor({ chamber = {}, player, result = {}, restored = false } = {}) {
+    this.chamber = chamber
+    this.target = chamber.target ?? { brightness: 0.45, phase: 0, pitchRatio: 1, pulseRate: 1, x: 0, y: 0 }
+    this.pulse = player ? scanPulse(player, this.target) : null
+    this.restored = restored || Boolean(result?.solved)
+    this.score = clamp(result?.score ?? (this.restored ? 1 : 0))
+    this.text = this.restored
+      ? `HeartVoice: ${chamber.title ?? 'chamber'} restored-state sound at ${this.target.x ?? 0}, ${this.target.y ?? 0}; consonance score ${this.score.toFixed(2)}.`
+      : `HeartVoice: chamber target sound at ${this.target.x ?? 0}, ${this.target.y ?? 0}; pulse ${this.target.pulseRate ?? 1}, brightness ${this.target.brightness ?? 0.45}.`
+  }
+
+  toVoicePayload() {
+    const brightness = this.restored
+      ? clamp((this.target.brightness ?? 0.45) + this.score * 0.3)
+      : this.pulse?.brightness ?? (this.target.brightness ?? 0.45)
+    const pulseRate = this.target.pulseRate ?? 1
+    const pitchRatio = this.target.pitchRatio ?? 1
+    const waveform = this.restored ? 'triangle' : 'sine'
+
+    return {
+      category: this.restored ? 'ui' : 'scan',
+      duration: this.restored ? 0.18 + this.score * 0.35 : this.pulse?.duration ?? durationFromPulse(pulseRate),
+      gain: dbGain(this.restored ? -8 : -10),
+      position: this.target,
+      seed: {
+        ...this.target,
+        brightness,
+        heartVoice: true,
+        oscillatorType: this.restored ? 'additive' : 'am',
+        pulseRate,
+        restored: this.restored,
+        waveform,
+      },
+      tone: {
+        brightness,
+        detune: phaseToDetune(this.target.phase ?? 0),
+        frequency: ratioToFrequency(pitchRatio * (this.restored ? 0.75 + this.score * 0.5 : 1), this.restored ? 50 : 52 + brightness * 12),
+        harmonic: this.restored
+          ? [
+              { coefficient: 1, gain: 1, type: 'triangle' },
+              { coefficient: 1 + this.score, gain: 0.35, type: 'triangle' },
+            ]
+          : [
+              { coefficient: 1, gain: 1, type: 'sine' },
+              { coefficient: pulseRate, gain: 0.25 + brightness * 0.45, type: 'triangle' },
+            ],
+        mode: this.restored ? 'additive' : 'additive',
+        pulseRate,
+        type: waveform,
+      },
+    }
+  }
+
+  play(engine) {
+    engine.voice(this.toVoicePayload())
+  }
+}
+
 const formantFactories = {
   createA: () => syngen.formant.createA(),
   createE: () => syngen.formant.createE(),
@@ -917,46 +976,11 @@ export class AudioEngine {
 
   scan(player, target) {
     this.updateListener(player)
-    const pulse = scanPulse(player, target)
-    this.voice({
-      category: 'scan',
-      duration: pulse.duration,
-      gain: dbGain(-10),
-      position: target,
-      tone: {
-        brightness: pulse.brightness,
-        detune: phaseToDetune(target.phase ?? 0),
-        frequency: ratioToFrequency(target.pitchRatio ?? 1, 52 + pulse.brightness * 12),
-        mode: 'additive',
-        pulseRate: target.pulseRate ?? 1,
-        type: 'sine',
-        harmonic: [
-          { coefficient: 1, gain: 1, type: 'sine' },
-          { coefficient: target.pulseRate ?? 1, gain: 0.25 + pulse.brightness * 0.45, type: 'triangle' },
-        ],
-      },
-    })
+    new HeartVoice({ chamber: { target }, player }).play(this)
   }
 
   resonance(result = {}, chamber = {}) {
-    const score = clamp(result.score ?? 0)
-    this.voice({
-      category: result.solved ? 'ui' : 'scan',
-      duration: 0.18 + score * 0.35,
-      gain: dbGain(result.solved ? -8 : -12),
-      position: chamber.target,
-      tone: {
-        brightness: clamp((chamber.target?.brightness ?? 0.45) + score * 0.3),
-        frequency: ratioToFrequency((chamber.target?.pitchRatio ?? 1) * (0.75 + score * 0.5), 50),
-        harmonic: [
-          { coefficient: 1, gain: 1, type: result.solved ? 'triangle' : 'sine' },
-          { coefficient: 1 + score, gain: 0.35, type: 'triangle' },
-        ],
-        mode: result.solved ? 'additive' : 'am',
-        pulseRate: chamber.target?.pulseRate ?? 1,
-        type: result.solved ? 'triangle' : 'sine',
-      },
-    })
+    new HeartVoice({ chamber, result }).play(this)
   }
 
   movement(player, previous, chamber = {}) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, HeartVoice, SeedVoice, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -126,6 +126,28 @@ describe('audio movement cues', () => {
     expect(voice.tick(audio, 22)).toBe(true)
     expect(played[0]).toMatchObject({ id: 'lumen', persistent: true, seedVoice: true })
     expect(voice.nextBeat).toBe(24)
+  })
+
+  it('models chamber target and restored cadence as a named HeartVoice', () => {
+    const chamber = chambers.find((item) => item.id === 'tutorial')
+    const targetVoice = new HeartVoice({ chamber, player: createPlayer(chamber.start) })
+    const restoredVoice = new HeartVoice({ chamber, result: { score: 1, solved: true } })
+
+    expect(targetVoice.text).toContain('HeartVoice: chamber target sound')
+    expect(targetVoice.toVoicePayload()).toMatchObject({
+      category: 'scan',
+      position: chamber.target,
+      seed: { heartVoice: true, restored: false },
+      tone: { type: 'sine' },
+    })
+
+    expect(restoredVoice.text).toContain('restored-state sound')
+    expect(restoredVoice.toVoicePayload()).toMatchObject({
+      category: 'ui',
+      position: chamber.target,
+      seed: { heartVoice: true, restored: true },
+      tone: { mode: 'additive', type: 'triangle' },
+    })
   })
 
   it('spatializes every footstep at the current player position', () => {
