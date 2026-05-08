@@ -21,6 +21,11 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Settings actions' })).toBeVisible()
   await expect(page.getByLabel('Master volume')).toBeVisible()
+  await page.getByLabel('Master volume').focus()
+  await page.keyboard.press('ArrowLeft')
+  await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Master volume set to/)).toBeVisible()
+  await page.getByLabel('Reduced motion').check()
+  await expect(page.getByLabel('Caption and event log').getByText(/Settings audio\/display update: Reduced motion set to on/)).toBeVisible()
   await page.getByRole('button', { name: 'Back to game' }).click()
 
   const eventLog = page.getByLabel('Caption and event log')
@@ -183,6 +188,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Codex' }).click()
   await expect(page.getByText(/Perception status: \d+ recovered\. Codex recovery:/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Codex perception actions' })).toBeVisible()
+  await expect(page.getByLabel('Caption and event log')).toBeVisible()
   await expect(page.getByRole('heading', { name: 'First Breath' })).toBeVisible()
 })
 

@@ -253,3 +253,4 @@
 - Continued with `omx ultragoal complete-goals` for `G223-settings`. Expanded Settings with a current audio/display status summary, clearer volume labels, grouped controls, and semantic actions navigation.
 - Continued with `omx ultragoal complete-goals` for `G224-manual`. Updated `MANUAL.md` to match the current controls, no-vision info commands, functions menus, Atlas, Seed Library, Codex, Settings, materials, and chamber families.
 - Continued with `omx ultragoal complete-goals` for `G225-no-vision-complete-play-path`. Added a dedicated e2e keyboard/no-HUD path that uses info commands, scan, movement, planting, caption-log feedback, and first-chamber restoration.
+- Continued with `omx ultragoal complete-goals` for `G226-captions-event-log-for-all-important`. Added a reusable caption-log surface to Codex, Help, and Settings screens, and made settings audio/display changes write explicit event-log feedback so menu audio changes have text equivalents.

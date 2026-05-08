@@ -39,6 +39,18 @@ const runtimeState = createSyngenStateBridge({
 })
 runtimeState.attach()
 
+const settingLabels = {
+  master: 'Master volume',
+  ambience: 'Ambience volume',
+  music: 'Music volume',
+  ui: 'UI volume',
+  seeds: 'Seed voice volume',
+  hazards: 'Hazard voice volume',
+  scans: 'Scan pulse volume',
+  reducedMotion: 'Reduced motion',
+  minimalVisual: 'Minimal visual mode',
+}
+
 function buildInventory() {
   const base = save.inventoryIds.map((id) => chamberSeeds[id]).filter(Boolean)
   return [...base, ...save.customSeeds]
@@ -106,6 +118,15 @@ function materialLedgerEntries() {
 
 function materialLedgerHtml() {
   return `<ul>${materialLedgerEntries().map((item) => `<li>${item.key}: ${item.value}; ${item.role}.</li>`).join('')}</ul>`
+}
+
+function captionLogHtml() {
+  return `
+    <section class="log" aria-label="Caption and event log" aria-live="polite">
+      <h2>Caption Log</h2>
+      <ol>${eventLog.entries.map((entry) => `<li class="${entry.type}">${entry.message}</li>`).join('')}</ol>
+    </section>
+  `
 }
 
 function availableCodexRecords() {
@@ -589,7 +610,7 @@ function updateSetting(key, value) {
   save.settings[key] = parsed
   audio.setSettings(save.settings)
   persist()
-  render()
+  log(`Settings audio/display update: ${settingLabels[key] ?? key} set to ${parsed === true ? 'on' : parsed === false ? 'off' : parsed}.`)
 }
 
 function cycleScanMode() {
@@ -1075,6 +1096,7 @@ function codex() {
         <button data-action="library">Seed library</button>
         <button data-action="game">Back to chamber</button>
       </nav>
+      ${captionLogHtml()}
     </main>
   `)
 }
@@ -1111,17 +1133,8 @@ function conservatory() {
 
 function settings() {
   audio.setMusicScene('menu')
-  const sliderLabels = {
-    master: 'Master volume',
-    ambience: 'Ambience volume',
-    music: 'Music volume',
-    ui: 'UI volume',
-    seeds: 'Seed voice volume',
-    hazards: 'Hazard voice volume',
-    scans: 'Scan pulse volume',
-  }
-  const sliders = Object.entries(sliderLabels)
-    .map(([key, label]) => `<label>${label}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
+  const sliders = ['master', 'ambience', 'music', 'ui', 'seeds', 'hazards', 'scans']
+    .map((key) => `<label>${settingLabels[key]}<input data-setting="${key}" type="range" min="0" max="1" step="0.05" value="${save.settings[key]}" /></label>`)
     .join('')
   shell(`
     <main class="screen" aria-labelledby="settings-title">
@@ -1142,6 +1155,7 @@ function settings() {
         <button data-action="game">Back to game</button>
         <button data-action="menu">Main menu</button>
       </nav>
+      ${captionLogHtml()}
     </main>
   `)
 }
@@ -1154,6 +1168,7 @@ function help() {
       <p>${controlsText()}</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
       <button data-action="game">Back to game</button>
+      ${captionLogHtml()}
     </main>
   `)
 }
