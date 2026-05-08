@@ -18,7 +18,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await page.getByRole('button', { name: 'Settings' }).click()
   await expect(page.getByRole('heading', { name: 'Settings' })).toBeVisible()
   await expect(page.getByLabel('Settings controls')).toBeVisible()
-  await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off; high contrast off; scan verbosity detailed/)).toBeVisible()
+  await expect(page.getByText(/Audio mix: master .* Reduced motion off; minimal visual mode off; high contrast off; scan verbosity detailed; text-only hints off/)).toBeVisible()
   await expect(page.getByRole('navigation', { name: 'Settings actions' })).toBeVisible()
   await expect(page.getByText(/Adjust master, ambience, music, UI, seed voice, hazard voice, and scan pulse levels independently/)).toBeVisible()
   await expect(page.getByLabel('Master volume')).toBeVisible()
@@ -278,6 +278,26 @@ test('supports concise scan verbosity', async ({ page }) => {
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Objective scan: heart .* Required changes:/)).toBeVisible()
   await expect(eventLog.getByText(/Target traits:/)).toHaveCount(0)
+})
+
+test('supports optional text-only chamber hints', async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem('echograft-save-v1', JSON.stringify({
+      version: 1,
+      currentChamberId: 'tutorial',
+      inventoryIds: ['sol', 'lumen', 'umbra'],
+      customSeeds: [],
+      plantedByChamber: {},
+      settings: { textOnlyHints: true },
+    }))
+  })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'Continue' }).click()
+
+  await expect(page.getByRole('heading', { name: 'Text-Only Chamber Hints' })).toBeVisible()
+  await expect(page.getByText(/Hint: Plant 1 more seed/)).toBeVisible()
+  await expect(page.getByText(/Objective: Move, scan the chamber heart, plant Sol/)).toBeVisible()
 })
 
 test('opens the postgame conservatory when unlocked', async ({ page }) => {

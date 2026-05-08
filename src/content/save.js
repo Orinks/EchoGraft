@@ -79,6 +79,7 @@ export function createDefaultSave() {
       minimalVisual: false,
       highContrast: false,
       scanVerbosity: 'detailed',
+      textOnlyHints: false,
     },
     keyboardBindings: defaultKeyboardBindings,
   }

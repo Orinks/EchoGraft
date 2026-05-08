@@ -51,6 +51,7 @@ const settingLabels = {
   minimalVisual: 'Minimal visual mode',
   highContrast: 'High contrast',
   scanVerbosity: 'Scan verbosity',
+  textOnlyHints: 'Text-only chamber hints',
 }
 
 const keyBindingLabels = {
@@ -371,7 +372,7 @@ function atlasStatusText() {
 }
 
 function settingsStatusText() {
-  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}; high contrast ${save.settings.highContrast ? 'on' : 'off'}; scan verbosity ${save.settings.scanVerbosity}.`
+  return `Audio mix: master ${save.settings.master}, ambience ${save.settings.ambience}, music ${save.settings.music}, UI ${save.settings.ui}, seeds ${save.settings.seeds}, hazards ${save.settings.hazards}, scans ${save.settings.scans}. Reduced motion ${save.settings.reducedMotion ? 'on' : 'off'}; minimal visual mode ${save.settings.minimalVisual ? 'on' : 'off'}; high contrast ${save.settings.highContrast ? 'on' : 'off'}; scan verbosity ${save.settings.scanVerbosity}; text-only hints ${save.settings.textOnlyHints ? 'on' : 'off'}.`
 }
 
 function graftingBenchText() {
@@ -404,6 +405,17 @@ function scan() {
   if (scanMode === 'hazards') log(hazardScanState(chamber, plantedSeeds).text)
   if (scanMode === 'memory') log(memoryScanState(chamber, save, availableCodexRecords()).text)
   if (scanMode === 'network') log(networkScanState(multiChamberResonanceNetwork(chambers, save), heartNetworkEndingState(chambers, save), playerBuiltFinalChord(chambers, save, inventory)).text)
+}
+
+function textOnlyHintHtml() {
+  if (!save.settings.textOnlyHints) return ''
+  return `
+    <section aria-labelledby="text-hints-title">
+      <h2 id="text-hints-title">Text-Only Chamber Hints</h2>
+      <p>Hint: ${requiredChangesText()}</p>
+      <p>Objective: ${chamber.objective}</p>
+    </section>
+  `
 }
 
 function plantOrPickUp() {
@@ -632,7 +644,7 @@ async function beginFromSplash() {
 }
 
 function updateSetting(key, value) {
-  const parsed = ['reducedMotion', 'minimalVisual', 'highContrast', 'scanVerbosity'].includes(key) ? value : Number(value)
+  const parsed = ['reducedMotion', 'minimalVisual', 'highContrast', 'textOnlyHints', 'scanVerbosity'].includes(key) ? value : Number(value)
   save.settings[key] = parsed
   audio.setSettings(save.settings)
   persist()
@@ -860,6 +872,7 @@ function game() {
           ${plantedSeeds.map((seed) => `<div class="seed" style="left:${50 + seed.position.x * 8}%;top:${50 - seed.position.y * 8}%"></div>`).join('')}
         </div>
         <aside>
+          ${textOnlyHintHtml()}
           <h2>Actions</h2>
           <button data-action="listen">Listen</button>
           <button data-action="locate">Locate heart</button>
@@ -1219,6 +1232,7 @@ function settings() {
           <label><input data-setting="reducedMotion" type="checkbox" ${save.settings.reducedMotion ? 'checked' : ''} /> Reduced motion</label>
           <label><input data-setting="minimalVisual" type="checkbox" ${save.settings.minimalVisual ? 'checked' : ''} /> Minimal visual mode</label>
           <label><input data-setting="highContrast" type="checkbox" ${save.settings.highContrast ? 'checked' : ''} /> High contrast</label>
+          <label><input data-setting="textOnlyHints" type="checkbox" ${save.settings.textOnlyHints ? 'checked' : ''} /> Text-only chamber hints</label>
         </fieldset>
         <fieldset>
           <legend>Remappable keyboard</legend>
