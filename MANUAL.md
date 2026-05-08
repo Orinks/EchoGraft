@@ -9,15 +9,44 @@ Some chambers need more than one planted seed. Press Tab or number keys to chang
 
 The main campaign has no mandatory reflex timing. You can scan, read the log, tune, reset, and try again at your own pace.
 
+## No-Vision Reference
+- Press O for the current objective, system, contract state, and missing requirement.
+- Press P for position, facing, restored contract count, online Ark systems, and resonance accuracy.
+- Press I for selected seed, carried seeds, reserve count, and materials.
+- Press L for the latest meaningful log entry, or Shift+L for a numbered recent-log replay.
+- Press X for chamber boundaries and the safe return point.
+- Press V for planted seed voices, tuning state, spatial radius, nearby interactions, and growth timing.
+- Press C for codex/perception recovery and current memory-scan state.
+- Press ? for the complete controls reminder.
+
+## Functions Menus
+Escape opens the Pause Functions menu. From there you can resume the chamber, open the Restoration Atlas, Seed Library, Codex perceptions, Settings, Help, or Main menu.
+
+The Restoration Atlas is the campaign planning surface. It lists progress, active work, next available contract, materials, major Ark systems, stewardship review, route planning, optional returns, codex recovery, central-heart state, endgame philosophy, and work-order buttons.
+
+The Seed Library is the seed, tuning, and grafting surface. It shows carried and reserve seeds, selected seed DNA, material uses, seed collection appraisal, tuning controls, the Grafting Bench, unlocked graft mechanics, seed families, and preview/graft/navigation actions.
+
+The Codex tracks recovered perceptions and record trees. It reports current recovery count, next available perception, memory echoes, and recovered record text.
+
+Settings contains independent volume controls for master, ambience, music, UI, seed voices, hazards, and scans, plus reduced-motion and minimal-visual modes.
+
+## Materials
+- Biomass supports basic restoration growth and repair work.
+- Crystal supports bright structural tuning and reflective chambers.
+- Spores are the common tuning currency.
+- Resin locks seed traits before tuning or grafting.
+- Mycelium supports graft stability and root networks.
+- Glass pollen unlocks brightness and timbre inheritance traits.
+- Archive loam reveals hidden ancestry and seed lineage.
+- Dream compost supports safer graft experiments and failed-graft recovery.
+- Embersap powers endgame mutation choices after Wild restorations.
+- Memory supports codex recovery and historical chamber work.
+
 ## Chamber Guide
-- Tutorial: learn movement, scan, and planting.
-- Heart Echo: repeat scans while moving to the heart.
-- Direction: use scan panning and distance.
-- Pitch: tune pitch ratio.
-- Rhythm: tune pulse rate.
-- Timbre: tune brightness.
-- Harmony: plant two seeds together.
-- Phase: tune phase for cancellation.
-- Graft: create and use a hybrid seed.
-- Mold: avoid forbidden interval tones.
-- Finale: combine all learned mechanics.
+- Training and Intake contracts teach movement, scan, planting, pressure, and oxygen restoration.
+- Navigation contracts teach direction, distance, compass cues, and atlas planning.
+- Water and Rootworks contracts teach current navigation, pulse routing, multiple seed positions, and root-network support.
+- Canopy contracts teach brightness, timbre, photosynthesis doors, thermal shutters, and glass-weather timing.
+- Memory and Research contracts teach codex recovery, phase, hidden echoes, ancestry, rare seed lines, and graft discovery.
+- Emergency contracts introduce hazards such as forbidden intervals, drought pockets, static bloom, phase fog, and soft planning pressure without reflex-timing requirements.
+- Finale contracts combine restored systems, seed voices, grafts, materials, codex records, and restoration philosophy into the Verdancy Ark ending network.
