@@ -84,6 +84,30 @@ function materialsText() {
   return Object.entries(save.materials).map(([key, value]) => `${key} ${value}`).join(', ')
 }
 
+function materialLedgerEntries() {
+  const roles = {
+    biomass: 'basic restoration growth and repair work',
+    crystal: 'bright structural tuning and reflective chambers',
+    dreamCompost: 'safer graft experiments and failed-graft recovery',
+    embersap: 'endgame mutation choices after Wild restorations',
+    glassPollen: 'brightness and timbre inheritance traits',
+    memory: 'codex recovery and historical chamber work',
+    mycelium: 'graft stability and root network support',
+    resin: 'locking seed traits before tuning or grafting',
+    spores: 'common tuning currency',
+    archiveLoam: 'hidden ancestry and seed lineage reveals',
+  }
+  return Object.entries(save.materials).map(([key, value]) => ({
+    key,
+    role: roles[key] ?? 'restoration support',
+    value,
+  }))
+}
+
+function materialLedgerHtml() {
+  return `<ul>${materialLedgerEntries().map((item) => `<li>${item.key}: ${item.value}; ${item.role}.</li>`).join('')}</ul>`
+}
+
 function availableCodexRecords() {
   return {
     ...codexRecords,
@@ -817,6 +841,10 @@ function atlas() {
     <main class="screen atlas" aria-labelledby="atlas-title">
       <h1 id="atlas-title">Restoration Atlas</h1>
       <p>Season 1 contracts: ${save.solvedChambers.length} restored. Materials: ${materialsText()}.</p>
+      <section aria-labelledby="materials-title">
+        <h2 id="materials-title">Materials Ledger</h2>
+        ${materialLedgerHtml()}
+      </section>
       <p>Systems online: ${save.restoredSystems.join(', ') || 'none yet'}.</p>
       <p>Environmental changes: ${save.environmentalChanges.join('; ') || 'none yet'}.</p>
       <p>Ark clock: cycle ${save.arkClock}.</p>
@@ -966,6 +994,10 @@ function library() {
       <h1 id="library-title">Seed Library</h1>
       <p>${seedCarryText(inventory, selectedSeedIndex)}</p>
       <p>Selected tuning: ${tuningLabel(currentTuningParameter())}. Materials: ${materialsText()}.</p>
+      <section aria-labelledby="library-materials-title">
+        <h2 id="library-materials-title">Materials Ledger</h2>
+        ${materialLedgerHtml()}
+      </section>
       <section aria-labelledby="appraisal-title">
         <h2 id="appraisal-title">Seed Collection Appraisal</h2>
         <p>Gathered voices: ${appraisal.gathered}. Identified families: ${appraisal.identifiedFamilies.join(', ')}.</p>
