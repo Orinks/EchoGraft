@@ -230,3 +230,4 @@
 - Continued with `omx ultragoal complete-goals` for `G200-success-cadence`. Audited the solved-resonance audio route and added explicit success cadence metadata to restored `HeartVoice` payloads while preserving the restored system drone layer.
 - Continued with `omx ultragoal complete-goals` for `G201-optional-memory-whisper-formant`. Audited the existing `MemoryVoice` talkbox route and added explicit optional memory whisper/formant markers to its seed and tone payloads.
 - Continued with `omx ultragoal complete-goals` for `G202-restored-systems-add-layers`. Wired restored Ark systems into the chamber music scene so their drone profiles add harmonic brightness and waveform layers after restoration.
+- Continued with `omx ultragoal complete-goals` for `G203-solved-rooms-modulate-toward-consona`. Added solved-chamber consonance modulation so restored rooms bias music toward additive synthesis, octave closure, slower phase motion, and longer sustain.

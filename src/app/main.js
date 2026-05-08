@@ -142,7 +142,7 @@ function importRuntimeState(state = {}) {
   plantedSeeds = state.plantedSeeds ?? loadPlanted(chamber.id)
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.updateListener(player)
-  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems })
+  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems, solved: save.solvedChambers.includes(chamber.id) })
   render()
 }
 
@@ -182,7 +182,7 @@ function startChamber(nextChamber = chamber) {
   persist()
   screen = 'game'
   audio.updateListener(player)
-  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems })
+  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems, solved: save.solvedChambers.includes(chamber.id) })
   log(`${chamber.title}. ${chamber.objective}`)
 }
 
@@ -221,7 +221,7 @@ function rotate(degrees) {
 }
 
 function listen() {
-  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems })
+  audio.chamber(chamber, plantedSeeds, { restoredSystems: save.restoredSystems, solved: save.solvedChambers.includes(chamber.id) })
   const planted = plantedSeeds.length ? `${plantedSeeds.length} planted seed voice(s)` : 'no planted seed voices'
   const status = lastResult.solved ? 'restored' : lastResult.accuracy.text
   const cycle = chamberCycleState(chamber, save.arkClock)
@@ -417,7 +417,7 @@ function setTuningParameter(parameter) {
 function evaluate() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.resonance(lastResult, chamber)
-  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems })
+  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems, solved: save.solvedChambers.includes(chamber.id) })
   if (lastResult.missing.some((message) => message.includes('Mold'))) audio.hazard(chamber, plantedSeeds.at(-1))
   if (!lastResult.solved) {
     persist()
@@ -428,7 +428,7 @@ function evaluate() {
   const rating = save.wildChamberIds?.includes(chamber.id) ? 'Wild' : restorationRating(lastResult)
   if (firstSolve) save.solvedChambers.push(chamber.id)
   if (firstSolve && !save.restoredSystems.includes(chamber.system)) save.restoredSystems.push(chamber.system)
-  if (firstSolve) audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems })
+  if (firstSolve) audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems, solved: true })
   const environmentalChange = `${chamber.system}: ${chamber.title} stabilized with ${rating} resonance`
   if (firstSolve && !save.environmentalChanges.includes(environmentalChange)) save.environmentalChanges.push(environmentalChange)
   const gatheredSeedNames = (chamber.rewards?.seeds ?? []).filter((id) => !save.inventoryIds.includes(id)).map((id) => chamberSeeds[id]?.name ?? id)
@@ -469,7 +469,7 @@ function evaluate() {
 function evaluateReport() {
   lastResult = evaluateResonance(chamber, plantedSeeds)
   audio.resonance(lastResult, chamber)
-  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems })
+  audio.setMusicScene('game', { chamber, plantedSeeds, resonance: lastResult, restoredSystems: save.restoredSystems, solved: save.solvedChambers.includes(chamber.id) })
   const photosynthesis = lastResult.photosynthesis ? ` ${lastResult.photosynthesis.text}` : ''
   const pressureSails = lastResult.pressureSails ? ` ${lastResult.pressureSails.text}` : ''
   const thermalShutters = lastResult.thermalShutters ? ` ${lastResult.thermalShutters.text}` : ''

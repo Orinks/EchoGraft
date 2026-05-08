@@ -259,6 +259,20 @@ describe('audio movement cues', () => {
     expect(phrase.waveforms).toEqual(expect.arrayContaining(['sine', 'triangle']))
   })
 
+  it('modulates solved chamber music toward consonance', () => {
+    const chamber = chambers.find((item) => item.hazards?.length)
+    const audio = new AudioEngine()
+
+    audio.setMusicScene('game', { chamber, resonance: { score: 1, solved: true }, solved: true })
+    const phrase = audio.createChamberMusicPhrase()
+
+    expect(phrase.consonanceModulation).toBe(true)
+    expect(phrase.harmonics.at(-1)).toBe(2)
+    expect(phrase.mode).toBe('additive')
+    expect(phrase.phaseMotion).toBe(2)
+    expect(phrase.sustain).toBe(2.6)
+  })
+
   it('models player movement feedback as a named StepVoice', () => {
     const chamber = chambers.find((item) => item.id === 'tutorial')
     const previous = createPlayer(chamber.start)
