@@ -450,7 +450,7 @@ export const chambers = [
     requiredSeeds: 1,
     solveTimeMinutes: { min: 5, max: 6 },
     tolerances: { position: 1.5, pitchRatio: 0.15, pulseRate: 0.4, brightness: 0.2, phase: 180 },
-    rewards: { codex: ['first-breath', 'gardener-note-01', 'crew-message-12', 'plant-memory-01', 'seed-ancestry-01'], materials: { biomass: 1, spores: 1 } },
+    rewards: { codex: ['first-breath', 'gardener-note-01', 'crew-message-12', 'plant-memory-01', 'seed-ancestry-01', 'story-payoff-01'], materials: { biomass: 1, spores: 1 } },
   },
   {
     id: 'direction',
@@ -573,7 +573,7 @@ export const chambers = [
     solveTimeMinutes: { min: 7, max: 9 },
     tolerances: { position: 1.5, pitchRatio: 0.25, pulseRate: 0.6, brightness: 0.3, phase: 20 },
     requires: ['timbre'],
-    rewards: { codex: ['quiet-mirror', 'crew-message-05', 'plant-memory-03', 'system-diagnostic-05', 'seed-ancestry-03'], materials: { memory: 2 } },
+    rewards: { codex: ['quiet-mirror', 'crew-message-05', 'plant-memory-03', 'system-diagnostic-05', 'seed-ancestry-03', 'story-payoff-02'], materials: { memory: 2 } },
   },
   {
     id: 'graft',
@@ -610,7 +610,7 @@ export const chambers = [
     hazards: [{ pitchRatio: 0.75, radius: 0.2, message: 'Mold rejects the low fourth interval.' }],
     emergency: { softDeadlineMinutes: 10, consequence: 'mold pressure spreads if the low interval is not contained before the planning window closes' },
     requires: ['phase'],
-    rewards: { codex: ['mold-pressure', 'gardener-note-08', 'crew-message-11', 'plant-memory-04', 'seed-ancestry-04'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
+    rewards: { codex: ['mold-pressure', 'gardener-note-08', 'crew-message-11', 'plant-memory-04', 'seed-ancestry-04', 'story-payoff-03'], materials: { biomass: 1, memory: 1, spores: 2 }, seeds: ['spire'] },
   },
   {
     id: 'finale',
@@ -632,7 +632,7 @@ export const chambers = [
       systems: ['Intake', 'Navigation', 'Water', 'Canopy', 'Memory', 'Heart'],
     },
     requires: ['mold'],
-    rewards: { codex: ['verdancy-heart', 'gardener-note-06', 'crew-message-09', 'system-diagnostic-06'], materials: { biomass: 3, crystal: 2, memory: 2 } },
+    rewards: { codex: ['verdancy-heart', 'gardener-note-06', 'crew-message-09', 'system-diagnostic-06', 'story-payoff-04'], materials: { biomass: 3, crystal: 2, memory: 2 } },
     ending: true,
   },
   {
@@ -1101,7 +1101,7 @@ export const chambers = [
     solveTimeMinutes: { min: 8, max: 10 },
     tolerances: { position: 1.4, pitchRatio: 0.14, pulseRate: 0.22, brightness: 0.12, phase: 45 },
     requires: ['orchard-gate'],
-    rewards: { codex: ['gardener-note-12', 'crew-message-07', 'crew-message-10'], materials: { biomass: 2, crystal: 1, memory: 1 } },
+    rewards: { codex: ['gardener-note-12', 'crew-message-07', 'crew-message-10', 'story-payoff-05'], materials: { biomass: 2, crystal: 1, memory: 1 } },
   },
   {
     id: 'optional-heart-glass',
@@ -1152,7 +1152,7 @@ export const chambers = [
     tolerances: { position: 1.3, pitchRatio: 0.12, pulseRate: 0.2, brightness: 0.12, phase: 30 },
     optional: true,
     requires: ['heart-atria'],
-    rewards: { materials: { memory: 3 } },
+    rewards: { codex: ['story-payoff-06'], materials: { memory: 3 } },
   },
   {
     id: 'optional-heart-graft',
@@ -1171,7 +1171,7 @@ export const chambers = [
     optional: true,
     researchReveal: { kind: 'seed family', name: 'hybrid' },
     requires: ['heart-atria'],
-    rewards: { materials: { biomass: 1, crystal: 1, memory: 2 } },
+    rewards: { codex: ['story-payoff-08'], materials: { biomass: 1, crystal: 1, memory: 2 } },
   },
   {
     id: 'postgame-conservatory',
@@ -1192,7 +1192,7 @@ export const chambers = [
       curation: 'choosing recovered seed voices for the living archive',
     },
     requires: ['finale'],
-    rewards: { codex: ['system-diagnostic-10', 'gardener-note-11'], materials: { memory: 2 } },
+    rewards: { codex: ['system-diagnostic-10', 'gardener-note-11', 'story-payoff-07'], materials: { memory: 2 } },
   },
 ]
 
@@ -1278,6 +1278,14 @@ const codexPerceptions = Object.fromEntries([
   ['perception-06', { title: 'Perception 06', text: 'The player is learning a garden by ear, not passing an audio reflex test.' }],
   ['perception-07', { title: 'Perception 07', text: 'Optional scan verbosity exists because mastery should never require memorizing hidden state.' }],
   ['perception-08', { title: 'Perception 08', text: 'A good work order says what is broken, what is risky, and why restoring it matters.' }],
+  ['story-payoff-01', { title: 'Story Payoff 01', text: 'The first restored breath identifies the player as the Ark caretaker: not a passenger, not an intruder, but the listener trusted to choose what care means.' }],
+  ['story-payoff-02', { title: 'Story Payoff 02', text: 'Quiet Mirror proves the Ark protected absence on purpose. Silence is not missing data; it is consent waiting for the right restoration.' }],
+  ['story-payoff-03', { title: 'Story Payoff 03', text: 'Mold Pressure reframes failure as an ecosystem under stress, closing the sabotage suspicion unless later choices make harm deliberate.' }],
+  ['story-payoff-04', { title: 'Story Payoff 04', text: 'Verdancy Heart turns restored chambers into a final chord, so every rating, wild interval, and recovered record becomes ending evidence.' }],
+  ['story-payoff-05', { title: 'Story Payoff 05', text: 'Heart Atria makes the sleeping crew a responsibility rather than a prize. Revival must answer consent, ecology, and the player-built instrument.' }],
+  ['story-payoff-06', { title: 'Story Payoff 06', text: 'Memory carried into the heart lets preservation and adaptation argue with witnesses instead of doctrine.' }],
+  ['story-payoff-07', { title: 'Story Payoff 07', text: 'The Conservatory ending pays off collection by keeping recovered seed voices playable after the campaign, not sealed behind completion.' }],
+  ['story-payoff-08', { title: 'Story Payoff 08', text: 'A grafted heart path confirms hybrid futures are legitimate endings when the player has made inheritance stable enough to trust.' }],
 ])
 
 export const codexRecords = {
@@ -1348,6 +1356,7 @@ export const codexRecordTreeBranches = [
   { id: 'seed-ancestry', title: 'Seed Ancestry', prefix: 'seed-ancestry' },
   { id: 'ending-reflections', title: 'Ending Reflections', prefix: 'ending-reflection' },
   { id: 'perceptions', title: 'Perceptions', prefix: 'perception' },
+  { id: 'story-payoffs', title: 'Story Payoffs', prefix: 'story-payoff' },
 ]
 
 export function codexRecordTrees(records = codexRecords, unlockedIds = Object.keys(records)) {

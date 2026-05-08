@@ -1369,6 +1369,46 @@ export function codexCompletionState(save = {}, records = codexRecords) {
   }
 }
 
+export function codexStoryPayoffState(save = {}, records = codexRecords) {
+  const recovered = new Set(save.codexIds ?? [])
+  const arcs = [
+    { id: 'caretaker', recordId: 'story-payoff-01', title: 'Caretaker identity', locked: 'restore the first breath to learn who the Ark thinks the player is' },
+    { id: 'consent', recordId: 'story-payoff-02', title: 'Protected silence', locked: 'restore Quiet Mirror to learn why absence matters' },
+    { id: 'failure', recordId: 'story-payoff-03', title: 'Failure without sabotage', locked: 'contain Mold Pressure to test the sabotage theory' },
+    { id: 'final-chord', recordId: 'story-payoff-04', title: 'Final chord evidence', locked: 'restore Verdancy Heart to connect ratings to endings' },
+    { id: 'crew', recordId: 'story-payoff-05', title: 'Crew consent', locked: 'prime Heart Atria before treating revival as a reward' },
+    { id: 'witnesses', recordId: 'story-payoff-06', title: 'Memory witnesses', locked: 'carry Memory into the heart for ending testimony' },
+    { id: 'conservatory', recordId: 'story-payoff-07', title: 'Living archive', locked: 'open the Conservatory to keep recovered voices playable' },
+    { id: 'hybrid-future', recordId: 'story-payoff-08', title: 'Hybrid future', locked: 'prepare a grafted heart path to legitimate hybrid endings' },
+  ]
+  const entries = arcs.map((arc) => {
+    const record = records[arc.recordId]
+    const unlocked = recovered.has(arc.recordId)
+
+    return {
+      ...arc,
+      record,
+      unlocked,
+      text: unlocked
+        ? `${arc.title}: ${record?.text ?? 'Recovered story payoff.'}`
+        : `${arc.title}: locked until you ${arc.locked}.`,
+    }
+  })
+  const unlocked = entries.filter((entry) => entry.unlocked)
+  const next = entries.find((entry) => !entry.unlocked)
+
+  return {
+    complete: unlocked.length === entries.length,
+    entries,
+    next,
+    total: entries.length,
+    unlockedCount: unlocked.length,
+    text: next
+      ? `Story payoff: ${unlocked.length} of ${entries.length} arc record(s) recovered; next ${next.title.toLowerCase()} when you ${next.locked}.`
+      : `Story payoff complete: all ${entries.length} arc record(s) recovered, so the Codex can explain player identity, consent, failure, endings, and postgame collection.`,
+  }
+}
+
 export function memoryCodexEchoState(chambers, save = {}) {
   const restoredSystems = save.restoredSystems ?? []
   const solved = new Set(save.solvedChambers ?? [])
