@@ -703,6 +703,56 @@ export function canopyDoorState(chambers, save = {}) {
   }
 }
 
+export function firstFourArkSystemsState(chambers, save = {}) {
+  const restoredSystems = save.restoredSystems ?? []
+  const solved = new Set(save.solvedChambers ?? [])
+  const systems = [
+    {
+      id: 'intake',
+      name: 'Intake',
+      contract: chambers.find((chamber) => chamber.id === 'direction'),
+      online: restoredSystems.includes('Intake') || solved.has('direction'),
+      unlock: 'longer scan range and pressure awareness',
+    },
+    {
+      id: 'navigation',
+      name: 'Navigation',
+      contract: chambers.find((chamber) => chamber.id === 'binaural'),
+      online: navigationAtlasState(chambers, save).navigationOnline,
+      unlock: 'atlas previews, objective scan, and chamber compass cues',
+    },
+    {
+      id: 'water',
+      name: 'Water',
+      contract: chambers.find((chamber) => chamber.id === 'pitch'),
+      online: waterRootRoutingState(chambers, save).waterOnline,
+      unlock: 'current navigation and root contract routing',
+    },
+    {
+      id: 'canopy',
+      name: 'Canopy',
+      contract: chambers.find((chamber) => chamber.id === 'rhythm'),
+      online: canopyDoorState(chambers, save).canopyOnline,
+      unlock: 'brightness tuning and photosynthesis doors',
+    },
+  ].map((system) => ({
+    ...system,
+    ready: Boolean(system.contract?.id && system.contract?.objective && system.contract?.rewards?.codex?.length),
+    text: `${system.name}: ${system.contract?.title ?? 'contract missing'}; ${system.unlock}; ${system.online ? 'online' : 'awaiting restoration'}.`,
+  }))
+  const ready = systems.every((system) => system.ready)
+  const onlineCount = systems.filter((system) => system.online).length
+
+  return {
+    onlineCount,
+    ready,
+    systems,
+    text: ready
+      ? `Intake, Navigation, Water, and Canopy systems ready: ${systems.length} authored contracts with unlocks; ${onlineCount} online in the current save.`
+      : `Intake, Navigation, Water, and Canopy systems incomplete: ${systems.filter((system) => !system.ready).map((system) => system.name).join(', ')}.`,
+  }
+}
+
 export function firstFullCampaignEstimate(scope) {
   const requiredContracts = scope.seasons.reduce((total, season) => total + season.requiredContracts, 0)
   const optionalContracts = scope.seasons.reduce((total, season) => total + season.optionalContracts, 0)

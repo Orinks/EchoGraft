@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G299-intake-navigation-water-canopy-syste`. Added an Intake/Navigation/Water/Canopy systems state that verifies the first functional arc's authored contracts, unlock promises, and current online count, then surfaced it in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G298-on-demand-info-commands-complete`. Added an on-demand info command completeness state for objective, position, inventory, latest log, recent log, boundaries, planted voices, codex, and controls, then surfaced the bindings in the chamber UI.
 - Continued with `omx ultragoal complete-goals` for `G297-boundary-objective-scan-v1`. Added a combined Boundary/Objective Scan V1 state that verifies heart bearing, scan range, chamber edges, exits, safe return, Navigation context, and captioned scan actions, then surfaced it in the chamber action panel.
 - Continued with `omx ultragoal complete-goals` for `G296-grafting-bench-v1`. Added a Grafting Bench V1 readiness state that verifies two-parent setup, inheritance rules, material modifiers, useful failed graft recovery, discovery payoff, and captioned reversible actions, then surfaced it in the Seed Library.

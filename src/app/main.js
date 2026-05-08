@@ -7,7 +7,7 @@ import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/invent
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
 import { createPlayer, movePlayer, movementFeedback, rotatePlayer, waterRoutedChamber } from '../content/player.js'
-import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
+import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFourArkSystemsState, firstFullCampaignEstimate, freeCompositionConservatory, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, playerBuiltFinalChord, pollinatorVaultSummary, resourceDeadEndState, resourceEfficiencySummary, restorationAtlasV1State, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedLibraryMenuState, seedMoveSummary, stewardshipSummary, waterRootRoutingState } from '../content/resonance.js'
 import { boundaryObjectiveScanV1State, boundaryScanState, chamberCompassCue, hazardScanState, heartScanState, memoryScanState, navigationScanState, networkScanState, scanLogFeedbackState, scanPulse, scanRangeState, seedScanState } from '../content/scan.js'
 import { setProceduralSeed } from '../content/rng.js'
 import { clearSave, createDefaultSave, defaultKeyboardBindings, loadSave, onDemandInfoCommandState, resetChamberProgress, resetWithoutPunishmentText, saveGame } from '../content/save.js'
@@ -1071,6 +1071,7 @@ function atlas() {
   const navigationAtlas = navigationAtlasState(chambers, save)
   const waterRouting = waterRootRoutingState(chambers, save)
   const canopyDoors = canopyDoorState(chambers, save)
+  const firstFourSystems = firstFourArkSystemsState(chambers, save)
   const finalChord = playerBuiltFinalChord(chambers, save, inventory)
   const finalEcology = finalEcologyPhilosophySummary(save)
   const restoredEcology = restoredEcologyQuestionState(save)
@@ -1120,6 +1121,13 @@ function atlas() {
         <ul>
           ${majorArkSystems.map((system) => `<li>${system.name}: ${system.unlock}.</li>`).join('')}
         </ul>
+      </section>
+      <section aria-labelledby="first-four-systems-title">
+        <h2 id="first-four-systems-title">Intake Navigation Water Canopy Systems</h2>
+        <p>${firstFourSystems.text}</p>
+        <ol>
+          ${firstFourSystems.systems.map((system) => `<li>${system.text}</li>`).join('')}
+        </ol>
       </section>
       <section aria-labelledby="stewardship-title">
         <h2 id="stewardship-title">Stewardship Review</h2>
