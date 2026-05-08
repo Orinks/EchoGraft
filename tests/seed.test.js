@@ -239,6 +239,24 @@ describe('seed DNA', () => {
     expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'breathing' })
   })
 
+  it('gives Spire seeds a saw altitude canopy access archetype', () => {
+    const seed = createSeedDNA('spire-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.85,
+      ecologicalAffinity: 'altitude and canopy access',
+      family: 'Spire',
+      growthBehavior: 'climbing',
+      oscillatorType: 'fm',
+      phase: 270,
+      pitchRatio: 2,
+      pulseRate: 3,
+      waveform: 'sawtooth',
+    })
+    expect(seedWaveformState(seed, ['sawtooth'])).toMatchObject({ matchesRequirement: true, waveform: 'sawtooth' })
+    expect(seedGrowthBehaviorState(seed)).toMatchObject({ behavior: 'climbing' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)

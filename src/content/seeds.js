@@ -65,6 +65,15 @@ const seedFamilyDefaults = {
     pulseRate: 1,
     waveform: 'sine',
   },
+  spire: {
+    brightness: 0.85,
+    growthBehavior: 'climbing',
+    oscillatorType: 'fm',
+    phase: 270,
+    pitchRatio: 2,
+    pulseRate: 3,
+    waveform: 'sawtooth',
+  },
   umbra: {
     brightness: 0.25,
     growthBehavior: 'twining',
