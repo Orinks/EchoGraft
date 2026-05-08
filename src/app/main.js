@@ -683,6 +683,13 @@ function keyMatches(action, event) {
   return keyTokens(keyBindingText(action)).some((binding) => tokens.includes(binding))
 }
 
+function digitIndexFromEvent(event, max = 10) {
+  const digit = event.code?.startsWith('Digit') ? Number(event.code.replace('Digit', '')) : Number(event.key)
+  if (!Number.isInteger(digit)) return -1
+  const index = digit === 0 ? 9 : digit - 1
+  return index >= 0 && index < max ? index : -1
+}
+
 function updateKeyBinding(action, value) {
   save.keyboardBindings = { ...defaultKeyboardBindings, ...(save.keyboardBindings ?? {}), [action]: value.trim() || defaultKeyboardBindings[action] }
   persist()
@@ -707,6 +714,8 @@ function handleInputIntent(intent) {
     selectSeed(carry.carried.length ? (selectedSeedIndex - 1 + carry.carried.length) % carry.carried.length : 0)
   } else if (intent.action === 'tuneDown') tune(-1)
   else if (intent.action === 'tuneUp') tune(1)
+  else if (intent.action === 'selectSeed') selectSeed(intent.index ?? 0)
+  else if (intent.action === 'selectTuningParameter') setTuningParameter(tuningParameters[intent.index ?? 0])
   else if (intent.action === 'cycleScanMode') cycleScanMode()
   else if (intent.action === 'pause') setScreen('pause')
 }
@@ -739,8 +748,10 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
     event.preventDefault()
     const carry = currentCarry()
     selectSeed(carry.carried.length ? (selectedSeedIndex + 1) % carry.carried.length : 0)
-  } else if (/^[1-4]$/.test(event.key)) {
-    selectSeed(Number(event.key) - 1)
+  } else if (event.shiftKey && digitIndexFromEvent(event) >= 0) {
+    setTuningParameter(tuningParameters[digitIndexFromEvent(event)])
+  } else if (digitIndexFromEvent(event, 4) >= 0) {
+    selectSeed(digitIndexFromEvent(event, 4))
   } else if (keyMatches('tuneDown', event)) tune(-1)
   else if (keyMatches('tuneUp', event)) tune(1)
   else if (event.key === 'Shift') {

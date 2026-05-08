@@ -18,6 +18,8 @@ describe('syngen input state', () => {
     expect(inputIntentFromSnapshot({ keyboard: { ShiftLeft: true, Space: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'cycleScanMode', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { Enter: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'plant', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { ShiftLeft: true, Tab: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'previousSeed', source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { Digit2: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'selectSeed', index: 1, source: 'keyboard' })
+    expect(inputIntentFromSnapshot({ keyboard: { ShiftLeft: true, Digit3: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'selectTuningParameter', index: 2, source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { BracketLeft: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'tuneDown', source: 'keyboard' })
     expect(inputIntentFromSnapshot({ keyboard: { BracketRight: true }, gamepad: { axis: {}, digital: {} } })).toEqual({ action: 'tuneUp', source: 'keyboard' })
   })

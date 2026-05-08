@@ -401,6 +401,20 @@ test('uses brackets to tune the selected trait', async ({ page }) => {
   await expect(eventLog.getByText(/Tuned Sol phonoseed: pitchRatio is 1 .* Single-seed tuning role/)).toBeVisible()
 })
 
+test('uses number row for seed quick slots and tuning traits', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('2')
+  await expect(eventLog.getByText(/Selected Lumen phonoseed\. Selected seed: Lumen phonoseed/)).toBeVisible()
+  await page.keyboard.press('Shift+3')
+  await expect(eventLog.getByText(/Tuning parameter: brightness\/filter\./)).toBeVisible()
+  await page.keyboard.press(']')
+  await expect(eventLog.getByText(/Tuned Lumen phonoseed: brightness is 0\.75/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

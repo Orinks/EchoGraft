@@ -10,6 +10,14 @@ function gamepadDown(gamepad = {}, ...buttons) {
   return buttons.some((button) => Boolean(gamepad.digital?.[button]))
 }
 
+function keyboardDigitIndex(keyboard = {}, max = 10) {
+  for (let index = 0; index < max; index += 1) {
+    const digit = index === 9 ? 0 : index + 1
+    if (keyboard[`Digit${digit}`]) return index
+  }
+  return -1
+}
+
 export function syngenInputSnapshot(event) {
   const keyboard = syngen?.input?.keyboard?.get?.() ?? {}
   const gamepad = syngen?.input?.gamepad?.get?.() ?? { analog: {}, axis: {}, digital: {} }
@@ -44,6 +52,8 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (keyboardDown(keyboard, 'Tab') && keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight')) return { action: 'previousSeed', source: 'keyboard' }
   if (keyboardDown(keyboard, 'Tab')) return { action: 'cycleSeed', source: 'keyboard' }
   if (gamepadDown(gamepad, 5)) return { action: 'cycleSeed', source: 'gamepad' }
+  if (keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight') && keyboardDigitIndex(keyboard) >= 0) return { action: 'selectTuningParameter', index: keyboardDigitIndex(keyboard), source: 'keyboard' }
+  if (keyboardDigitIndex(keyboard, 4) >= 0) return { action: 'selectSeed', index: keyboardDigitIndex(keyboard, 4), source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketLeft', 'Minus')) return { action: 'tuneDown', source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketRight', 'Equal')) return { action: 'tuneUp', source: 'keyboard' }
   if (keyboardDown(keyboard, 'KeyZ')) return { action: 'cycleScanMode', source: 'keyboard' }
