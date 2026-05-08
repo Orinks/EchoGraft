@@ -48,10 +48,10 @@ export function inputIntentFromSnapshot(snapshot = {}) {
   if (keyboardDown(keyboard, 'Space')) return { action: 'scan', source: 'keyboard' }
   if (gamepadDown(gamepad, 1)) return { action: 'scan', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Enter')) return { action: 'plant', source: 'keyboard' }
-  if (gamepadDown(gamepad, 0)) return { action: 'plant', source: 'gamepad' }
+  if (gamepadDown(gamepad, 0, 3)) return { action: 'plant', source: 'gamepad' }
   if (keyboardDown(keyboard, 'Tab') && keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight')) return { action: 'previousSeed', source: 'keyboard' }
   if (keyboardDown(keyboard, 'Tab')) return { action: 'cycleSeed', source: 'keyboard' }
-  if (gamepadDown(gamepad, 5)) return { action: 'cycleSeed', source: 'gamepad' }
+  if (gamepadDown(gamepad, 2, 5)) return { action: 'cycleSeed', source: 'gamepad' }
   if (keyboardDown(keyboard, 'ShiftLeft', 'ShiftRight') && keyboardDigitIndex(keyboard) >= 0) return { action: 'selectTuningParameter', index: keyboardDigitIndex(keyboard), source: 'keyboard' }
   if (keyboardDigitIndex(keyboard, 4) >= 0) return { action: 'selectSeed', index: keyboardDigitIndex(keyboard, 4), source: 'keyboard' }
   if (keyboardDown(keyboard, 'BracketLeft', 'Minus')) return { action: 'tuneDown', source: 'keyboard' }
