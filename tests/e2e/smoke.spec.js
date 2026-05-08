@@ -377,6 +377,18 @@ test('uses Tab to cycle the selected seed', async ({ page }) => {
   await expect(eventLog.getByText(/Selected Umbra phonoseed\. Selected seed: Umbra phonoseed/)).toBeVisible()
 })
 
+test('uses Shift+Tab for the previous seed', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Interact to Begin' }).click()
+  await page.getByRole('button', { name: 'New game' }).click()
+
+  const eventLog = page.getByLabel('Caption and event log')
+  await page.keyboard.press('Shift+Tab')
+  await expect(eventLog.getByText(/Selected Umbra phonoseed\. Selected seed: Umbra phonoseed/)).toBeVisible()
+  await page.keyboard.press('Shift+Tab')
+  await expect(eventLog.getByText(/Selected Lumen phonoseed\. Selected seed: Lumen phonoseed/)).toBeVisible()
+})
+
 test('opens the postgame conservatory when unlocked', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('echograft-save-v1', JSON.stringify({

@@ -13,6 +13,7 @@ export const defaultKeyboardBindings = {
   cycleScanMode: 'z, Shift+Space',
   plant: 'Enter',
   cycleSeed: 'Tab',
+  previousSeed: 'Shift+Tab',
   tuneDown: '-, [',
   tuneUp: '=, ]',
   graft: 'g',
