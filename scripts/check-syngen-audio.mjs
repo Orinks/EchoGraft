@@ -55,8 +55,10 @@ const modernRequired = [
   'syngen.synth.am',
   'syngen.synth.amBuffer',
   'syngen.synth.fm',
-  'syngen.audio.buffer.noise',
-  'syngen.audio.buffer.impulse',
+  'syngen.buffer.whiteNoise',
+  'syngen.buffer.pinkNoise',
+  'syngen.buffer.brownNoise',
+  'syngen.buffer.impulse',
   'syngen.sound.extend',
   'syngen.sound.instantiate',
   'syngen.effect.feedbackDelay',
@@ -85,11 +87,16 @@ const modernRequired = [
   'syngen.formant.createU',
 ]
 const modernMissing = modernRequired.filter((needle) => !appAudioSource.includes(needle))
+const modernForbidden = [
+  'syngen.audio.buffer',
+]
+const modernViolations = modernForbidden.filter((needle) => appAudioSource.includes(needle))
 
-if (violations.length || missing.length || modernMissing.length) {
+if (violations.length || missing.length || modernMissing.length || modernViolations.length) {
   if (violations.length) console.error(`Direct Web Audio usage found in audio engine:\n${violations.join('\n')}`)
   if (missing.length) console.error(`Expected Syngen API usage missing from audio engine:\n${missing.join('\n')}`)
   if (modernMissing.length) console.error(`Expected active app Syngen toolkit usage missing from src/engine/audio.js:\n${modernMissing.join('\n')}`)
+  if (modernViolations.length) console.error(`Modern audio layer must use syngen.buffer instead of legacy syngen.audio.buffer:\n${modernViolations.join('\n')}`)
   process.exit(1)
 }
 

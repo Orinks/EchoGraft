@@ -151,6 +151,43 @@ export function seedShapeTimbreProfile(seed = {}, tone = {}) {
   }
 }
 
+export function generatedNoiseBedRole(seed = {}, tone = {}) {
+  const noiseAmount = clamp(seed?.noiseAmount ?? tone.noiseAmount ?? 0.05)
+  const family = tone.noiseBed === 'white'
+    ? 'whiteNoise'
+    : tone.noiseBed === 'brown' || noiseAmount >= 0.45
+      ? 'brownNoise'
+      : noiseAmount >= 0.12
+        ? 'pinkNoise'
+        : 'whiteNoise'
+
+  return {
+    channels: 1,
+    duration: Number((0.8 + noiseAmount * 1.6).toFixed(2)),
+    family,
+    text: `Generated noise bed: ${family} for synthesized seed noise; no external audio file.`,
+  }
+}
+
+function generatedNoiseBedBuffer(seed = {}, tone = {}) {
+  const role = generatedNoiseBedRole(seed, tone)
+  const options = {
+    channels: role.channels,
+    duration: role.duration,
+  }
+
+  if (role.family === 'brownNoise') return syngen.buffer.brownNoise(options)
+  if (role.family === 'pinkNoise') return syngen.buffer.pinkNoise(options)
+  return syngen.buffer.whiteNoise(options)
+}
+
+function generatedImpulseBuffer({ channels = 2, duration = 2, power = 2 } = {}) {
+  return syngen.buffer.impulse({
+    buffer: syngen.buffer.whiteNoise({ channels, duration }),
+    power,
+  })
+}
+
 const surfaceFootstepTimbres = {
   'archive loam': {
     brightness: 0.28,
@@ -448,7 +485,7 @@ function createSynthForTone(tone, seed) {
 
   if (factory === 'amBuffer') {
     return syngen.synth.amBuffer({
-      buffer: syngen.audio.buffer.noise.pink(),
+      buffer: generatedNoiseBedBuffer(seed, tone),
       gain,
       modDepth: clamp((seed?.noiseAmount ?? 0.2) + shape.mutationSpread, 0.05, 0.9),
       modFrequency: Math.max(0.25, seed?.pulseRate ?? tone.pulseRate ?? 1) * shape.pulseAccent,
@@ -480,7 +517,7 @@ export class AudioEngine {
     this.syngen = syngen
     this.listenerPosition = createListenerPositionState()
     this.buses = {}
-    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.shape?.distort && syngen?.shape?.pulse && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
+    this.hasAudioStack = Boolean(syngen?.synth?.additive && syngen?.synth?.am && syngen?.synth?.amBuffer && syngen?.synth?.fm && syngen?.audio?.mixer && syngen?.buffer?.whiteNoise && syngen?.buffer?.pinkNoise && syngen?.buffer?.brownNoise && syngen?.buffer?.impulse && syngen?.shape?.distort && syngen?.shape?.pulse && syngen?.effect?.talkbox && syngen?.formant?.createA && syngen?.sound?.extend && syngen?.sound?.instantiate)
     this.spatialVoice = createSpatialVoicePrototype()
     this.chamberEffectChain = []
     this.music = {
@@ -558,7 +595,7 @@ export class AudioEngine {
     for (const key of Object.values(categoryBus)) {
       this.buses[key] = syngen.audio.mixer.createBus()
     }
-    syngen.audio.mixer.auxiliary.reverb.setImpulse(syngen.audio.buffer.impulse.medium())
+    syngen.audio.mixer.auxiliary.reverb.setImpulse(generatedImpulseBuffer({ channels: 2, duration: 2, power: 2 }))
     syngen.audio.mixer.auxiliary.reverb.param.delay.value = 1 / 12
   }
 

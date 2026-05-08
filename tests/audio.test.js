@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chambers } from '../src/content/chambers.js'
 import { createPlayer, movePlayer } from '../src/content/player.js'
-import { AudioEngine, chamberEffectChain, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
+import { AudioEngine, chamberEffectChain, generatedNoiseBedRole, memoryRecordVoiceProfile, seedShapeTimbreProfile, seedSynthFactoryName, spatialVoiceRoleForCategory } from '../src/engine/audio.js'
 
 function movementVoices(player, previous, chamber) {
   const audio = new AudioEngine()
@@ -57,6 +57,16 @@ describe('audio movement cues', () => {
     })
     expect(mutation.distortionDrive).toBeGreaterThan(brightPulse.distortionDrive)
     expect(mutation.text).toContain('distortion distort, pulse pulse, brightness equalFadeOut, mutation crush8')
+  })
+
+  it('chooses generated Syngen buffer noise beds without external files', () => {
+    expect(generatedNoiseBedRole({ noiseAmount: 0.03 })).toMatchObject({
+      family: 'whiteNoise',
+      text: 'Generated noise bed: whiteNoise for synthesized seed noise; no external audio file.',
+    })
+    expect(generatedNoiseBedRole({ noiseAmount: 0.2 })).toMatchObject({ family: 'pinkNoise' })
+    expect(generatedNoiseBedRole({ noiseAmount: 0.55 })).toMatchObject({ family: 'brownNoise' })
+    expect(generatedNoiseBedRole({}, { noiseBed: 'brown' })).toMatchObject({ family: 'brownNoise' })
   })
 
   it('classifies spatial Syngen sound roles for gameplay voices', () => {
