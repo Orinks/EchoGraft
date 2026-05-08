@@ -165,6 +165,25 @@ describe('seed DNA', () => {
     expect(seedLineageText(createSeedDNA('sol-cutting'))).toContain('Sol lineage')
   })
 
+  it('gives Sol seeds a stable sine oxygen pitch archetype', () => {
+    const seed = createSeedDNA('sol-cutting')
+
+    expect(seed).toMatchObject({
+      brightness: 0.45,
+      ecologicalAffinity: 'oxygen and stable pitch',
+      family: 'Sol',
+      growthBehavior: 'steady',
+      noiseAmount: 0,
+      oscillatorType: 'pure',
+      phase: 0,
+      pitchRatio: 1,
+      pulseRate: 1,
+      waveform: 'sine',
+    })
+    expect(seedFamilyState(seed).text).toContain('oxygen and stable pitch')
+    expect(seedWaveformState(seed, ['sine'])).toMatchObject({ matchesRequirement: true, waveform: 'sine' })
+  })
+
   it('reports family, affinity, and origin as readable seed DNA metadata', () => {
     const seed = createSeedDNA('lumen-cutting')
     const state = seedFamilyState(seed)

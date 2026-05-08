@@ -45,6 +45,19 @@ export const seedFamilies = [
   { id: 'hybrid', name: 'Hybrid', affinity: 'adaptation endings and inherited mechanics', origin: 'Heart graft' },
 ]
 
+const seedFamilyDefaults = {
+  sol: {
+    brightness: 0.45,
+    growthBehavior: 'steady',
+    noiseAmount: 0,
+    oscillatorType: 'pure',
+    phase: 0,
+    pitchRatio: 1,
+    pulseRate: 1,
+    waveform: 'sine',
+  },
+}
+
 export const graftDiscoveryCatalog = seedFamilies.flatMap((familyA, index) =>
   seedFamilies.slice(index + 1).map((familyB) => ({
     id: `${familyA.id}-${familyB.id}`,
@@ -67,6 +80,7 @@ export function clamp(value, min, max) {
 export function createSeedDNA(seedId, overrides = {}) {
   const rng = createRng(seedId)
   const family = seedFamilies.find((item) => seedId.toLowerCase().startsWith(item.id)) ?? seedFamilies[Math.floor(rng() * seedFamilies.length)]
+  const familyDefaults = seedFamilyDefaults[family.id] ?? {}
   const dna = {
     id: seedId,
     name: overrides.name ?? `Seed ${seedId}`,
@@ -94,6 +108,7 @@ export function createSeedDNA(seedId, overrides = {}) {
     },
     phase: Number((rng() * 360).toFixed(0)),
     growthBehavior: pick(growthBehaviors, rng),
+    ...familyDefaults,
     ...overrides,
   }
   return normalizeSeed(dna)
