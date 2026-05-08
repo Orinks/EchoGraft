@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
+import { axisCombinationMasterySummary, campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, optionalComplexitySummary, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, teachingAxisSummary, weatherWindowState } from '../src/content/chambers.js'
 import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, conservatoryPathState, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, releasePathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
@@ -1101,6 +1101,27 @@ describe('resonance evaluation', () => {
     expect(axisCombinationMasterySummary(harmony, ready)).toMatchObject({ combinesAxes: true, ready: true, masteredCount: 1 })
     expect(axisCombinationMasterySummary(finale, ready)).toMatchObject({ combinesAxes: true, ready: true, masteredCount: 1 })
     expect(axisCombinationMasterySummary(harmony, ready).text).toContain('Axis combination mastery: ready')
+  })
+
+  it('allows optional chambers to carry richer complexity than the required path', () => {
+    const required = chambers.find((chamber) => chamber.id === 'direction')
+    const optional = chambers.find((chamber) => chamber.id === 'harmony')
+    const optionalGraft = chambers.find((chamber) => chamber.id === 'graft')
+
+    expect(optionalComplexitySummary(required)).toMatchObject({
+      optional: false,
+      status: 'main-path',
+      markers: [],
+    })
+    expect(optionalComplexitySummary(required).text).toContain('keeps complexity on the required campaign path')
+    expect(optionalComplexitySummary(optional)).toMatchObject({
+      optional: true,
+      status: 'expanded optional',
+    })
+    expect(optionalComplexitySummary(optional).markers).toEqual(expect.arrayContaining(['multi-seed planting', 'multi-position pattern', 'harmonic relationship']))
+    expect(optionalComplexitySummary(optional).text).toContain('may be more complex without blocking the campaign')
+    expect(optionalComplexitySummary(optionalGraft).markers).toContain('graft requirement')
+    expect(chambers.filter((chamber) => chamber.optional).every((chamber) => estimatedDifficulty(chamber) === 'advanced' || estimatedDifficulty(chamber) === 'endgame')).toBe(true)
   })
 
   it('authors Navigation Grove as a direction and distance contract', () => {

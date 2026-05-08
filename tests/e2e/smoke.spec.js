@@ -189,6 +189,7 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(page.getByRole('button', { name: 'Accept work order' }).nth(2)).toBeDisabled()
   await expect(page.getByText(/Teaching axis: chamber heart scan; introduces one new axis/)).toBeVisible()
   await expect(page.locator('p').filter({ hasText: /Axis combination mastery: not needed for this single-axis contract/ }).first()).toBeVisible()
+  await expect(page.locator('p').filter({ hasText: /Optional complexity: expanded optional; may be more complex without blocking the campaign; multi-seed planting, multi-position pattern, harmonic relationship/ })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Enter active chamber' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Research grafts' }).click()

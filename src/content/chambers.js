@@ -13,6 +13,40 @@ export function estimatedDifficulty(chamber) {
   return 'standard'
 }
 
+export function optionalComplexitySummary(chamber) {
+  const markers = [
+    chamber.requiredSeeds > 1 ? 'multi-seed planting' : undefined,
+    chamber.plantingPattern ? 'multi-position pattern' : undefined,
+    chamber.requiresGraft ? 'graft requirement' : undefined,
+    chamber.harmonic ? 'harmonic relationship' : undefined,
+    chamber.hazards?.length ? 'hazard containment' : undefined,
+    chamber.weatherWindow ? 'weather-window planning' : undefined,
+    chamber.cycle ? 'slow chamber-state cycle' : undefined,
+    chamber.timbrePuzzle ? 'brightness/timbre gate' : undefined,
+    chamber.photosynthesis ? 'photosynthesis threshold' : undefined,
+    chamber.thermalShutters ? 'thermal shutter range' : undefined,
+    chamber.pressureSails ? 'pressure sail range' : undefined,
+    chamber.droughtPockets ? 'drought pocket pulse floor' : undefined,
+    chamber.staticBloom ? 'static bloom masking' : undefined,
+    chamber.phaseFog ? 'phase fog direction inversion' : undefined,
+    chamber.memoryLoop ? 'memory loop correction' : undefined,
+    chamber.emergency ? 'soft deadline pressure' : undefined,
+  ].filter(Boolean)
+  const status = chamber.optional ? 'expanded optional' : 'main-path'
+  const allowance = chamber.optional
+    ? 'may be more complex without blocking the campaign'
+    : 'keeps complexity on the required campaign path'
+  const detail = markers.length ? markers.join(', ') : 'single core mechanic'
+
+  return {
+    allowance,
+    markers,
+    optional: Boolean(chamber.optional),
+    status,
+    text: `Optional complexity: ${status}; ${allowance}; ${detail}.`,
+  }
+}
+
 export function contractRequirementStatus(chamber) {
   const status = chamber.optional ? 'optional' : 'required'
 

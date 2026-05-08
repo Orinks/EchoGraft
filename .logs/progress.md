@@ -1,6 +1,7 @@
 # EchoGraft Progress Log
 
 ## 2026-05-06
+- Continued with `omx ultragoal complete-goals` for `G288-optional-chambers-may-be-more-comple`. Added an Optional Complexity summary that gives optional contracts an expanded complexity budget for multi-seed, pattern, graft, hazard, weather, and other advanced mechanics without blocking the required campaign path, then surfaced the rule in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G287-combine-axes-only-after-mastery`. Added Axis Combination Mastery summaries that mark multi-seed, graft, and finale contracts as combination gates and require Stable or Resonant prerequisite ratings before those contracts report ready, then surfaced the mastery status in the Restoration Atlas.
 - Continued with `omx ultragoal complete-goals` for `G286-teach-one-new-axis-at-a-time`. Added contract teaching-axis summaries that mark one new mechanic axis for ordinary contracts and no new axis for finale combinations, then surfaced the teaching line in the Restoration Atlas contract list.
 - Continued with `omx ultragoal complete-goals` for `G285-conservatory-keep-the-ark-as-a-livin`. Added a Conservatory Path state that reports sealed, cataloguing, open, or living-archive status from codex recovery, memory archive readiness, saved compositions, postgame state, and conservatory resolution selection, then surfaced it in the Atlas, Conservatory, and ending screen.
