@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
+import { archiveLoamHiddenAncestryState, canopyBrightnessTuningState, createSeedDNA, failedGraftUtility, fullSeedGraftCatalogState, glassPollenUnlockedTraits, graftDiscoveries, graftDiscoveryCatalog, graftDiscoveryForFamilies, graftFailureReason, graftSeeds, graftSeedsWithReport, graftingBenchV1State, historicalSeedTraitState, lockSeedTrait, postgameEndlessMutationGarden, rareGraftRewards, resinTraitLockState, restoredSystemInheritedTraits, seedAudioPreview, seedBrightnessState, seedDiscoveredOriginState, seedEcologicalAffinityState, seedEnvelopeState, seedFamilies, seedFamilyState, seedGraftAncestryState, seedGrowthBehaviorState, seedLineageText, seedLockedTraits, seedModulationProfileState, seedNameState, seedNoiseProfileState, seedPhaseState, seedPitchRatioState, seedPulseRateState, seedSynthTypeState, seedWaveformState, sporeTuningCurrencyState, tuneSeed, tuneSeedWithReport, tuningParameterDetails } from '../src/content/seeds.js'
 
 describe('seed DNA', () => {
   it('is deterministic for the same id', () => {
@@ -730,10 +730,21 @@ describe('seed DNA', () => {
   })
 
   it('catalogs 80 or more graft discoveries from family pairings', () => {
-    expect(graftDiscoveryCatalog.length).toBeGreaterThanOrEqual(80)
+    expect(graftDiscoveryCatalog).toHaveLength(276)
     expect(graftDiscoveryCatalog.every((discovery) => discovery.title && discovery.mechanic && discovery.record)).toBe(true)
     const solLumen = graftDiscoveryForFamilies(createSeedDNA('sol'), createSeedDNA('lumen'))
     expect(solLumen.title).toBe('Sol-Lumen graft')
     expect(graftSeeds(createSeedDNA('sol'), createSeedDNA('lumen')).discoveryId).toBe(solLumen.id)
+  })
+
+  it('audits the full seed and graft catalog', () => {
+    const state = fullSeedGraftCatalogState()
+
+    expect(state.ready).toBe(true)
+    expect(state.families).toHaveLength(24)
+    expect(state.expectedPairings).toBe(276)
+    expect(state.catalog).toHaveLength(276)
+    expect(state.completeEntries).toHaveLength(276)
+    expect(state.text).toContain('Full seed/graft catalog ready')
   })
 })

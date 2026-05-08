@@ -1579,12 +1579,12 @@ describe('resonance evaluation', () => {
     expect(summary).toMatchObject({
       complete: false,
       discoveredCount: 2,
-      remainingCount: 94,
-      total: 96,
+      remainingCount: 274,
+      total: 276,
     })
     expect(summary.discoveredIds).toEqual(['sol-lumen', 'sol-umbra'])
     expect(summary.nextDiscovery).toMatchObject({ families: ['Sol', 'Spire'] })
-    expect(summary.text).toContain('2 of 96 discoveries recorded')
+    expect(summary.text).toContain('2 of 276 discoveries recorded')
   })
 
   it('tracks rare seed hunting leads from the collection', () => {

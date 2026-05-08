@@ -159,7 +159,25 @@ export const graftDiscoveryCatalog = seedFamilies.flatMap((familyA, index) =>
     mechanic: `${familyA.affinity} braided with ${familyB.affinity}`,
     record: `A ${familyA.name}-${familyB.name} graft can reveal how ${familyA.origin} and ${familyB.origin} respond to shared restoration pressure.`,
   })),
-).slice(0, 96)
+)
+
+export function fullSeedGraftCatalogState(families = seedFamilies, catalog = graftDiscoveryCatalog) {
+  const expectedPairings = (families.length * (families.length - 1)) / 2
+  const completeEntries = catalog.filter((entry) => entry.id && entry.title && entry.families?.length === 2 && entry.mechanic && entry.record)
+  const familyBandReady = families.length >= 24 && families.length <= 36
+  const pairingsReady = catalog.length === expectedPairings && completeEntries.length === catalog.length
+
+  return {
+    catalog,
+    completeEntries,
+    expectedPairings,
+    families,
+    familyBandReady,
+    pairingsReady,
+    ready: familyBandReady && pairingsReady,
+    text: `Full seed/graft catalog ${familyBandReady && pairingsReady ? 'ready' : 'incomplete'}: ${families.length} seed family record(s), ${catalog.length} of ${expectedPairings} possible two-family graft discovery record(s), ${completeEntries.length} fully described discovery entry(s).`,
+  }
+}
 
 export function graftDiscoveryForFamilies(seedA, seedB) {
   const families = [seedA.family, seedB.family].filter(Boolean).sort()
