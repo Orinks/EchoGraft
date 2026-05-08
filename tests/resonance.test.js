@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { campaignScope, chamberCycleState, chambers, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../src/content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleStages, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenStages, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionEndingScenes, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../src/content/endings.js'
 import { arkOriginMysteryState, availableChambers, canopyDoorState, centralHeartSummary, codexCompletionState, codexRecoverySummary, conservatoryCompositionModes, conservatoryCompositionSnapshot, decisionSummary, dreamCompostSummary, droughtPocketState, embersapEndgameMutationState, evaluateResonance, finalEcologyPhilosophySummary, firstFullCampaignEstimate, forbiddenPitchZoneState, freeCompositionConservatory, graftCatalogCompletionState, graftStabilitySummary, hazardContainmentSummary, heartNetworkEndingState, lowCycleRestorationChallenge, memoryCodexEchoState, mergeRewards, multiChamberResonanceNetwork, navigationAtlasState, optionalRecordRecoverySummary, optionalReturnContracts, photosynthesisState, playerBuiltFinalChord, pollinatorVaultSummary, pressureSailState, rareSeedHuntingState, resonanceAccuracySummary, resourceEfficiencySummary, restorationOutcomeSummary, restorationPlanningSession, restorationRating, seedCollectionAppraisal, seedMoveSummary, staticBloomState, stewardshipSummary, thermalShutterState, timbrePuzzleState, unlockNext, waterRootRoutingState } from '../src/content/resonance.js'
 import { createDefaultSave } from '../src/content/save.js'
 import { createSeedDNA } from '../src/content/seeds.js'
@@ -691,6 +691,25 @@ describe('resonance evaluation', () => {
     expect(preservationPathState(strained).stage).toBe('strained')
     expect(preservationPathState(designed).stage).toBe('as-designed')
     expect(preservationPathState(recovering).text).toContain('Preservation path')
+  })
+
+  it('tracks the adaptation path for evolving the Ark for a new world', () => {
+    const experimental = createDefaultSave()
+    experimental.customSeeds = [createSeedDNA('hybrid-question')]
+    const evolving = createDefaultSave()
+    evolving.restorationPhilosophy = 'adaptation'
+    evolving.unlockedGraftMechanics = ['hybrid resonance planting']
+    const newWorld = createDefaultSave()
+    newWorld.restorationPhilosophy = 'adaptation'
+    newWorld.solvedChambers = ['optional-heart-graft']
+    newWorld.unlockedGraftMechanics = ['hybrid resonance planting', 'FM pressure grafting']
+    newWorld.customSeeds = [createSeedDNA('hybrid-question')]
+
+    expect(adaptationPathState(createDefaultSave()).stage).toBe('dormant')
+    expect(adaptationPathState(experimental).stage).toBe('experimental')
+    expect(adaptationPathState(evolving).stage).toBe('evolving')
+    expect(adaptationPathState(newWorld).stage).toBe('new-world')
+    expect(adaptationPathState(newWorld).text).toContain('Adaptation path')
   })
 
   it('recovers ending reflections for each finale resolution path', () => {

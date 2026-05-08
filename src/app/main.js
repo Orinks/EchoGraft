@@ -2,7 +2,7 @@ import { AudioEngine } from '../engine/audio.js'
 import { createSyngenInputPoller, syngenInputSnapshot } from '../engine/input.js'
 import { createSyngenStateBridge } from '../engine/runtime-state.js'
 import { campaignScope, chamberCycleState, chambers, chamberSeeds, codexRecords, codexRecordTrees, conservatoryContractSummary, contractRequirementStatus, emergencyContractSummary, estimatedDifficulty, finaleContractSummary, knownHazardsSummary, majorArkSystems, researchContractSummary, restorationContractSummary, rewardSummary, solveTimeText, stabilizationContractSummary, weatherWindowState } from '../content/chambers.js'
-import { alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
+import { adaptationPathState, alternateEndingPaths, chooseEndgameResolution, crewAwakeningQuestionState, crewWakeCycleSummary, endingResolutionReflectionRewards, endgameResolutions, launchGardenSummary, mergeEndingResolutionReflections, originalMissionQuestionState, preservationPathState, resolutionSpecificEnding, restorationIdentityQuestionState, restoredEcologyQuestionState, restorationPhilosophies } from '../content/endings.js'
 import { seedCarryLimit, seedCarryState, seedCarryText } from '../content/inventory.js'
 import { createEventLog } from '../content/log.js'
 import { plantedSeed, plantingAssessment } from '../content/planting.js'
@@ -1035,6 +1035,7 @@ function atlas() {
   const restoredEcology = restoredEcologyQuestionState(save)
   const restorationIdentity = restorationIdentityQuestionState(save)
   const preservationPath = preservationPathState(save)
+  const adaptationPath = adaptationPathState(save)
   const arkOrigin = arkOriginMysteryState(save)
   const originalMission = originalMissionQuestionState(save)
   const embersapMutations = embersapEndgameMutationState(save)
@@ -1136,6 +1137,7 @@ function atlas() {
         <p>${restoredEcology.text}</p>
         <p>${restorationIdentity.text}</p>
         <p>${preservationPath.text}</p>
+        <p>${adaptationPath.text}</p>
         <p>${originalMission.text}</p>
         <p>${embersapMutations.text}</p>
       </section>
@@ -1449,6 +1451,7 @@ function ending() {
   const restoredEcology = restoredEcologyQuestionState(save)
   const restorationIdentity = restorationIdentityQuestionState(save)
   const preservationPath = preservationPathState(save)
+  const adaptationPath = adaptationPathState(save)
   shell(`
     <main class="screen ending" aria-labelledby="ending-title">
       <h1 id="ending-title">The Verdancy Ark Sings Again</h1>
@@ -1464,6 +1467,7 @@ function ending() {
       <p>${restoredEcology.text}</p>
       <p>${restorationIdentity.text}</p>
       <p>${preservationPath.text}</p>
+      <p>${adaptationPath.text}</p>
       <p>${originalMission.text}</p>
       <p>${embersapMutations.text}</p>
       <section aria-labelledby="alternate-endings-title">

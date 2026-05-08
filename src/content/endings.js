@@ -283,6 +283,38 @@ export function preservationPathState(save = {}) {
   }
 }
 
+export function adaptationPathState(save = {}) {
+  const solved = new Set(save.solvedChambers ?? [])
+  const ratings = Object.values(save.ratings ?? {})
+  const carefulRestorations = ratings.filter((rating) => ['Stable', 'Resonant'].includes(rating)).length
+  const adaptiveSignals = (save.unlockedGraftMechanics?.length ?? 0) + (save.wildMutationIds?.length ?? 0) + (save.customSeeds?.length ?? 0) + (save.endlessMutationSeeds?.length ?? 0)
+  const philosophyAligned = save.restorationPhilosophy === 'adaptation'
+  const heartGraftReady = solved.has('optional-heart-graft') || solved.has('finale') || save.postgameUnlocked
+  const stage = philosophyAligned && heartGraftReady && adaptiveSignals >= 3
+    ? 'new-world'
+    : philosophyAligned || (adaptiveSignals >= 2 && adaptiveSignals > carefulRestorations)
+      ? 'evolving'
+      : adaptiveSignals > 0
+        ? 'experimental'
+        : 'dormant'
+  const recommendation = stage === 'new-world'
+    ? 'Adaptation is ready: hybrid lineages, Heart graft work, and mutation evidence can carry the Ark into changed conditions.'
+    : stage === 'evolving'
+      ? 'Adaptation is active: keep testing grafted voices and resilient seed lines before finalizing the new-world path.'
+      : stage === 'experimental'
+        ? 'Adaptation has early material; prove it through optional graft work before changing the Ark mission.'
+        : 'Adaptation dormant: unlock graft mechanics, Wild mutations, or custom lineages before the Ark can evolve for a new world.'
+
+  return {
+    adaptiveSignals,
+    carefulRestorations,
+    heartGraftReady,
+    philosophyAligned,
+    stage,
+    text: `Adaptation path: ${stage}; adaptive signals ${adaptiveSignals}, careful restorations ${carefulRestorations}, Heart graft ready ${heartGraftReady ? 'yes' : 'no'}, philosophy ${philosophyAligned ? 'adaptation' : 'other'}. ${recommendation}`,
+  }
+}
+
 export function endingResolutionReflectionRewards(save) {
   const resolution = save.endgameResolution ?? chooseEndgameResolution(save).id
   const recordIds = endingResolutionReflectionIds[resolution] ?? endingResolutionReflectionIds.preservation
