@@ -289,6 +289,10 @@ function codexInfoText() {
   return `Codex: ${recoveredText}. Perception updates: ${recovery.text} ${memory.text}`
 }
 
+function controlsText() {
+  return 'Controls: WASD or arrow keys move; Q and E rotate; Space scans; Z cycles scan mode; Enter plants or picks up; Tab cycles seeds; 1 through 4 select seeds; Minus or brackets tune; Shift cycles tuning parameter; G grafts; N restores or advances; O objective, P position, I inventory, L latest log, Shift+L recent log, X boundaries, V planted voices, C codex, question mark controls; R resets; H opens help; Escape pauses.'
+}
+
 function positionMeaningText(position) {
   return plantingAssessment(currentSeed(), position, chamber, plantedSeeds).text
 }
@@ -577,6 +581,7 @@ function handleGameKey(event, inputState = syngenInputSnapshot(event)) {
   else if (event.key.toLowerCase() === 'x') log(boundaryInfoText())
   else if (event.key.toLowerCase() === 'v') log(plantedVoicesText())
   else if (event.key.toLowerCase() === 'c') log(codexInfoText())
+  else if (event.key === '?') log(controlsText())
   else if (event.key === 'Enter') plantOrPickUp()
   else if (event.key === 'Tab') {
     event.preventDefault()
@@ -721,7 +726,7 @@ function game() {
       <section class="hud" aria-live="polite">
         <h1 id="chamber-title">${chamber.title}</h1>
         <p><strong>Contract:</strong> ${chamber.contractType}; ${chamber.system}; ${contractStatus(chamber)}; ${solveTimeText(chamber)}; scan ${scanMode}.</p>
-        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; ${lastResult.accuracy.text} Press O, P, I, L, X, V, or C for details.</p>
+        <p><strong>Status:</strong> ${lastResult.solved ? 'Solved' : 'Unsolved'}; ${lastResult.accuracy.text} Press O, P, I, L, X, V, C, or ? for details.</p>
       </section>
       <section class="layout">
         <div class="radar" role="img" aria-label="Abstract chamber radar. Player and planted seeds are also described in text.">
@@ -1057,7 +1062,7 @@ function help() {
   shell(`
     <main class="screen" aria-labelledby="help-title">
       <h1 id="help-title">Help</h1>
-      <p>WASD or arrow keys move. Q and E rotate. Space scans. Z cycles scan mode. Enter plants or picks up. Tab cycles seeds. 1 through 4 select seeds. Minus and equals tune. Shift cycles the tuning parameter. G grafts. O gives objective, P position, I inventory, L latest log, Shift+L recent log, X boundaries, V planted voices, C codex, R resets, H opens help, Escape pauses.</p>
+      <p>${controlsText()}</p>
       <p>Use Listen for the ambient chamber state, Locate heart for distance and direction, then use scans for detailed boundaries, seeds, and hazards. Every important cue appears in the caption log.</p>
       <button data-action="game">Back to game</button>
     </main>

@@ -41,6 +41,8 @@ test('playable smoke path reaches the restoration atlas systems', async ({ page 
   await expect(eventLog.getByText(/Planted voices: none in this chamber/)).toBeVisible()
   await page.keyboard.press('c')
   await expect(eventLog.getByText(/Codex: no records recovered yet\. Perception updates: Codex recovery:/)).toBeVisible()
+  await page.keyboard.press('?')
+  await expect(eventLog.getByText(/Controls: WASD or arrow keys move; Q and E rotate; Space scans/)).toBeVisible()
 
   await page.keyboard.press('Space')
   await expect(eventLog.getByText(/Objective scan: heart/)).toBeVisible()
