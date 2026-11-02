@@ -1,6 +1,6 @@
 # EchoGraft
 
-EchoGraft is a browser/Electron puzzle-strategy game set inside the Verdancy Ark, a derelict orbital greenhouse, where you repair resonance gardens by planting, tuning, and grafting synthesized phonoseeds around chamber hearts.
+EchoGraft is an audio puzzle-strategy game for blind and visually impaired players, for the browser and Electron, set inside the Verdancy Ark, a derelict orbital greenhouse, where you repair resonance gardens by planting, tuning, and grafting synthesized phonoseeds around chamber hearts.
 
 All audio is generated procedurally at runtime with Syngen/Web Audio. The project contains no external sound effects, music, samples, MP3, WAV, OGG, FLAC, or paid audio assets.
 
